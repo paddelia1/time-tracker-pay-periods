@@ -1,4 +1,4 @@
-# time-tracker-pay-periods
+# time-tracker
 Personal time tracking with configurable pay periods
 
 Resources
