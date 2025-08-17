@@ -315,16 +315,27 @@
 
         .section-tabs {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
             background: #f8f9fa;
             border-radius: 8px;
             padding: 4px;
             margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .tabs-left {
+            display: flex;
             gap: 4px;
-            max-width: 400px;
+        }
+
+        .tabs-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
         .tab-button {
-            flex: 1;
             padding: 8px 16px;
             border: none;
             background: transparent;
@@ -680,15 +691,32 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             .header-top {
-                flex-direction: column;
+                display: block;
                 text-align: center;
-                gap: 15px;
+            }
+
+            .header-cell {
+                display: block;
+                width: 100%;
+                text-align: center !important;
+                margin-bottom: 10px;
             }
 
             .header h1 {
-                position: static;
-                transform: none;
                 font-size: 1.8rem;
+            }
+
+            .section-tabs {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .tabs-left, .tabs-right {
+                justify-content: center;
+            }
+
+            .tabs-right {
+                flex-wrap: wrap;
             }
 
             .header-controls {
@@ -718,11 +746,6 @@
                 grid-template-columns: 1fr;
                 gap: 10px;
                 text-align: center;
-            }
-
-            .export-controls {
-                flex-direction: column;
-                align-items: stretch;
             }
 
             .modal-content {
@@ -758,14 +781,20 @@
     <div class="container">
         <div class="header">
             <div class="header-top">
-                <div class="logo-section">
-                    <div>
-                        <div class="logo-text">NAKUPUNA</div>
-                        <div class="logo-tagline">CONSULTING</div>
+                <div class="header-cell left">
+                    <div class="logo-section">
+                        <div>
+                            <div class="logo-text">NAKUPUNA</div>
+                            <div class="logo-tagline">CONSULTING</div>
+                        </div>
                     </div>
                 </div>
-                <h1>🕐 Employee Time Tracker</h1>
-                <div style="width: 200px;"></div> <!-- Spacer for centering -->
+                <div class="header-cell center">
+                    <h1>🕐 Employee Time Tracker</h1>
+                </div>
+                <div class="header-cell right">
+                    <!-- Empty cell for balance -->
+                </div>
             </div>
             <div class="header-controls">
                 <div class="form-group">
@@ -856,8 +885,16 @@
 
         <div class="content-section">
             <div class="section-tabs">
-                <button class="tab-button active" onclick="showTab('detailed')">Detailed View</button>
-                <button class="tab-button" onclick="showTab('summary')">Daily Summary</button>
+                <div class="tabs-left">
+                    <button class="tab-button active" onclick="showTab('detailed')">Detailed View</button>
+                    <button class="tab-button" onclick="showTab('summary')">Daily Summary</button>
+                </div>
+                <div class="tabs-right">
+                    <button class="export-btn export-csv" onclick="exportToCSV()">📊 Export</button>
+                    <input type="file" id="importFile" accept=".csv" style="display: none;" onchange="importFromCSV(event)">
+                    <button class="export-btn" style="background: #3498db; color: white; padding: 8px 16px; font-size: 0.9rem;" onclick="document.getElementById('importFile').click()">📥 Import</button>
+                    <button class="export-btn clear-btn" style="padding: 8px 16px; font-size: 0.9rem;" onclick="clearAllData()">🗑️ Clear</button>
+                </div>
             </div>
 
             <div id="detailed-tab" class="tab-content active">
@@ -881,18 +918,6 @@
                     <div style="text-align: center; padding: 40px; color: #7f8c8d;">
                         No time entries yet. Start the timer to begin tracking!
                     </div>
-                </div>
-            </div>
-
-            <div class="export-section">
-                <div class="export-controls">
-                    <button class="export-btn export-csv" onclick="exportToCSV()">📊 Export CSV</button>
-                    <input type="file" id="importFile" accept=".csv" style="display: none;" onchange="importFromCSV(event)">
-                    <button class="export-btn" style="background: #3498db; color: white;" onclick="document.getElementById('importFile').click()">📥 Import CSV</button>
-                    <button class="export-btn clear-btn" onclick="clearAllData()">🗑️ Clear All Data</button>
-                    <span style="color: #7f8c8d; font-size: 0.9rem;">
-                        Data is stored locally in your browser
-                    </span>
                 </div>
             </div>
         </div>
