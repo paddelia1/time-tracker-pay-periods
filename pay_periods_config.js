@@ -1,4 +1,12 @@
-{
+/* 
+Pay Periods Configuration - NAKUPUNA CONSULTING Real Data
+Version: 1.1.2
+Created: August 17, 2025 PST
+Source: Nakupuna pay period.txt
+Compatible with PowerShell management scripts
+*/
+
+const PAY_PERIODS_CONFIG = {
     "payPeriods": [
         {
             "id": "2025-15",
@@ -142,4 +150,4 @@
     "lastUpdated": "2025-08-17",
     "defaultPeriodType": "current",
     "company": "NAKUPUNA CONSULTING"
-}
+};
