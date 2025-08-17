@@ -1,185 +1,401 @@
 {
-  "version": "1.1.1",
-  "lastUpdated": "2025-08-15T10:00:00-08:00",
-  "company": {
-    "name": "Your Company",
-    "payrollCycle": "bi-weekly",
-    "timeZone": "PST"
-  },
   "payPeriods": [
     {
-      "id": "PP-2025-16",
-      "startDate": "2025-08-02",
-      "endDate": "2025-08-15",
+      "id": "2025-01",
+      "periodStart": "2025-01-01",
+      "periodEnd": "2025-01-15",
+      "timesheetDue": "2025-01-15",
+      "payDay": "2025-01-22",
+      "description": "Pay Period 01 - Jan 1-15, 2025"
+    },
+    {
+      "id": "2025-02",
+      "periodStart": "2025-01-16",
+      "periodEnd": "2025-01-31",
+      "timesheetDue": "2025-01-31",
+      "payDay": "2025-02-07",
+      "description": "Pay Period 02 - Jan 16-31, 2025"
+    },
+    {
+      "id": "2025-03",
+      "periodStart": "2025-02-01",
+      "periodEnd": "2025-02-15",
+      "timesheetDue": "2025-02-15",
+      "payDay": "2025-02-22",
+      "description": "Pay Period 03 - Feb 1-15, 2025"
+    },
+    {
+      "id": "2025-04",
+      "periodStart": "2025-02-16",
+      "periodEnd": "2025-02-28",
+      "timesheetDue": "2025-02-28",
+      "payDay": "2025-03-07",
+      "description": "Pay Period 04 - Feb 16-28, 2025"
+    },
+    {
+      "id": "2025-05",
+      "periodStart": "2025-03-01",
+      "periodEnd": "2025-03-15",
+      "timesheetDue": "2025-03-15",
+      "payDay": "2025-03-22",
+      "description": "Pay Period 05 - Mar 1-15, 2025"
+    },
+    {
+      "id": "2025-06",
+      "periodStart": "2025-03-16",
+      "periodEnd": "2025-03-31",
+      "timesheetDue": "2025-03-31",
+      "payDay": "2025-04-07",
+      "description": "Pay Period 06 - Mar 16-31, 2025"
+    },
+    {
+      "id": "2025-07",
+      "periodStart": "2025-04-01",
+      "periodEnd": "2025-04-15",
+      "timesheetDue": "2025-04-15",
+      "payDay": "2025-04-22",
+      "description": "Pay Period 07 - Apr 1-15, 2025"
+    },
+    {
+      "id": "2025-08",
+      "periodStart": "2025-04-16",
+      "periodEnd": "2025-04-30",
+      "timesheetDue": "2025-04-30",
+      "payDay": "2025-05-07",
+      "description": "Pay Period 08 - Apr 16-30, 2025"
+    },
+    {
+      "id": "2025-09",
+      "periodStart": "2025-05-01",
+      "periodEnd": "2025-05-15",
+      "timesheetDue": "2025-05-15",
+      "payDay": "2025-05-22",
+      "description": "Pay Period 09 - May 1-15, 2025"
+    },
+    {
+      "id": "2025-10",
+      "periodStart": "2025-05-16",
+      "periodEnd": "2025-05-31",
+      "timesheetDue": "2025-05-31",
+      "payDay": "2025-06-07",
+      "description": "Pay Period 10 - May 16-31, 2025"
+    },
+    {
+      "id": "2025-11",
+      "periodStart": "2025-06-01",
+      "periodEnd": "2025-06-15",
+      "timesheetDue": "2025-06-15",
+      "payDay": "2025-06-22",
+      "description": "Pay Period 11 - Jun 1-15, 2025"
+    },
+    {
+      "id": "2025-12",
+      "periodStart": "2025-06-16",
+      "periodEnd": "2025-06-30",
+      "timesheetDue": "2025-06-30",
+      "payDay": "2025-07-07",
+      "description": "Pay Period 12 - Jun 16-30, 2025"
+    },
+    {
+      "id": "2025-13",
+      "periodStart": "2025-07-01",
+      "periodEnd": "2025-07-15",
+      "timesheetDue": "2025-07-15",
+      "payDay": "2025-07-22",
+      "description": "Pay Period 13 - Jul 1-15, 2025"
+    },
+    {
+      "id": "2025-14",
+      "periodStart": "2025-07-16",
+      "periodEnd": "2025-07-31",
+      "timesheetDue": "2025-07-31",
+      "payDay": "2025-08-07",
+      "description": "Pay Period 14 - Jul 16-31, 2025"
+    },
+    {
+      "id": "2025-15",
+      "periodStart": "2025-08-01",
+      "periodEnd": "2025-08-15",
       "timesheetDue": "2025-08-15",
       "payDay": "2025-08-22",
-      "description": "Pay Period 16 - August 2nd to 15th"
+      "description": "Pay Period 15 - Aug 1-15, 2025"
     },
     {
-      "id": "PP-2025-17",
-      "startDate": "2025-08-16",
-      "endDate": "2025-08-29",
-      "timesheetDue": "2025-08-29",
-      "payDay": "2025-09-05",
-      "description": "Pay Period 17 - August 16th to 29th"
+      "id": "2025-16",
+      "periodStart": "2025-08-16",
+      "periodEnd": "2025-08-31",
+      "timesheetDue": "2025-08-31",
+      "payDay": "2025-09-07",
+      "description": "Pay Period 16 - Aug 16-31, 2025"
     },
     {
-      "id": "PP-2025-18",
-      "startDate": "2025-08-30",
-      "endDate": "2025-09-12",
-      "timesheetDue": "2025-09-12",
-      "payDay": "2025-09-19",
-      "description": "Pay Period 18 - August 30th to September 12th"
+      "id": "2025-17",
+      "periodStart": "2025-09-01",
+      "periodEnd": "2025-09-15",
+      "timesheetDue": "2025-09-15",
+      "payDay": "2025-09-22",
+      "description": "Pay Period 17 - Sep 1-15, 2025"
     },
     {
-      "id": "PP-2025-19",
-      "startDate": "2025-09-13",
-      "endDate": "2025-09-26",
-      "timesheetDue": "2025-09-26",
-      "payDay": "2025-10-03",
-      "description": "Pay Period 19 - September 13th to 26th"
+      "id": "2025-18",
+      "periodStart": "2025-09-16",
+      "periodEnd": "2025-09-30",
+      "timesheetDue": "2025-09-30",
+      "payDay": "2025-10-07",
+      "description": "Pay Period 18 - Sep 16-30, 2025"
     },
     {
-      "id": "PP-2025-20",
-      "startDate": "2025-09-27",
-      "endDate": "2025-10-10",
-      "timesheetDue": "2025-10-10",
-      "payDay": "2025-10-17",
-      "description": "Pay Period 20 - September 27th to October 10th"
+      "id": "2025-19",
+      "periodStart": "2025-10-01",
+      "periodEnd": "2025-10-15",
+      "timesheetDue": "2025-10-15",
+      "payDay": "2025-10-22",
+      "description": "Pay Period 19 - Oct 1-15, 2025"
     },
     {
-      "id": "PP-2025-21",
-      "startDate": "2025-10-11",
-      "endDate": "2025-10-24",
-      "timesheetDue": "2025-10-24",
-      "payDay": "2025-10-31",
-      "description": "Pay Period 21 - October 11th to 24th"
+      "id": "2025-20",
+      "periodStart": "2025-10-16",
+      "periodEnd": "2025-10-31",
+      "timesheetDue": "2025-10-31",
+      "payDay": "2025-11-07",
+      "description": "Pay Period 20 - Oct 16-31, 2025"
     },
     {
-      "id": "PP-2025-22",
-      "startDate": "2025-10-25",
-      "endDate": "2025-11-07",
-      "timesheetDue": "2025-11-07",
-      "payDay": "2025-11-14",
-      "description": "Pay Period 22 - October 25th to November 7th"
+      "id": "2025-21",
+      "periodStart": "2025-11-01",
+      "periodEnd": "2025-11-15",
+      "timesheetDue": "2025-11-15",
+      "payDay": "2025-11-22",
+      "description": "Pay Period 21 - Nov 1-15, 2025"
     },
     {
-      "id": "PP-2025-23",
-      "startDate": "2025-11-08",
-      "endDate": "2025-11-21",
-      "timesheetDue": "2025-11-21",
-      "payDay": "2025-11-28",
-      "description": "Pay Period 23 - November 8th to 21st"
+      "id": "2025-22",
+      "periodStart": "2025-11-16",
+      "periodEnd": "2025-11-30",
+      "timesheetDue": "2025-11-30",
+      "payDay": "2025-12-07",
+      "description": "Pay Period 22 - Nov 16-30, 2025"
     },
     {
-      "id": "PP-2025-24",
-      "startDate": "2025-11-22",
-      "endDate": "2025-12-05",
-      "timesheetDue": "2025-12-05",
-      "payDay": "2025-12-12",
-      "description": "Pay Period 24 - November 22nd to December 5th"
+      "id": "2025-23",
+      "periodStart": "2025-12-01",
+      "periodEnd": "2025-12-15",
+      "timesheetDue": "2025-12-15",
+      "payDay": "2025-12-22",
+      "description": "Pay Period 23 - Dec 1-15, 2025"
     },
     {
-      "id": "PP-2025-25",
-      "startDate": "2025-12-06",
-      "endDate": "2025-12-19",
-      "timesheetDue": "2025-12-19",
-      "payDay": "2025-12-26",
-      "description": "Pay Period 25 - December 6th to 19th"
-    },
-    {
-      "id": "PP-2025-26",
-      "startDate": "2025-12-20",
-      "endDate": "2026-01-02",
-      "timesheetDue": "2026-01-02",
-      "payDay": "2026-01-09",
-      "description": "Pay Period 26 - December 20th to January 2nd"
+      "id": "2025-24",
+      "periodStart": "2025-12-16",
+      "periodEnd": "2025-12-31",
+      "timesheetDue": "2025-12-31",
+      "payDay": "2026-01-07",
+      "description": "Pay Period 24 - Dec 16-31, 2025"
     }
   ],
   "holidays": [
     {
       "date": "2025-01-01",
       "name": "New Year's Day",
-      "type": "federal",
-      "observed": true
+      "type": "federal"
     },
     {
       "date": "2025-01-20",
       "name": "Martin Luther King Jr. Day",
-      "type": "federal",
-      "observed": true
+      "type": "federal"
     },
     {
       "date": "2025-02-17",
       "name": "Presidents Day",
-      "type": "federal",
-      "observed": true
+      "type": "federal"
     },
     {
       "date": "2025-05-26",
       "name": "Memorial Day",
-      "type": "federal",
-      "observed": true
+      "type": "federal"
     },
     {
       "date": "2025-06-19",
       "name": "Juneteenth",
-      "type": "federal",
-      "observed": true
+      "type": "federal"
     },
     {
       "date": "2025-07-04",
       "name": "Independence Day",
-      "type": "federal",
-      "observed": true
+      "type": "federal"
     },
     {
       "date": "2025-09-01",
       "name": "Labor Day",
-      "type": "federal",
-      "observed": true
+      "type": "federal"
     },
     {
       "date": "2025-10-13",
       "name": "Columbus Day",
-      "type": "federal",
-      "observed": false
+      "type": "federal"
     },
     {
       "date": "2025-11-11",
       "name": "Veterans Day",
-      "type": "federal",
-      "observed": true
+      "type": "federal"
     },
     {
       "date": "2025-11-27",
       "name": "Thanksgiving Day",
-      "type": "federal",
-      "observed": true
+      "type": "federal"
     },
     {
       "date": "2025-11-28",
       "name": "Day After Thanksgiving",
-      "type": "company",
-      "observed": true
+      "type": "company"
     },
     {
       "date": "2025-12-24",
       "name": "Christmas Eve",
-      "type": "company",
-      "observed": true
+      "type": "company"
     },
     {
       "date": "2025-12-25",
       "name": "Christmas Day",
-      "type": "federal",
-      "observed": true
+      "type": "federal"
     },
     {
       "date": "2025-12-31",
       "name": "New Year's Eve",
-      "type": "company",
-      "observed": true
+      "type": "company"
     }
-  ]
+  ],
+  "configVersion": "1.1.1",
+  "lastUpdated": "2025-08-17",
+  "defaultPeriodType": "current",
+  "company": "NAKUPUNA CONSULTING"
+}{
+  "payPeriods": [
+    {
+      "id": "2025-15",
+      "periodStart": "2025-08-01",
+      "periodEnd": "2025-08-15",
+      "timesheetDue": "2025-08-15",
+      "payDay": "2025-08-22",
+      "description": "Pay Period 15 - Aug 1-15, 2025"
+    },
+    {
+      "id": "2025-16",
+      "periodStart": "2025-08-16",
+      "periodEnd": "2025-08-31",
+      "timesheetDue": "2025-08-31",
+      "payDay": "2025-09-07",
+      "description": "Pay Period 16 - Aug 16-31, 2025"
+    },
+    {
+      "id": "2025-17",
+      "periodStart": "2025-09-01",
+      "periodEnd": "2025-09-15",
+      "timesheetDue": "2025-09-15",
+      "payDay": "2025-09-22",
+      "description": "Pay Period 17 - Sep 1-15, 2025"
+    },
+    {
+      "id": "2025-18",
+      "periodStart": "2025-09-16",
+      "periodEnd": "2025-09-30",
+      "timesheetDue": "2025-09-30",
+      "payDay": "2025-10-07",
+      "description": "Pay Period 18 - Sep 16-30, 2025"
+    },
+    {
+      "id": "2025-19",
+      "periodStart": "2025-10-01",
+      "periodEnd": "2025-10-15",
+      "timesheetDue": "2025-10-15",
+      "payDay": "2025-10-22",
+      "description": "Pay Period 19 - Oct 1-15, 2025"
+    },
+    {
+      "id": "2025-20",
+      "periodStart": "2025-10-16",
+      "periodEnd": "2025-10-31",
+      "timesheetDue": "2025-10-31",
+      "payDay": "2025-11-07",
+      "description": "Pay Period 20 - Oct 16-31, 2025"
+    },
+    {
+      "id": "2025-21",
+      "periodStart": "2025-11-01",
+      "periodEnd": "2025-11-15",
+      "timesheetDue": "2025-11-15",
+      "payDay": "2025-11-22",
+      "description": "Pay Period 21 - Nov 1-15, 2025"
+    },
+    {
+      "id": "2025-22",
+      "periodStart": "2025-11-16",
+      "periodEnd": "2025-11-30",
+      "timesheetDue": "2025-11-30",
+      "payDay": "2025-12-07",
+      "description": "Pay Period 22 - Nov 16-30, 2025"
+    },
+    {
+      "id": "2025-23",
+      "periodStart": "2025-12-01",
+      "periodEnd": "2025-12-15",
+      "timesheetDue": "2025-12-15",
+      "payDay": "2025-12-22",
+      "description": "Pay Period 23 - Dec 1-15, 2025"
+    },
+    {
+      "id": "2025-24",
+      "periodStart": "2025-12-16",
+      "periodEnd": "2025-12-31",
+      "timesheetDue": "2025-12-31",
+      "payDay": "2026-01-07",
+      "description": "Pay Period 24 - Dec 16-31, 2025"
+    }
+  ],
+  "holidays": [
+    {
+      "date": "2025-09-01",
+      "name": "Labor Day",
+      "type": "federal"
+    },
+    {
+      "date": "2025-10-13",
+      "name": "Columbus Day",
+      "type": "federal"
+    },
+    {
+      "date": "2025-11-11",
+      "name": "Veterans Day",
+      "type": "federal"
+    },
+    {
+      "date": "2025-11-27",
+      "name": "Thanksgiving Day",
+      "type": "federal"
+    },
+    {
+      "date": "2025-11-28",
+      "name": "Day After Thanksgiving",
+      "type": "company"
+    },
+    {
+      "date": "2025-12-24",
+      "name": "Christmas Eve",
+      "type": "company"
+    },
+    {
+      "date": "2025-12-25",
+      "name": "Christmas Day",
+      "type": "federal"
+    },
+    {
+      "date": "2025-12-31",
+      "name": "New Year's Eve",
+      "type": "company"
+    }
+  ],
+  "configVersion": "1.1.1",
+  "lastUpdated": "2025-08-17",
+  "defaultPeriodType": "current",
+  "company": "NAKUPUNA CONSULTING"
 }
