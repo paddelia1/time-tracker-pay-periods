@@ -785,6 +785,12 @@
             
             payPeriodsConfig = NAKUPUNA_CONFIG;
             
+            console.log('Loaded config:', {
+                payPeriods: payPeriodsConfig.payPeriods ? payPeriodsConfig.payPeriods.length : 0,
+                firstPeriod: payPeriodsConfig.payPeriods ? payPeriodsConfig.payPeriods[0] : null,
+                holidays: payPeriodsConfig.holidays ? payPeriodsConfig.holidays.length : 0
+            });
+            
             if (NAKUPUNA_CONFIG.holidays) {
                 companyHolidays = NAKUPUNA_CONFIG.holidays;
             }
@@ -803,24 +809,47 @@
             const select = document.getElementById('payPeriodSelect');
             select.innerHTML = '<option value="">-- Select Pay Period --</option>';
             
-            if (!payPeriodsConfig || !payPeriodsConfig.payPeriods) return;
+            if (!payPeriodsConfig || !payPeriodsConfig.payPeriods) {
+                console.warn('No pay periods config available');
+                return;
+            }
             
-            payPeriodsConfig.payPeriods.forEach((period) => {
+            console.log('Populating dropdown with', payPeriodsConfig.payPeriods.length, 'periods');
+            
+            payPeriodsConfig.payPeriods.forEach((period, index) => {
                 const option = document.createElement('option');
                 option.value = period.id;
-                option.textContent = period.description || `${period.id} (${period.periodStart} to ${period.periodEnd})`;
+                
+                // Ensure we have a proper description
+                let description = period.description;
+                if (!description) {
+                    description = `${period.id} (${period.periodStart} to ${period.periodEnd})`;
+                }
+                
+                option.textContent = description;
+                option.setAttribute('data-start', period.periodStart);
+                option.setAttribute('data-end', period.periodEnd);
+                
                 select.appendChild(option);
+                console.log(`Added option ${index + 1}: ${description}`);
             });
+            
+            console.log('Dropdown population complete. Total options:', select.options.length);
         }
 
         function selectCurrentPayPeriod() {
-            if (!payPeriodsConfig || !payPeriodsConfig.payPeriods) return;
+            if (!payPeriodsConfig || !payPeriodsConfig.payPeriods) {
+                console.warn('No pay periods config available for auto-selection');
+                return;
+            }
             
             // Check if we have a saved selection first
             const savedSelection = localStorage.getItem('selectedPayPeriod');
             if (savedSelection) {
+                console.log('Found saved selection:', savedSelection);
                 const period = payPeriodsConfig.payPeriods.find(p => p.id === savedSelection);
                 if (period) {
+                    console.log('Restoring saved period:', period.description);
                     setPayPeriod(period);
                     document.getElementById('payPeriodSelect').value = period.id;
                     return;
@@ -829,20 +858,33 @@
             
             // Auto-select current pay period based on today's date
             const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            console.log('Looking for current pay period for date:', todayStr);
             
             for (const period of payPeriodsConfig.payPeriods) {
                 const startDate = new Date(period.periodStart);
                 const endDate = new Date(period.periodEnd);
                 
+                console.log(`Checking period ${period.id}: ${period.periodStart} to ${period.periodEnd}`);
+                
                 if (today >= startDate && today <= endDate) {
+                    console.log('Auto-selected current pay period:', period.id, period.description);
                     setPayPeriod(period);
                     document.getElementById('payPeriodSelect').value = period.id;
-                    console.log('Auto-selected current pay period:', period.id);
                     return;
                 }
             }
             
-            console.log('No current pay period found, user must select manually');
+            console.log('No current pay period found for today, user must select manually');
+            
+            // If no current period found, maybe select the most recent or next upcoming period
+            const futurePeriods = payPeriodsConfig.payPeriods.filter(p => new Date(p.periodStart) > today);
+            if (futurePeriods.length > 0) {
+                const nextPeriod = futurePeriods[0];
+                console.log('No current period, selecting next period:', nextPeriod.id);
+                setPayPeriod(nextPeriod);
+                document.getElementById('payPeriodSelect').value = nextPeriod.id;
+            }
         }
 
         function setPayPeriod(period) {
@@ -891,16 +933,49 @@
             const endDate = new Date(selectedPayPeriod.periodEnd);
             const today = new Date();
             
+            // Reset time to midnight for accurate day calculations
+            const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const startMidnight = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+            const endMidnight = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+            
             const workingDays = calculateWorkingDays(startDate, endDate);
-            const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+            
+            // Calculate days remaining more intelligently
+            let remainingDaysText;
+            let remainingDaysValue;
+            
+            if (todayMidnight > endMidnight) {
+                // Period is in the past
+                remainingDaysText = "Completed";
+                remainingDaysValue = 0;
+            } else if (todayMidnight < startMidnight) {
+                // Period is in the future
+                const daysUntilStart = Math.ceil((startMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
+                remainingDaysText = `Starts in ${daysUntilStart} days`;
+                remainingDaysValue = daysUntilStart;
+            } else {
+                // Period is current (today is within the period)
+                const actualRemainingDays = Math.ceil((endMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
+                remainingDaysText = actualRemainingDays.toString();
+                remainingDaysValue = actualRemainingDays;
+            }
             
             document.getElementById('periodDisplay').textContent = `${selectedPayPeriod.periodStart} to ${selectedPayPeriod.periodEnd}`;
             document.getElementById('timesheetDue').textContent = selectedPayPeriod.timesheetDue || 'N/A';
             document.getElementById('payDay').textContent = selectedPayPeriod.payDay || 'N/A';
             document.getElementById('workingDays').textContent = workingDays;
-            document.getElementById('daysRemaining').textContent = remainingDays;
+            document.getElementById('daysRemaining').textContent = remainingDaysText;
             
             document.getElementById('payPeriodInfo').style.display = 'block';
+            
+            console.log('Pay period info updated:', {
+                period: selectedPayPeriod.id,
+                start: selectedPayPeriod.periodStart,
+                end: selectedPayPeriod.periodEnd,
+                today: todayMidnight.toISOString().split('T')[0],
+                remainingDays: remainingDaysText,
+                workingDays: workingDays
+            });
         }
 
         function calculateWorkingDays(startDate, endDate) {
