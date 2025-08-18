@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Tracker Admin Console v1.1.2</title>
+    <title>Time Tracker Admin Console v1.1.3</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234facfe'><circle cx='12' cy='12' r='10' stroke='%23667eea' stroke-width='2' fill='%234facfe'/><path d='M12 6v6l4 2' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -541,6 +541,12 @@
             <div class="filter-controls">
                 <div class="filter-row">
                     <div class="filter-group">
+                        <label for="payPeriodFilter">Pay Period</label>
+                        <select id="payPeriodFilter" onchange="applyFilters()">
+                            <option value="">All Pay Periods</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
                         <label for="employeeFilter">Employee</label>
                         <select id="employeeFilter" onchange="applyFilters()">
                             <option value="">All Employees</option>
@@ -567,6 +573,7 @@
                         <input type="date" id="endDate" onchange="applyFilters()">
                     </div>
                     <button class="primary-button" onclick="resetFilters()">Reset Filters</button>
+                    <button class="primary-button" onclick="setCurrentPayPeriod()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">Current Period</button>
                 </div>
             </div>
 
@@ -631,7 +638,7 @@
         </div>
 
         <div class="footer">
-            <p class="credits">Time Tracker Admin Console v1.1.2 | Created: August 18, 2025 PST | Modified: August 18, 2025 PST | Philippe Addelia</p>
+            <p class="credits">Time Tracker Admin Console v1.1.3 | Created: August 18, 2025 PST | Modified: August 18, 2025 PST | Philippe Addelia</p>
         </div>
     </div>
 
@@ -679,13 +686,139 @@
         let categories = new Set();
         let duplicateCount = 0;
         let invalidCount = 0;
+        let payPeriodsConfig = null;
+
+        // Pay Periods Configuration
+        const DEFAULT_PAY_PERIODS_CONFIG = {
+            "payPeriods": [
+                {
+                    "id": "2025-15",
+                    "periodStart": "2025-08-02",
+                    "periodEnd": "2025-08-15",
+                    "timesheetDue": "2025-08-15",
+                    "payDay": "2025-08-22",
+                    "description": "Pay Period 15 - Aug 2-15, 2025"
+                },
+                {
+                    "id": "2025-16",
+                    "periodStart": "2025-08-16",
+                    "periodEnd": "2025-08-29",
+                    "timesheetDue": "2025-08-29",
+                    "payDay": "2025-09-05",
+                    "description": "Pay Period 16 - Aug 16-29, 2025"
+                },
+                {
+                    "id": "2025-17",
+                    "periodStart": "2025-08-30",
+                    "periodEnd": "2025-09-15",
+                    "timesheetDue": "2025-09-15",
+                    "payDay": "2025-09-22",
+                    "description": "Pay Period 17 - Aug 30 - Sep 15, 2025"
+                },
+                {
+                    "id": "2025-18",
+                    "periodStart": "2025-09-16",
+                    "periodEnd": "2025-09-30",
+                    "timesheetDue": "2025-09-30",
+                    "payDay": "2025-10-07",
+                    "description": "Pay Period 18 - Sep 16-30, 2025"
+                },
+                {
+                    "id": "2025-19",
+                    "periodStart": "2025-10-01",
+                    "periodEnd": "2025-10-15",
+                    "timesheetDue": "2025-10-15",
+                    "payDay": "2025-10-22",
+                    "description": "Pay Period 19 - Oct 1-15, 2025"
+                },
+                {
+                    "id": "2025-20",
+                    "periodStart": "2025-10-16",
+                    "periodEnd": "2025-10-31",
+                    "timesheetDue": "2025-10-31",
+                    "payDay": "2025-11-07",
+                    "description": "Pay Period 20 - Oct 16-31, 2025"
+                },
+                {
+                    "id": "2025-21",
+                    "periodStart": "2025-11-01",
+                    "periodEnd": "2025-11-14",
+                    "timesheetDue": "2025-11-14",
+                    "payDay": "2025-11-21",
+                    "description": "Pay Period 21 - Nov 1-14, 2025"
+                },
+                {
+                    "id": "2025-22",
+                    "periodStart": "2025-11-15",
+                    "periodEnd": "2025-11-28",
+                    "timesheetDue": "2025-11-28",
+                    "payDay": "2025-12-05",
+                    "description": "Pay Period 22 - Nov 15-28, 2025"
+                },
+                {
+                    "id": "2025-23",
+                    "periodStart": "2025-11-29",
+                    "periodEnd": "2025-12-15",
+                    "timesheetDue": "2025-12-15",
+                    "payDay": "2025-12-22",
+                    "description": "Pay Period 23 - Nov 29 - Dec 15, 2025"
+                },
+                {
+                    "id": "2025-24",
+                    "periodStart": "2025-12-16",
+                    "periodEnd": "2025-12-31",
+                    "timesheetDue": "2025-12-31",
+                    "payDay": "2026-01-07",
+                    "description": "Pay Period 24 - Dec 16-31, 2025"
+                }
+            ]
+        };
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            loadPayPeriodsConfig();
             loadPersistedData();
             updateStats();
             updateFilters();
         });
+
+        // Load pay periods configuration
+        function loadPayPeriodsConfig() {
+            try {
+                const savedConfig = localStorage.getItem('payPeriodsConfig');
+                if (savedConfig) {
+                    payPeriodsConfig = JSON.parse(savedConfig);
+                    console.log('Loaded pay periods config from localStorage');
+                } else {
+                    payPeriodsConfig = DEFAULT_PAY_PERIODS_CONFIG;
+                    console.log('Using default pay periods config');
+                }
+                populatePayPeriods();
+            } catch (error) {
+                console.error('Error loading pay periods config:', error);
+                payPeriodsConfig = DEFAULT_PAY_PERIODS_CONFIG;
+                populatePayPeriods();
+            }
+        }
+
+        // Populate pay periods dropdown
+        function populatePayPeriods() {
+            const select = document.getElementById('payPeriodFilter');
+            if (!select) return;
+            
+            // Keep "All Pay Periods" option
+            select.innerHTML = '<option value="">All Pay Periods</option>';
+            
+            if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+                payPeriodsConfig.payPeriods.forEach(period => {
+                    const option = document.createElement('option');
+                    option.value = period.id;
+                    option.textContent = period.description;
+                    select.appendChild(option);
+                });
+                console.log(`Populated ${payPeriodsConfig.payPeriods.length} pay periods`);
+            }
+        }
 
         // File import functions
         function triggerImport() {
@@ -938,6 +1071,7 @@
             const projectHours = {};
             const categoryHours = {};
             const dailyHours = {};
+            const payPeriodHours = {};
             
             filteredEntries.forEach(entry => {
                 if (!entry.isValid || entry.isDuplicate) return;
@@ -946,9 +1080,39 @@
                 projectHours[entry.project] = (projectHours[entry.project] || 0) + entry.duration;
                 categoryHours[entry.category] = (categoryHours[entry.category] || 0) + entry.duration;
                 dailyHours[entry.date] = (dailyHours[entry.date] || 0) + entry.duration;
+                
+                // Add pay period analytics
+                if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+                    const period = payPeriodsConfig.payPeriods.find(p => 
+                        entry.date >= p.periodStart && entry.date <= p.periodEnd
+                    );
+                    if (period) {
+                        if (!payPeriodHours[period.id]) {
+                            payPeriodHours[period.id] = {
+                                description: period.description,
+                                hours: 0,
+                                employees: new Set()
+                            };
+                        }
+                        payPeriodHours[period.id].hours += entry.duration;
+                        payPeriodHours[period.id].employees.add(entry.employee);
+                    }
+                }
             });
             
             let html = '<div style="display: grid; gap: 30px;">';
+            
+            // Pay Period Summary (if data exists)
+            if (Object.keys(payPeriodHours).length > 0) {
+                html += '<div><h3>Hours by Pay Period</h3><table class="data-table">';
+                html += '<thead><tr><th>Pay Period</th><th>Total Hours</th><th>Employees</th></tr></thead><tbody>';
+                Object.entries(payPeriodHours)
+                    .sort((a, b) => b[0].localeCompare(a[0]))
+                    .forEach(([periodId, data]) => {
+                        html += `<tr><td>${data.description}</td><td>${data.hours.toFixed(2)}</td><td>${data.employees.size}</td></tr>`;
+                    });
+                html += '</tbody></table></div>';
+            }
             
             // Employee Hours
             html += '<div><h3>Hours by Employee</h3><table class="data-table">';
@@ -989,6 +1153,34 @@
             dataContent.innerHTML = html;
         }
 
+        // Set filter to current pay period
+        function setCurrentPayPeriod() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+                const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
+                    return today >= period.periodStart && today <= period.periodEnd;
+                });
+                
+                if (currentPeriod) {
+                    // Reset other filters
+                    document.getElementById('employeeFilter').value = '';
+                    document.getElementById('projectFilter').value = '';
+                    document.getElementById('categoryFilter').value = '';
+                    document.getElementById('startDate').value = '';
+                    document.getElementById('endDate').value = '';
+                    
+                    // Set pay period filter
+                    document.getElementById('payPeriodFilter').value = currentPeriod.id;
+                    
+                    applyFilters();
+                    showStatus(`Filtered to current pay period: ${currentPeriod.description}`, 'info', 'analysisStatus');
+                } else {
+                    showStatus('No pay period found for current date', 'error', 'analysisStatus');
+                }
+            }
+        }
+
         // Filter functions
         function updateFilters() {
             // Update employee filter
@@ -1014,6 +1206,7 @@
         }
 
         function applyFilters() {
+            const payPeriodFilter = document.getElementById('payPeriodFilter').value;
             const employeeFilter = document.getElementById('employeeFilter').value;
             const projectFilter = document.getElementById('projectFilter').value;
             const categoryFilter = document.getElementById('categoryFilter').value;
@@ -1021,6 +1214,17 @@
             const endDate = document.getElementById('endDate').value;
             
             filteredEntries = allTimeEntries.filter(entry => {
+                // Pay period filter
+                if (payPeriodFilter) {
+                    const period = payPeriodsConfig.payPeriods.find(p => p.id === payPeriodFilter);
+                    if (period) {
+                        if (entry.date < period.periodStart || entry.date > period.periodEnd) {
+                            return false;
+                        }
+                    }
+                }
+                
+                // Other filters
                 if (employeeFilter && entry.employee !== employeeFilter) return false;
                 if (projectFilter && entry.project !== projectFilter) return false;
                 if (categoryFilter && entry.category !== categoryFilter) return false;
@@ -1034,6 +1238,7 @@
         }
 
         function resetFilters() {
+            document.getElementById('payPeriodFilter').value = '';
             document.getElementById('employeeFilter').value = '';
             document.getElementById('projectFilter').value = '';
             document.getElementById('categoryFilter').value = '';
@@ -1074,16 +1279,30 @@
                 return;
             }
             
-            const ws = XLSX.utils.json_to_sheet(filteredEntries.map(e => ({
-                Employee: e.employee,
-                Date: e.date,
-                Category: e.category,
-                Project: e.project,
-                'Start Time': e.startTime,
-                'End Time': e.endTime,
-                'Duration (Hours)': e.duration,
-                Status: e.isDuplicate ? 'DUPLICATE' : (!e.isValid ? 'INVALID' : 'VALID')
-            })));
+            const ws = XLSX.utils.json_to_sheet(filteredEntries.map(e => {
+                // Find pay period for this entry
+                let payPeriod = 'N/A';
+                if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+                    const period = payPeriodsConfig.payPeriods.find(p => 
+                        e.date >= p.periodStart && e.date <= p.periodEnd
+                    );
+                    if (period) {
+                        payPeriod = period.description;
+                    }
+                }
+                
+                return {
+                    Employee: e.employee,
+                    Date: e.date,
+                    'Pay Period': payPeriod,
+                    Category: e.category,
+                    Project: e.project,
+                    'Start Time': e.startTime,
+                    'End Time': e.endTime,
+                    'Duration (Hours)': e.duration,
+                    Status: e.isDuplicate ? 'DUPLICATE' : (!e.isValid ? 'INVALID' : 'VALID')
+                };
+            }));
             
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Timesheet Data');
@@ -1097,10 +1316,21 @@
                 return;
             }
             
-            let csv = 'Employee,Date,Category,Project,Start Time,End Time,Duration (Hours),Status\n';
+            let csv = 'Employee,Date,Pay Period,Category,Project,Start Time,End Time,Duration (Hours),Status\n';
             filteredEntries.forEach(entry => {
+                // Find pay period for this entry
+                let payPeriod = 'N/A';
+                if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+                    const period = payPeriodsConfig.payPeriods.find(p => 
+                        entry.date >= p.periodStart && entry.date <= p.periodEnd
+                    );
+                    if (period) {
+                        payPeriod = period.description;
+                    }
+                }
+                
                 const status = entry.isDuplicate ? 'DUPLICATE' : (!entry.isValid ? 'INVALID' : 'VALID');
-                csv += `"${entry.employee}","${entry.date}","${entry.category}","${entry.project}","${entry.startTime}","${entry.endTime}",${entry.duration},"${status}"\n`;
+                csv += `"${entry.employee}","${entry.date}","${payPeriod}","${entry.category}","${entry.project}","${entry.startTime}","${entry.endTime}",${entry.duration},"${status}"\n`;
             });
             
             downloadFile(csv, `Team_Timesheet_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
@@ -1224,9 +1454,23 @@
             const validEntries = allTimeEntries.filter(e => !e.isDuplicate && e.isValid);
             const totalHours = validEntries.reduce((sum, e) => sum + e.duration, 0);
             
+            // Get current pay period info
+            let currentPeriodInfo = 'N/A';
+            const today = new Date().toISOString().split('T')[0];
+            if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+                const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
+                    return today >= period.periodStart && today <= period.periodEnd;
+                });
+                if (currentPeriod) {
+                    currentPeriodInfo = currentPeriod.description;
+                }
+            }
+            
             const summary = `
 TEAM TIMESHEET SUMMARY
 ======================
+Current Pay Period: ${currentPeriodInfo}
+
 Total Entries: ${allTimeEntries.length}
 Valid Entries: ${validEntries.length}
 Duplicate Entries: ${duplicateCount}
