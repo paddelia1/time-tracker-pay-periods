@@ -161,6 +161,15 @@ document.addEventListener('DOMContentLoaded', function() {
     setupBeforeUnload();
     checkForIncompleteSession();
     console.log('Time tracker initialization complete');
+    
+    // Additional check to ensure pay periods are populated after DOM is ready
+    setTimeout(() => {
+        const select = document.getElementById('payPeriodSelect');
+        if (select && select.options.length <= 1) {
+            console.log('Pay periods not populated, retrying...');
+            populatePayPeriods();
+        }
+    }, 100);
 });
 
 // ============================================================================
@@ -179,8 +188,15 @@ function loadPayPeriodsConfig() {
         }
         
         companyHolidays = payPeriodsConfig.holidays || [];
-        populatePayPeriods();
-        setDefaultPeriod();
+        
+        // Ensure payPeriodsConfig is properly set before populating
+        if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+            console.log(`Config loaded with ${payPeriodsConfig.payPeriods.length} pay periods`);
+            populatePayPeriods();
+            setDefaultPeriod();
+        } else {
+            console.error('Pay periods config is invalid:', payPeriodsConfig);
+        }
         
     } catch (error) {
         console.error('Error loading pay periods config:', error);
@@ -192,23 +208,40 @@ function loadPayPeriodsConfig() {
 }
 
 function populatePayPeriods() {
+    console.log('populatePayPeriods() called');
     const select = document.getElementById('payPeriodSelect');
+    
     if (!select) {
-        console.log('Pay period select element not found');
-        return; // Element doesn't exist in employee version
+        console.log('Pay period select element not found - this is normal for employee version without dropdown');
+        return;
     }
     
+    console.log('Pay period select element found');
+    
+    // Clear existing options
     select.innerHTML = '<option value="">Select Pay Period</option>';
     
-    if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
-        payPeriodsConfig.payPeriods.forEach(period => {
-            const option = document.createElement('option');
-            option.value = period.id;
-            option.textContent = period.description;
-            select.appendChild(option);
-        });
-        console.log(`Populated ${payPeriodsConfig.payPeriods.length} pay periods`);
+    if (!payPeriodsConfig) {
+        console.error('payPeriodsConfig is null or undefined');
+        return;
     }
+    
+    if (!payPeriodsConfig.payPeriods) {
+        console.error('payPeriodsConfig.payPeriods is null or undefined');
+        return;
+    }
+    
+    console.log(`Adding ${payPeriodsConfig.payPeriods.length} pay periods to dropdown`);
+    
+    payPeriodsConfig.payPeriods.forEach((period, index) => {
+        console.log(`Adding period ${index + 1}: ${period.description}`);
+        const option = document.createElement('option');
+        option.value = period.id;
+        option.textContent = period.description;
+        select.appendChild(option);
+    });
+    
+    console.log(`Populated dropdown with ${select.options.length - 1} pay periods`);
 }
 
 function setSelectedPayPeriod() {
@@ -1296,6 +1329,36 @@ function clearWarning() {
     });
 }
 
+// ============================================================================
+// DEBUG AND MANUAL INITIALIZATION FUNCTIONS
+// ============================================================================
+
+function debugPayPeriods() {
+    console.log('=== Pay Periods Debug Info ===');
+    console.log('payPeriodsConfig:', payPeriodsConfig);
+    console.log('DEFAULT_PAY_PERIODS_CONFIG:', DEFAULT_PAY_PERIODS_CONFIG);
+    
+    const select = document.getElementById('payPeriodSelect');
+    console.log('payPeriodSelect element:', select);
+    
+    if (select) {
+        console.log('Current options count:', select.options.length);
+        for (let i = 0; i < select.options.length; i++) {
+            console.log(`Option ${i}:`, select.options[i].textContent);
+        }
+    }
+    
+    console.log('=== End Debug Info ===');
+}
+
+function forceInitializePayPeriods() {
+    console.log('Forcing pay periods initialization...');
+    payPeriodsConfig = DEFAULT_PAY_PERIODS_CONFIG;
+    populatePayPeriods();
+    setDefaultPeriod();
+    console.log('Forced initialization complete');
+}
+
 // Expose global functions for HTML onclick handlers
 window.toggleTimer = toggleTimer;
 window.setView = setView;
@@ -1308,3 +1371,9 @@ window.editEntry = editEntry;
 window.saveEntry = saveEntry;
 window.cancelEdit = cancelEdit;
 window.deleteEntry = deleteEntry;
+
+// Debug functions - expose globally for testing
+window.populatePayPeriods = populatePayPeriods;
+window.loadPayPeriodsConfig = loadPayPeriodsConfig;
+window.debugPayPeriods = debugPayPeriods;
+window.forceInitializePayPeriods = forceInitializePayPeriods;
