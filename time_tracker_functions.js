@@ -1,11 +1,11 @@
 /*
-Time Tracker Functions v1.1.2
+Time Tracker Functions v1.1.3
 Author: Philippe Addelia
 Company: NAKUPUNA CONSULTING
 Created: August 17, 2025 PST
-Modified: August 17, 2025 PST
+Modified: August 18, 2025 PST
 Preferred location: Modules\Time Tracker\time_tracker_functions.js
-Purpose: All JavaScript functionality for the Employee Time Tracker application
+Purpose: All JavaScript functionality for the Employee Time Tracker application - FIXED GRID INTERFACE
 */
 
 // Company Configuration - EDIT THIS SECTION TO CUSTOMIZE FOR YOUR COMPANY
@@ -20,8 +20,8 @@ const COMPANY_CONFIG = {
 
 // Built-in pay periods configuration
 const DEFAULT_PAY_PERIODS_CONFIG = {
-    "version": "1.1.2",
-    "lastUpdated": "2025-08-17T12:00:00-08:00",
+    "version": "1.1.3",
+    "lastUpdated": "2025-08-18T12:00:00-08:00",
     "company": {
         "name": COMPANY_CONFIG.companyName || "NAKUPUNA CONSULTING",
         "payrollCycle": "bi-weekly",
@@ -29,212 +29,52 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
     },
     "payPeriods": [
         {
-            "id": "PP-2025-01",
-            "startDate": "2025-01-04",
-            "endDate": "2025-01-17",
-            "timesheetDue": "2025-01-17",
-            "payDay": "2025-01-24",
-            "description": "Pay Period 01 - January 4th to 17th"
-        },
-        {
-            "id": "PP-2025-02",
-            "startDate": "2025-01-18",
-            "endDate": "2025-01-31",
-            "timesheetDue": "2025-01-31",
-            "payDay": "2025-02-07",
-            "description": "Pay Period 02 - January 18th to 31st"
-        },
-        {
-            "id": "PP-2025-03",
-            "startDate": "2025-02-01",
-            "endDate": "2025-02-14",
-            "timesheetDue": "2025-02-14",
-            "payDay": "2025-02-21",
-            "description": "Pay Period 03 - February 1st to 14th"
-        },
-        {
-            "id": "PP-2025-04",
-            "startDate": "2025-02-15",
-            "endDate": "2025-02-28",
-            "timesheetDue": "2025-02-28",
-            "payDay": "2025-03-07",
-            "description": "Pay Period 04 - February 15th to 28th"
-        },
-        {
-            "id": "PP-2025-05",
-            "startDate": "2025-03-01",
-            "endDate": "2025-03-14",
-            "timesheetDue": "2025-03-14",
-            "payDay": "2025-03-21",
-            "description": "Pay Period 05 - March 1st to 14th"
-        },
-        {
-            "id": "PP-2025-06",
-            "startDate": "2025-03-15",
-            "endDate": "2025-03-28",
-            "timesheetDue": "2025-03-28",
-            "payDay": "2025-04-04",
-            "description": "Pay Period 06 - March 15th to 28th"
-        },
-        {
-            "id": "PP-2025-07",
-            "startDate": "2025-03-29",
-            "endDate": "2025-04-11",
-            "timesheetDue": "2025-04-11",
-            "payDay": "2025-04-18",
-            "description": "Pay Period 07 - March 29th to April 11th"
-        },
-        {
-            "id": "PP-2025-08",
-            "startDate": "2025-04-12",
-            "endDate": "2025-04-25",
-            "timesheetDue": "2025-04-25",
-            "payDay": "2025-05-02",
-            "description": "Pay Period 08 - April 12th to 25th"
-        },
-        {
-            "id": "PP-2025-09",
-            "startDate": "2025-04-26",
-            "endDate": "2025-05-09",
-            "timesheetDue": "2025-05-09",
-            "payDay": "2025-05-16",
-            "description": "Pay Period 09 - April 26th to May 9th"
-        },
-        {
-            "id": "PP-2025-10",
-            "startDate": "2025-05-10",
-            "endDate": "2025-05-23",
-            "timesheetDue": "2025-05-23",
-            "payDay": "2025-05-30",
-            "description": "Pay Period 10 - May 10th to 23rd"
-        },
-        {
-            "id": "PP-2025-11",
-            "startDate": "2025-05-24",
-            "endDate": "2025-06-06",
-            "timesheetDue": "2025-06-06",
-            "payDay": "2025-06-13",
-            "description": "Pay Period 11 - May 24th to June 6th"
-        },
-        {
-            "id": "PP-2025-12",
-            "startDate": "2025-06-07",
-            "endDate": "2025-06-20",
-            "timesheetDue": "2025-06-20",
-            "payDay": "2025-06-27",
-            "description": "Pay Period 12 - June 7th to 20th"
-        },
-        {
-            "id": "PP-2025-13",
-            "startDate": "2025-06-21",
-            "endDate": "2025-07-04",
-            "timesheetDue": "2025-07-04",
-            "payDay": "2025-07-11",
-            "description": "Pay Period 13 - June 21st to July 4th"
-        },
-        {
-            "id": "PP-2025-14",
-            "startDate": "2025-07-05",
-            "endDate": "2025-07-18",
-            "timesheetDue": "2025-07-18",
-            "payDay": "2025-07-25",
-            "description": "Pay Period 14 - July 5th to 18th"
-        },
-        {
-            "id": "PP-2025-15",
-            "startDate": "2025-07-19",
-            "endDate": "2025-08-01",
-            "timesheetDue": "2025-08-01",
-            "payDay": "2025-08-08",
-            "description": "Pay Period 15 - July 19th to August 1st"
-        },
-        {
-            "id": "PP-2025-16",
-            "startDate": "2025-08-02",
-            "endDate": "2025-08-15",
+            "id": "2025-15",
+            "periodStart": "2025-08-02",
+            "periodEnd": "2025-08-15",
             "timesheetDue": "2025-08-15",
             "payDay": "2025-08-22",
-            "description": "Pay Period 16 - August 2nd to 15th"
+            "description": "Pay Period 15 - Aug 2-15, 2025"
         },
         {
-            "id": "PP-2025-17",
-            "startDate": "2025-08-16",
-            "endDate": "2025-08-29",
+            "id": "2025-16",
+            "periodStart": "2025-08-16",
+            "periodEnd": "2025-08-29",
             "timesheetDue": "2025-08-29",
             "payDay": "2025-09-05",
-            "description": "Pay Period 17 - August 16th to 29th"
+            "description": "Pay Period 16 - Aug 16-29, 2025"
         },
         {
-            "id": "PP-2025-18",
-            "startDate": "2025-08-30",
-            "endDate": "2025-09-12",
-            "timesheetDue": "2025-09-12",
-            "payDay": "2025-09-19",
-            "description": "Pay Period 18 - August 30th to September 12th"
+            "id": "2025-17",
+            "periodStart": "2025-08-30",
+            "periodEnd": "2025-09-15",
+            "timesheetDue": "2025-09-15",
+            "payDay": "2025-09-22",
+            "description": "Pay Period 17 - Aug 30 - Sep 15, 2025"
         },
         {
-            "id": "PP-2025-19",
-            "startDate": "2025-09-13",
-            "endDate": "2025-09-26",
-            "timesheetDue": "2025-09-26",
-            "payDay": "2025-10-03",
-            "description": "Pay Period 19 - September 13th to 26th"
+            "id": "2025-18",
+            "periodStart": "2025-09-16",
+            "periodEnd": "2025-09-30",
+            "timesheetDue": "2025-09-30",
+            "payDay": "2025-10-07",
+            "description": "Pay Period 18 - Sep 16-30, 2025"
         },
         {
-            "id": "PP-2025-20",
-            "startDate": "2025-09-27",
-            "endDate": "2025-10-10",
-            "timesheetDue": "2025-10-10",
-            "payDay": "2025-10-17",
-            "description": "Pay Period 20 - September 27th to October 10th"
+            "id": "2025-19",
+            "periodStart": "2025-10-01",
+            "periodEnd": "2025-10-15",
+            "timesheetDue": "2025-10-15",
+            "payDay": "2025-10-22",
+            "description": "Pay Period 19 - Oct 1-15, 2025"
         },
         {
-            "id": "PP-2025-21",
-            "startDate": "2025-10-11",
-            "endDate": "2025-10-24",
-            "timesheetDue": "2025-10-24",
-            "payDay": "2025-10-31",
-            "description": "Pay Period 21 - October 11th to 24th"
-        },
-        {
-            "id": "PP-2025-22",
-            "startDate": "2025-10-25",
-            "endDate": "2025-11-07",
-            "timesheetDue": "2025-11-07",
-            "payDay": "2025-11-14",
-            "description": "Pay Period 22 - October 25th to November 7th"
-        },
-        {
-            "id": "PP-2025-23",
-            "startDate": "2025-11-08",
-            "endDate": "2025-11-21",
-            "timesheetDue": "2025-11-21",
-            "payDay": "2025-11-28",
-            "description": "Pay Period 23 - November 8th to 21st"
-        },
-        {
-            "id": "PP-2025-24",
-            "startDate": "2025-11-22",
-            "endDate": "2025-12-05",
-            "timesheetDue": "2025-12-05",
-            "payDay": "2025-12-12",
-            "description": "Pay Period 24 - November 22nd to December 5th"
-        },
-        {
-            "id": "PP-2025-25",
-            "startDate": "2025-12-06",
-            "endDate": "2025-12-19",
-            "timesheetDue": "2025-12-19",
-            "payDay": "2025-12-26",
-            "description": "Pay Period 25 - December 6th to 19th"
-        },
-        {
-            "id": "PP-2025-26",
-            "startDate": "2025-12-20",
-            "endDate": "2026-01-02",
-            "timesheetDue": "2026-01-02",
-            "payDay": "2026-01-09",
-            "description": "Pay Period 26 - December 20th to January 2nd"
+            "id": "2025-20",
+            "periodStart": "2025-10-16",
+            "periodEnd": "2025-10-31",
+            "timesheetDue": "2025-10-31",
+            "payDay": "2025-11-07",
+            "description": "Pay Period 20 - Oct 16-31, 2025"
         }
     ],
     "holidays": [
@@ -294,8 +134,8 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
             "type": "federal"
         }
     ],
-    "configVersion": "1.1.2",
-    "lastUpdated": "2025-08-17",
+    "configVersion": "1.1.3",
+    "lastUpdated": "2025-08-18",
     "company": COMPANY_CONFIG.companyName || "NAKUPUNA CONSULTING"
 };
 
@@ -353,6 +193,8 @@ function loadPayPeriodsConfig() {
 
 function populatePayPeriods() {
     const select = document.getElementById('payPeriodSelect');
+    if (!select) return; // Element doesn't exist in employee version
+    
     select.innerHTML = '<option value="">Select Pay Period</option>';
     
     if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
@@ -366,18 +208,27 @@ function populatePayPeriods() {
 }
 
 function setSelectedPayPeriod() {
-    const selectedId = document.getElementById('payPeriodSelect').value;
+    const selectElement = document.getElementById('payPeriodSelect');
+    if (!selectElement) return; // Element doesn't exist in employee version
+    
+    const selectedId = selectElement.value;
     selectedPayPeriod = payPeriodsConfig.payPeriods.find(p => p.id === selectedId);
     
     if (selectedPayPeriod) {
         // Set period dates
-        document.getElementById('periodEnd').value = selectedPayPeriod.endDate;
+        document.getElementById('periodEnd').value = selectedPayPeriod.periodEnd;
         
         // Show pay period info
         updatePayPeriodInfo();
-        document.getElementById('payPeriodInfo').style.display = 'grid';
+        const infoElement = document.getElementById('payPeriodInfo');
+        if (infoElement) {
+            infoElement.style.display = 'grid';
+        }
     } else {
-        document.getElementById('payPeriodInfo').style.display = 'none';
+        const infoElement = document.getElementById('payPeriodInfo');
+        if (infoElement) {
+            infoElement.style.display = 'none';
+        }
     }
     
     updateDisplay();
@@ -387,14 +238,22 @@ function updatePayPeriodInfo() {
     if (!selectedPayPeriod) return;
     
     const today = new Date();
-    const endDate = new Date(selectedPayPeriod.endDate);
+    const endDate = new Date(selectedPayPeriod.periodEnd);
     const daysRemaining = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
     
-    document.getElementById('periodRange').textContent = 
-        `${selectedPayPeriod.startDate} to ${selectedPayPeriod.endDate}`;
-    document.getElementById('timesheetDue').textContent = selectedPayPeriod.timesheetDue;
-    document.getElementById('payDay').textContent = selectedPayPeriod.payDay;
-    document.getElementById('daysRemaining').textContent = daysRemaining;
+    const elements = {
+        'periodRange': `${selectedPayPeriod.periodStart} to ${selectedPayPeriod.periodEnd}`,
+        'timesheetDue': selectedPayPeriod.timesheetDue,
+        'payDay': selectedPayPeriod.payDay,
+        'daysRemaining': daysRemaining
+    };
+    
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    });
 }
 
 function setDefaultPeriod() {
@@ -403,20 +262,26 @@ function setDefaultPeriod() {
     // Try to find current pay period
     if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
         const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
-            const start = new Date(period.startDate);
-            const end = new Date(period.endDate);
+            const start = new Date(period.periodStart);
+            const end = new Date(period.periodEnd);
             return today >= start && today <= end;
         });
         
         if (currentPeriod) {
-            document.getElementById('payPeriodSelect').value = currentPeriod.id;
-            setSelectedPayPeriod();
-            return;
+            const selectElement = document.getElementById('payPeriodSelect');
+            if (selectElement) {
+                selectElement.value = currentPeriod.id;
+                setSelectedPayPeriod();
+                return;
+            }
         }
     }
     
     // Fallback to manual dates
-    document.getElementById('periodEnd').value = formatDate(today);
+    const periodEndElement = document.getElementById('periodEnd');
+    if (periodEndElement) {
+        periodEndElement.value = formatDate(today);
+    }
 }
 
 // ============================================================================
@@ -424,9 +289,13 @@ function setDefaultPeriod() {
 // ============================================================================
 
 function setupEventListeners() {
-    document.getElementById('employeeName').addEventListener('input', saveData);
-    document.getElementById('dailyTarget').addEventListener('input', saveData);
-    document.getElementById('periodEnd').addEventListener('change', updateDisplay);
+    const employeeNameEl = document.getElementById('employeeName');
+    const dailyTargetEl = document.getElementById('dailyTarget');
+    const periodEndEl = document.getElementById('periodEnd');
+    
+    if (employeeNameEl) employeeNameEl.addEventListener('input', saveData);
+    if (dailyTargetEl) dailyTargetEl.addEventListener('input', saveData);
+    if (periodEndEl) periodEndEl.addEventListener('change', updateDisplay);
 }
 
 function setupBeforeUnload() {
@@ -445,11 +314,11 @@ function setupBeforeUnload() {
 function toggleTimer() {
     const timerButton = document.getElementById('timerButton');
     
-    if (timerButton.disabled) return;
-    timerButton.disabled = true;
+    if (timerButton && timerButton.disabled) return;
+    if (timerButton) timerButton.disabled = true;
     
     setTimeout(() => {
-        timerButton.disabled = false;
+        if (timerButton) timerButton.disabled = false;
     }, 500);
     
     if (isTracking) {
@@ -473,13 +342,10 @@ function startTimer() {
     warningShown = false;
     
     const timerButton = document.getElementById('timerButton');
-    timerButton.textContent = 'Stop';
-    timerButton.classList.add('stop');
-    
-    setTimeout(() => {
+    if (timerButton) {
         timerButton.textContent = 'Stop';
         timerButton.classList.add('stop');
-    }, 50);
+    }
     
     timerInterval = setInterval(updateTimer, 1000);
     saveTrackingState();
@@ -510,16 +376,16 @@ function stopTimer() {
     clearInterval(autoSaveInterval);
     
     const timerButton = document.getElementById('timerButton');
-    timerButton.textContent = 'Start';
-    timerButton.classList.remove('stop');
-    
-    setTimeout(() => {
+    if (timerButton) {
         timerButton.textContent = 'Start';
         timerButton.classList.remove('stop');
         timerButton.disabled = false;
-    }, 50);
+    }
     
-    document.getElementById('timerDisplay').textContent = '00:00:00';
+    const timerDisplay = document.getElementById('timerDisplay');
+    if (timerDisplay) {
+        timerDisplay.textContent = '00:00:00';
+    }
     
     saveData();
     
@@ -543,8 +409,11 @@ function updateTimer() {
     const minutes = Math.floor((elapsed % 3600000) / 60000);
     const seconds = Math.floor((elapsed % 60000) / 1000);
     
-    document.getElementById('timerDisplay').textContent = 
-        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const timerDisplay = document.getElementById('timerDisplay');
+    if (timerDisplay) {
+        timerDisplay.textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
     
     updateDailyCounter();
     
@@ -616,8 +485,8 @@ function updateStats() {
     let daysElapsed = 0;
     
     if (selectedPayPeriod) {
-        const start = new Date(selectedPayPeriod.startDate);
-        const end = new Date(selectedPayPeriod.endDate);
+        const start = new Date(selectedPayPeriod.periodStart);
+        const end = new Date(selectedPayPeriod.periodEnd);
         periodDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
         
         const currentDate = new Date(today);
@@ -642,10 +511,19 @@ function updateStats() {
         }
     }
 
-    document.getElementById('totalHours').textContent = totalHours.toFixed(1);
-    document.getElementById('periodDays').textContent = periodDays;
-    document.getElementById('workDays').textContent = workDays;
-    document.getElementById('daysElapsed').textContent = daysElapsed;
+    const statElements = {
+        'totalHours': totalHours.toFixed(1),
+        'periodDays': periodDays,
+        'workDays': workDays,
+        'daysElapsed': daysElapsed
+    };
+    
+    Object.entries(statElements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    });
 }
 
 function updateDailyCounter() {
@@ -664,26 +542,32 @@ function updateDailyCounter() {
         const currentSession = (new Date() - startTime) / 3600000;
         displayHours = todayHours + currentSession;
         progressPercent = (displayHours / dailyTarget) * 100;
-        dailyCounter.textContent = `${todayHours.toFixed(1)} (+${currentSession.toFixed(1)}) / ${dailyTarget.toFixed(1)}h`;
+        if (dailyCounter) {
+            dailyCounter.textContent = `${todayHours.toFixed(1)} (+${currentSession.toFixed(1)}) / ${dailyTarget.toFixed(1)}h`;
+        }
     } else {
-        dailyCounter.textContent = `${todayHours.toFixed(1)} / ${dailyTarget.toFixed(1)}h`;
+        if (dailyCounter) {
+            dailyCounter.textContent = `${todayHours.toFixed(1)} / ${dailyTarget.toFixed(1)}h`;
+        }
     }
     
-    progressFill.style.width = Math.min(progressPercent, 100) + '%';
-    
-    if (displayHours >= dailyTarget) {
-        progressFill.className = 'progress-fill-small exceeded';
-    } else if (displayHours >= dailyTarget * 0.9) {
-        progressFill.className = 'progress-fill-small approaching';
-    } else {
-        progressFill.className = 'progress-fill-small';
+    if (progressFill) {
+        progressFill.style.width = Math.min(progressPercent, 100) + '%';
+        
+        if (displayHours >= dailyTarget) {
+            progressFill.className = 'progress-fill-small exceeded';
+        } else if (displayHours >= dailyTarget * 0.9) {
+            progressFill.className = 'progress-fill-small approaching';
+        } else {
+            progressFill.className = 'progress-fill-small';
+        }
     }
 }
 
 function getFilteredEntries() {
     if (selectedPayPeriod) {
         return timeEntries.filter(entry => {
-            return entry.date >= selectedPayPeriod.startDate && entry.date <= selectedPayPeriod.endDate;
+            return entry.date >= selectedPayPeriod.periodStart && entry.date <= selectedPayPeriod.periodEnd;
         });
     } else {
         // Fallback to period end date
@@ -700,8 +584,14 @@ function getFilteredEntries() {
     }
 }
 
+// ============================================================================
+// FIXED ENTRIES LIST DISPLAY - THIS WAS THE MAIN ISSUE
+// ============================================================================
+
 function updateEntriesList() {
     const container = document.getElementById('entriesList');
+    if (!container) return;
+    
     const filteredEntries = getFilteredEntries();
     
     if (filteredEntries.length === 0) {
@@ -710,80 +600,123 @@ function updateEntriesList() {
     }
     
     if (currentView === 'detailed') {
-        // Add table header for detailed view
-        let tableHTML = `
-            <div class="entries-table-header">
-                <div class="header-cell">Date</div>
-                <div class="header-cell">Time Period</div>
-                <div class="header-cell">Duration</div>
-                <div class="header-cell">Category</div>
-                <div class="header-cell">Project</div>
-            </div>
-        `;
-        
-        tableHTML += filteredEntries
-            .sort((a, b) => new Date(b.date + 'T' + b.startTime) - new Date(a.date + 'T' + a.startTime))
-            .map(entry => `
-                <div class="entry-item">
-                    <div class="entry-date">${entry.date}</div>
-                    <div class="entry-time">${entry.startTime} - ${entry.endTime}</div>
-                    <div class="entry-duration">${entry.duration.toFixed(1)}h</div>
-                    <div class="entry-category category-${entry.category}">${entry.category.toUpperCase()}</div>
-                    <div class="entry-project">${entry.project || 'No Project'}</div>
-                </div>
-            `).join('');
-            
-        container.innerHTML = tableHTML;
+        showDetailedView(container, filteredEntries);
     } else {
-        // Daily summary view - also as a table
-        let tableHTML = `
-            <div class="entries-table-header">
-                <div class="header-cell">Date</div>
-                <div class="header-cell">Day of Week</div>
-                <div class="header-cell">Total Hours</div>
-                <div class="header-cell">Categories</div>
-            </div>
-        `;
-        
-        const dailyTotals = {};
-        filteredEntries.forEach(entry => {
-            if (!dailyTotals[entry.date]) {
-                dailyTotals[entry.date] = {
-                    hours: 0,
-                    categories: new Set()
-                };
-            }
-            dailyTotals[entry.date].hours += entry.duration;
-            dailyTotals[entry.date].categories.add(entry.category);
-        });
-        
-        tableHTML += Object.entries(dailyTotals)
-            .sort(([a], [b]) => new Date(b) - new Date(a))
-            .map(([date, data]) => `
-                <div class="entry-item">
-                    <div class="entry-date">${date}</div>
-                    <div class="entry-day">${new Date(date).toLocaleDateString('en-US', { weekday: 'long' })}</div>
-                    <div class="entry-duration">${data.hours.toFixed(1)}h</div>
-                    <div class="entry-categories">
-                        ${Array.from(data.categories).map(cat => 
-                            `<span class="entry-category category-${cat}">${cat.toUpperCase()}</span>`
-                        ).join(' ')}
-                    </div>
-                </div>
-            `).join('');
-            
-        container.innerHTML = tableHTML;
+        showDailySummaryView(container, filteredEntries);
     }
+}
+
+function showDetailedView(container, filteredEntries) {
+    // Create proper table structure with headers
+    let tableHTML = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time Period</th>
+                    <th>Duration</th>
+                    <th>Category</th>
+                    <th>Project</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Sort entries by date and time (newest first)
+    const sortedEntries = filteredEntries.sort((a, b) => {
+        const dateCompare = new Date(b.date) - new Date(a.date);
+        if (dateCompare !== 0) return dateCompare;
+        return b.startTime.localeCompare(a.startTime);
+    });
+    
+    // Add table rows
+    sortedEntries.forEach(entry => {
+        tableHTML += `
+            <tr>
+                <td><strong>${entry.date}</strong></td>
+                <td>${entry.startTime} - ${entry.endTime}</td>
+                <td><strong>${entry.duration.toFixed(1)}h</strong></td>
+                <td><span class="category-badge category-${entry.category}">${entry.category.toUpperCase()}</span></td>
+                <td>${entry.project || 'No Project'}</td>
+            </tr>
+        `;
+    });
+    
+    tableHTML += `
+            </tbody>
+        </table>
+    `;
+    
+    container.innerHTML = tableHTML;
+}
+
+function showDailySummaryView(container, filteredEntries) {
+    // Group entries by date
+    const dailyTotals = {};
+    filteredEntries.forEach(entry => {
+        if (!dailyTotals[entry.date]) {
+            dailyTotals[entry.date] = {
+                hours: 0,
+                categories: new Set()
+            };
+        }
+        dailyTotals[entry.date].hours += entry.duration;
+        dailyTotals[entry.date].categories.add(entry.category);
+    });
+    
+    // Create table structure for daily summary
+    let tableHTML = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Day of Week</th>
+                    <th>Total Hours</th>
+                    <th>Categories</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Sort by date (newest first)
+    Object.entries(dailyTotals)
+        .sort(([a], [b]) => new Date(b) - new Date(a))
+        .forEach(([date, data]) => {
+            const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
+            const categoriesHTML = Array.from(data.categories)
+                .map(cat => `<span class="category-badge category-${cat}">${cat.toUpperCase()}</span>`)
+                .join(' ');
+                
+            tableHTML += `
+                <tr>
+                    <td><strong>${date}</strong></td>
+                    <td>${dayOfWeek}</td>
+                    <td><strong>${data.hours.toFixed(1)}h</strong></td>
+                    <td>${categoriesHTML}</td>
+                </tr>
+            `;
+        });
+    
+    tableHTML += `
+            </tbody>
+        </table>
+    `;
+    
+    container.innerHTML = tableHTML;
 }
 
 function setView(view) {
     currentView = view;
     
+    // Update button states
     document.querySelectorAll('.view-button').forEach(btn => {
         btn.classList.remove('active');
     });
     
+    // Find the clicked button and make it active
     event.target.classList.add('active');
+    
+    // Update the display
     updateEntriesList();
 }
 
@@ -814,7 +747,7 @@ function exportToCSV() {
     
     if (selectedPayPeriod) {
         csvContent += `\nSUMMARY\n`;
-        csvContent += `Period,"${selectedPayPeriod.startDate} to ${selectedPayPeriod.endDate}"\n`;
+        csvContent += `Period,"${selectedPayPeriod.periodStart} to ${selectedPayPeriod.periodEnd}"\n`;
         csvContent += `Total Hours,${totalHours.toFixed(1)}\n`;
         csvContent += `Work Days,${workDays}\n`;
         csvContent += `Average Daily Hours,${avgDaily.toFixed(2)}\n`;
@@ -956,8 +889,11 @@ function loadData() {
         const data = localStorage.getItem('timeTrackerData');
         if (data) {
             const parsed = JSON.parse(data);
-            document.getElementById('employeeName').value = parsed.employeeName || '';
-            document.getElementById('dailyTarget').value = parsed.dailyTarget || '8';
+            const employeeNameEl = document.getElementById('employeeName');
+            const dailyTargetEl = document.getElementById('dailyTarget');
+            
+            if (employeeNameEl) employeeNameEl.value = parsed.employeeName || '';
+            if (dailyTargetEl) dailyTargetEl.value = parsed.dailyTarget || '8';
             
             timeEntries = (parsed.timeEntries || []).map(entry => ({
                 id: entry.id,
@@ -972,8 +908,11 @@ function loadData() {
     } catch (error) {
         console.error('Error loading data:', error);
         timeEntries = [];
-        document.getElementById('employeeName').value = '';
-        document.getElementById('dailyTarget').value = '8';
+        const employeeNameEl = document.getElementById('employeeName');
+        const dailyTargetEl = document.getElementById('dailyTarget');
+        
+        if (employeeNameEl) employeeNameEl.value = '';
+        if (dailyTargetEl) dailyTargetEl.value = '8';
     }
 }
 
@@ -1026,9 +965,11 @@ function checkForIncompleteSession() {
     
     // Set initial state
     const timerButton = document.getElementById('timerButton');
-    timerButton.textContent = 'Start';
-    timerButton.classList.remove('stop');
-    timerButton.disabled = false;
+    if (timerButton) {
+        timerButton.textContent = 'Start';
+        timerButton.classList.remove('stop');
+        timerButton.disabled = false;
+    }
     updateDisplay();
 }
 
@@ -1037,15 +978,16 @@ function showRecoveryModal(savedState) {
     const savedStart = new Date(savedState.startTime);
     const elapsedHours = ((now - savedStart) / 3600000).toFixed(2);
     
-    if (savedState.dailyTarget) {
-        document.getElementById('dailyTarget').value = savedState.dailyTarget;
+    const dailyTargetEl = document.getElementById('dailyTarget');
+    if (savedState.dailyTarget && dailyTargetEl) {
+        dailyTargetEl.value = savedState.dailyTarget;
     }
     
     const modal = document.createElement('div');
     modal.className = 'recovery-modal';
     modal.innerHTML = `
         <div class="recovery-content">
-            <h3>🔄 Incomplete Time Session Detected</h3>
+            <h3>Incomplete Time Session Detected</h3>
             <div class="recovery-info">
                 <strong>Category:</strong> ${savedState.category.toUpperCase()}<br>
                 <strong>Project:</strong> ${savedState.project || 'No Project'}<br>
@@ -1069,13 +1011,13 @@ function showRecoveryModal(savedState) {
             
             <div class="recovery-buttons">
                 <button class="recovery-btn btn-save" onclick="recoverSession('save')">
-                    💾 Save As-Is
+                    Save As-Is
                 </button>
                 <button class="recovery-btn btn-adjust" onclick="showAdjustSection()">
-                    ⏰ Adjust Time
+                    Adjust Time
                 </button>
                 <button class="recovery-btn btn-discard" onclick="recoverSession('discard')">
-                    🗑️ Discard
+                    Discard
                 </button>
             </div>
         </div>
@@ -1088,7 +1030,10 @@ function showRecoveryModal(savedState) {
 }
 
 function showAdjustSection() {
-    document.getElementById('adjustSection').classList.add('show');
+    const adjustSection = document.getElementById('adjustSection');
+    if (adjustSection) {
+        adjustSection.classList.add('show');
+    }
 }
 
 function recoverSession(action) {
@@ -1105,12 +1050,14 @@ function recoverSession(action) {
     }
     
     clearTrackingState();
-    modal.remove();
+    if (modal) modal.remove();
     
     const timerButton = document.getElementById('timerButton');
-    timerButton.textContent = 'Start';
-    timerButton.classList.remove('stop');
-    timerButton.disabled = false;
+    if (timerButton) {
+        timerButton.textContent = 'Start';
+        timerButton.classList.remove('stop');
+        timerButton.disabled = false;
+    }
     
     updateDisplay();
 }
@@ -1138,7 +1085,7 @@ function saveRecoveredSession(savedState, endTime) {
 function showDailyTargetWarning(currentHours, targetHours) {
     const warning = document.createElement('div');
     warning.className = 'warning';
-    warning.innerHTML = `🎯 Daily target of ${targetHours}h reached! Current: ${currentHours.toFixed(1)}h`;
+    warning.innerHTML = `Daily target of ${targetHours}h reached! Current: ${currentHours.toFixed(1)}h`;
     document.body.appendChild(warning);
     
     setTimeout(() => {
@@ -1151,7 +1098,7 @@ function showDailyTargetWarning(currentHours, targetHours) {
 function showWarning() {
     const warning = document.createElement('div');
     warning.className = 'warning';
-    warning.innerHTML = '⚠️ It\'s past 6:00 PM - Don\'t forget to stop your timer!';
+    warning.innerHTML = 'It\'s past 6:00 PM - Don\'t forget to stop your timer!';
     document.body.appendChild(warning);
     
     setTimeout(() => {
