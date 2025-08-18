@@ -16,7 +16,18 @@ const COMPANY_CONFIG = {
     "showTagline": false,
     "logoMaxHeight": "60px",
     "logoMaxWidth": "200px"
-};
+// Expose global functions for HTML onclick handlers
+window.toggleTimer = toggleTimer;
+window.setView = setView;
+window.exportToCSV = exportToCSV;
+window.importCSV = importCSV;
+window.clearAllData = clearAllData;
+window.showAdjustSection = showAdjustSection;
+window.recoverSession = recoverSession;
+window.editEntry = editEntry;
+window.saveEntry = saveEntry;
+window.cancelEdit = cancelEdit;
+window.deleteEntry = deleteEntry;;
 
 // Built-in pay periods configuration
 const DEFAULT_PAY_PERIODS_CONFIG = {
@@ -641,7 +652,7 @@ function updateEntriesList() {
 }
 
 function showDetailedView(container, filteredEntries) {
-    // Create proper table structure with headers
+    // Create proper table structure with headers including Actions column
     let tableHTML = `
         <table class="data-table">
             <thead>
@@ -651,6 +662,7 @@ function showDetailedView(container, filteredEntries) {
                     <th>Duration</th>
                     <th>Category</th>
                     <th>Project</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -663,15 +675,23 @@ function showDetailedView(container, filteredEntries) {
         return b.startTime.localeCompare(a.startTime);
     });
     
-    // Add table rows
+    // Add table rows with action buttons
     sortedEntries.forEach(entry => {
         tableHTML += `
-            <tr>
+            <tr id="entry-${entry.id}">
                 <td><strong>${entry.date}</strong></td>
                 <td>${entry.startTime} - ${entry.endTime}</td>
                 <td><strong>${entry.duration.toFixed(1)}h</strong></td>
                 <td><span class="category-badge category-${entry.category}">${entry.category.toUpperCase()}</span></td>
                 <td>${entry.project || 'No Project'}</td>
+                <td class="actions-cell">
+                    <button class="action-button edit-btn" onclick="editEntry(${entry.id})" title="Edit Entry">
+                        ✏️ Edit
+                    </button>
+                    <button class="action-button delete-btn" onclick="deleteEntry(${entry.id})" title="Delete Entry">
+                        🗑️ Delete
+                    </button>
+                </td>
             </tr>
         `;
     });
@@ -896,6 +916,8 @@ function saveData() {
         const dataToSave = {
             employeeName: document.getElementById('employeeName').value,
             dailyTarget: document.getElementById('dailyTarget').value,
+            periodStart: document.getElementById('periodStart')?.value || '',
+            periodEnd: document.getElementById('periodEnd')?.value || '',
             timeEntries: timeEntries.map(entry => ({
                 id: entry.id,
                 date: entry.date,
@@ -925,9 +947,13 @@ function loadData() {
             const parsed = JSON.parse(data);
             const employeeNameEl = document.getElementById('employeeName');
             const dailyTargetEl = document.getElementById('dailyTarget');
+            const periodStartEl = document.getElementById('periodStart');
+            const periodEndEl = document.getElementById('periodEnd');
             
             if (employeeNameEl) employeeNameEl.value = parsed.employeeName || '';
             if (dailyTargetEl) dailyTargetEl.value = parsed.dailyTarget || '8';
+            if (periodStartEl) periodStartEl.value = parsed.periodStart || '';
+            if (periodEndEl) periodEndEl.value = parsed.periodEnd || '';
             
             timeEntries = (parsed.timeEntries || []).map(entry => ({
                 id: entry.id,
@@ -944,9 +970,13 @@ function loadData() {
         timeEntries = [];
         const employeeNameEl = document.getElementById('employeeName');
         const dailyTargetEl = document.getElementById('dailyTarget');
+        const periodStartEl = document.getElementById('periodStart');
+        const periodEndEl = document.getElementById('periodEnd');
         
         if (employeeNameEl) employeeNameEl.value = '';
         if (dailyTargetEl) dailyTargetEl.value = '8';
+        if (periodStartEl) periodStartEl.value = '';
+        if (periodEndEl) periodEndEl.value = '';
     }
 }
 

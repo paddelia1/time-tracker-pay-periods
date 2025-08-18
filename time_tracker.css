@@ -467,22 +467,22 @@ body {
     text-align: center;
 }
 
-/* Action buttons */
-.edit-input {
-    padding: 6px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    width: 100%;
+/* Action buttons and editing functionality */
+.actions-cell {
+    white-space: nowrap;
+    text-align: center;
 }
 
 .action-button {
-    padding: 6px 12px;
+    padding: 4px 8px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
+    margin: 0 2px;
+    transition: all 0.2s ease;
+    min-width: 60px;
 }
 
 .edit-btn {
@@ -490,9 +490,19 @@ body {
     color: white;
 }
 
+.edit-btn:hover {
+    background: #138496;
+    transform: translateY(-1px);
+}
+
 .save-btn {
     background: #28a745;
     color: white;
+}
+
+.save-btn:hover {
+    background: #218838;
+    transform: translateY(-1px);
 }
 
 .cancel-btn {
@@ -500,9 +510,77 @@ body {
     color: white;
 }
 
+.cancel-btn:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
 .delete-btn {
     background: #dc3545;
     color: white;
+}
+
+.delete-btn:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.edit-input {
+    padding: 4px 6px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 12px;
+    width: 100%;
+    max-width: 150px;
+    box-sizing: border-box;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* Temporary messages */
+.temporary-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease-out;
+}
+
+.temporary-message.success {
+    background: #28a745;
+}
+
+.temporary-message.info {
+    background: #17a2b8;
+}
+
+.temporary-message.warning {
+    background: #ffc107;
+    color: #212529;
+}
+
+.temporary-message.error {
+    background: #dc3545;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 /* Warning notifications */
@@ -774,6 +852,33 @@ body {
     
     .data-table th {
         font-size: 0.7rem;
+    }
+    
+    .actions-cell {
+        min-width: 120px;
+    }
+    
+    .action-button {
+        padding: 6px 4px;
+        font-size: 10px;
+        min-width: 45px;
+        margin: 1px;
+    }
+    
+    .edit-input {
+        font-size: 11px;
+        padding: 3px 4px;
+        max-width: 80px;
+    }
+    
+    .temporary-message {
+        right: 10px;
+        left: 10px;
+        top: 10px;
+        text-align: center;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 14px;
     }
     
     /* Stack table on mobile if needed */
