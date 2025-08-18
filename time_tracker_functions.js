@@ -12,7 +12,7 @@ Purpose: All JavaScript functionality for the Employee Time Tracker application 
 const COMPANY_CONFIG = {
     "companyName": "NAKUPUNA CONSULTING",
     "companyLogoPath": "Company_logo.png",
-    "companyTagline": "Time Management Solutions",
+    "companyTagline": "",
     "showTagline": false,
     "logoMaxHeight": "60px",
     "logoMaxWidth": "200px"

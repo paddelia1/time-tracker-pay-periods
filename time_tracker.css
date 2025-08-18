@@ -41,6 +41,18 @@ body {
     align-items: center;
     margin-bottom: 20px;
     gap: 20px;
+    justify-content: space-between;
+}
+
+.company-logo {
+    max-height: 60px;
+    max-width: 200px;
+    height: auto;
+    width: auto;
+}
+
+.company-info {
+    flex: 1;
 }
 
 .logo-text {
@@ -52,19 +64,14 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.logo-tagline {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    font-weight: 300;
-    letter-spacing: 1px;
+    margin: 0;
 }
 
 .header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
+    font-size: 2.2rem;
+    margin: 0;
     font-weight: 300;
+    flex-shrink: 0;
 }
 
 .header-controls {
@@ -638,18 +645,27 @@ body {
         padding: 20px;
     }
     
+    .logo-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .company-logo {
+        max-height: 50px;
+        max-width: 150px;
+    }
+    
     .logo-text {
         font-size: 1.4rem;
         letter-spacing: 1px;
-    }
-    
-    .logo-tagline {
-        font-size: 0.8rem;
+        text-align: center;
     }
     
     .header h1 {
-        font-size: 1.8rem;
-        margin-bottom: 15px;
+        font-size: 1.6rem;
+        text-align: center;
     }
     
     .header-controls {
