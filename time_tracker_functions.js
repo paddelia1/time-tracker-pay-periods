@@ -193,7 +193,10 @@ function loadPayPeriodsConfig() {
 
 function populatePayPeriods() {
     const select = document.getElementById('payPeriodSelect');
-    if (!select) return; // Element doesn't exist in employee version
+    if (!select) {
+        console.log('Pay period select element not found');
+        return; // Element doesn't exist in employee version
+    }
     
     select.innerHTML = '<option value="">Select Pay Period</option>';
     
@@ -204,6 +207,7 @@ function populatePayPeriods() {
             option.textContent = period.description;
             select.appendChild(option);
         });
+        console.log(`Populated ${payPeriodsConfig.payPeriods.length} pay periods`);
     }
 }
 
@@ -216,7 +220,10 @@ function setSelectedPayPeriod() {
     
     if (selectedPayPeriod) {
         // Set period dates
-        document.getElementById('periodEnd').value = selectedPayPeriod.periodEnd;
+        const periodEndEl = document.getElementById('periodEnd');
+        if (periodEndEl) {
+            periodEndEl.value = selectedPayPeriod.periodEnd;
+        }
         
         // Show pay period info
         updatePayPeriodInfo();
@@ -233,6 +240,9 @@ function setSelectedPayPeriod() {
     
     updateDisplay();
 }
+
+// Make function globally available
+window.setSelectedPayPeriod = setSelectedPayPeriod;
 
 function updatePayPeriodInfo() {
     if (!selectedPayPeriod) return;

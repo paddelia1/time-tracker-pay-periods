@@ -30,14 +30,36 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="periodEnd">Period End:</label>
-                    <input type="date" id="periodEnd">
+                    <label for="payPeriodSelect">Pay Period:</label>
+                    <select id="payPeriodSelect" onchange="setSelectedPayPeriod()">
+                        <option value="">Select Pay Period</option>
+                    </select>
                 </div>
                 
                 <div class="form-group">
-                    <label>&nbsp;</label>
-                    <button class="timer-button" id="timerButton" onclick="toggleTimer()">Start</button>
+                    <label for="periodEnd">Period End:</label>
+                    <input type="date" id="periodEnd">
                 </div>
+            </div>
+        </div>
+
+        <!-- Pay Period Info Bar -->
+        <div class="pay-period-info" id="payPeriodInfo" style="display: none;">
+            <div class="pay-period-detail">
+                <span class="label">Period Range:</span>
+                <span class="value" id="periodRange">-</span>
+            </div>
+            <div class="pay-period-detail">
+                <span class="label">Timesheet Due:</span>
+                <span class="value" id="timesheetDue">-</span>
+            </div>
+            <div class="pay-period-detail">
+                <span class="label">Pay Day:</span>
+                <span class="value" id="payDay">-</span>
+            </div>
+            <div class="pay-period-detail">
+                <span class="label">Days Remaining:</span>
+                <span class="value" id="daysRemaining">-</span>
             </div>
         </div>
 
@@ -45,6 +67,10 @@
             <div class="dashboard">
                 <div class="timer-section">
                     <div class="timer-display" id="timerDisplay">00:00:00</div>
+                    
+                    <div class="timer-controls">
+                        <button class="timer-button" id="timerButton" onclick="toggleTimer()">Start</button>
+                    </div>
                     
                     <div class="daily-counter">
                         <div class="daily-label">Today's Progress</div>
