@@ -29,6 +29,126 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
     },
     "payPeriods": [
         {
+            "id": "PP-2025-01",
+            "startDate": "2025-01-04",
+            "endDate": "2025-01-17",
+            "timesheetDue": "2025-01-17",
+            "payDay": "2025-01-24",
+            "description": "Pay Period 01 - January 4th to 17th"
+        },
+        {
+            "id": "PP-2025-02",
+            "startDate": "2025-01-18",
+            "endDate": "2025-01-31",
+            "timesheetDue": "2025-01-31",
+            "payDay": "2025-02-07",
+            "description": "Pay Period 02 - January 18th to 31st"
+        },
+        {
+            "id": "PP-2025-03",
+            "startDate": "2025-02-01",
+            "endDate": "2025-02-14",
+            "timesheetDue": "2025-02-14",
+            "payDay": "2025-02-21",
+            "description": "Pay Period 03 - February 1st to 14th"
+        },
+        {
+            "id": "PP-2025-04",
+            "startDate": "2025-02-15",
+            "endDate": "2025-02-28",
+            "timesheetDue": "2025-02-28",
+            "payDay": "2025-03-07",
+            "description": "Pay Period 04 - February 15th to 28th"
+        },
+        {
+            "id": "PP-2025-05",
+            "startDate": "2025-03-01",
+            "endDate": "2025-03-14",
+            "timesheetDue": "2025-03-14",
+            "payDay": "2025-03-21",
+            "description": "Pay Period 05 - March 1st to 14th"
+        },
+        {
+            "id": "PP-2025-06",
+            "startDate": "2025-03-15",
+            "endDate": "2025-03-28",
+            "timesheetDue": "2025-03-28",
+            "payDay": "2025-04-04",
+            "description": "Pay Period 06 - March 15th to 28th"
+        },
+        {
+            "id": "PP-2025-07",
+            "startDate": "2025-03-29",
+            "endDate": "2025-04-11",
+            "timesheetDue": "2025-04-11",
+            "payDay": "2025-04-18",
+            "description": "Pay Period 07 - March 29th to April 11th"
+        },
+        {
+            "id": "PP-2025-08",
+            "startDate": "2025-04-12",
+            "endDate": "2025-04-25",
+            "timesheetDue": "2025-04-25",
+            "payDay": "2025-05-02",
+            "description": "Pay Period 08 - April 12th to 25th"
+        },
+        {
+            "id": "PP-2025-09",
+            "startDate": "2025-04-26",
+            "endDate": "2025-05-09",
+            "timesheetDue": "2025-05-09",
+            "payDay": "2025-05-16",
+            "description": "Pay Period 09 - April 26th to May 9th"
+        },
+        {
+            "id": "PP-2025-10",
+            "startDate": "2025-05-10",
+            "endDate": "2025-05-23",
+            "timesheetDue": "2025-05-23",
+            "payDay": "2025-05-30",
+            "description": "Pay Period 10 - May 10th to 23rd"
+        },
+        {
+            "id": "PP-2025-11",
+            "startDate": "2025-05-24",
+            "endDate": "2025-06-06",
+            "timesheetDue": "2025-06-06",
+            "payDay": "2025-06-13",
+            "description": "Pay Period 11 - May 24th to June 6th"
+        },
+        {
+            "id": "PP-2025-12",
+            "startDate": "2025-06-07",
+            "endDate": "2025-06-20",
+            "timesheetDue": "2025-06-20",
+            "payDay": "2025-06-27",
+            "description": "Pay Period 12 - June 7th to 20th"
+        },
+        {
+            "id": "PP-2025-13",
+            "startDate": "2025-06-21",
+            "endDate": "2025-07-04",
+            "timesheetDue": "2025-07-04",
+            "payDay": "2025-07-11",
+            "description": "Pay Period 13 - June 21st to July 4th"
+        },
+        {
+            "id": "PP-2025-14",
+            "startDate": "2025-07-05",
+            "endDate": "2025-07-18",
+            "timesheetDue": "2025-07-18",
+            "payDay": "2025-07-25",
+            "description": "Pay Period 14 - July 5th to 18th"
+        },
+        {
+            "id": "PP-2025-15",
+            "startDate": "2025-07-19",
+            "endDate": "2025-08-01",
+            "timesheetDue": "2025-08-01",
+            "payDay": "2025-08-08",
+            "description": "Pay Period 15 - July 19th to August 1st"
+        },
+        {
             "id": "PP-2025-16",
             "startDate": "2025-08-02",
             "endDate": "2025-08-15",
@@ -59,6 +179,62 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
             "timesheetDue": "2025-09-26",
             "payDay": "2025-10-03",
             "description": "Pay Period 19 - September 13th to 26th"
+        },
+        {
+            "id": "PP-2025-20",
+            "startDate": "2025-09-27",
+            "endDate": "2025-10-10",
+            "timesheetDue": "2025-10-10",
+            "payDay": "2025-10-17",
+            "description": "Pay Period 20 - September 27th to October 10th"
+        },
+        {
+            "id": "PP-2025-21",
+            "startDate": "2025-10-11",
+            "endDate": "2025-10-24",
+            "timesheetDue": "2025-10-24",
+            "payDay": "2025-10-31",
+            "description": "Pay Period 21 - October 11th to 24th"
+        },
+        {
+            "id": "PP-2025-22",
+            "startDate": "2025-10-25",
+            "endDate": "2025-11-07",
+            "timesheetDue": "2025-11-07",
+            "payDay": "2025-11-14",
+            "description": "Pay Period 22 - October 25th to November 7th"
+        },
+        {
+            "id": "PP-2025-23",
+            "startDate": "2025-11-08",
+            "endDate": "2025-11-21",
+            "timesheetDue": "2025-11-21",
+            "payDay": "2025-11-28",
+            "description": "Pay Period 23 - November 8th to 21st"
+        },
+        {
+            "id": "PP-2025-24",
+            "startDate": "2025-11-22",
+            "endDate": "2025-12-05",
+            "timesheetDue": "2025-12-05",
+            "payDay": "2025-12-12",
+            "description": "Pay Period 24 - November 22nd to December 5th"
+        },
+        {
+            "id": "PP-2025-25",
+            "startDate": "2025-12-06",
+            "endDate": "2025-12-19",
+            "timesheetDue": "2025-12-19",
+            "payDay": "2025-12-26",
+            "description": "Pay Period 25 - December 6th to 19th"
+        },
+        {
+            "id": "PP-2025-26",
+            "startDate": "2025-12-20",
+            "endDate": "2026-01-02",
+            "timesheetDue": "2026-01-02",
+            "payDay": "2026-01-09",
+            "description": "Pay Period 26 - December 20th to January 2nd"
         }
     ],
     "holidays": [

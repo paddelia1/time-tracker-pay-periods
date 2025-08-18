@@ -564,19 +564,46 @@ body {
 
 /* Additional styles for proper table display */
 .entries-table-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: 100px 120px 150px 1fr 80px;
     background: #3498db;
     color: white;
     font-weight: 600;
     padding: 12px 15px;
     border-radius: 12px 12px 0 0;
     margin-bottom: 0;
+    gap: 15px;
+    align-items: center;
 }
 
 .header-cell {
-    flex: 1;
-    padding: 0 10px;
+    padding: 0 5px;
     text-align: left;
+}
+
+/* Detailed view entry items */
+.entry-item.detailed-entry {
+    display: grid;
+    grid-template-columns: 100px 120px 150px 1fr 80px;
+    gap: 15px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    align-items: center;
+}
+
+/* Daily summary view entry items */
+.entry-item.summary-entry {
+    display: grid;
+    grid-template-columns: 120px 1fr 100px 1fr;
+    gap: 15px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    align-items: center;
+}
+
+/* Summary view headers */
+.entries-table-header.summary-header {
+    grid-template-columns: 120px 1fr 100px 1fr;
 }
 
 .view-controls {
