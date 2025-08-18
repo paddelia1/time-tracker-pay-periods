@@ -3,184 +3,1439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Tracker Admin Console v1.1.1</title>
+    <title>Time Tracker Admin Console v1.1.2</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234facfe'><circle cx='12' cy='12' r='10' stroke='%23667eea' stroke-width='2' fill='%234facfe'/><path d='M12 6v6l4 2' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="time_tracker_admin.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 20px 30px;
+            color: white;
+        }
+
+        .header-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .company-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .company-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .page-title {
+            font-size: 1.4rem;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
+        .header-subtitle {
+            font-size: 1rem;
+            opacity: 0.85;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .control-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .import-section, .analysis-section {
+            background: linear-gradient(135deg, #667eea 0%, #4facfe 100%);
+            padding: 25px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .section-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .primary-button, .secondary-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .primary-button {
+            background: white;
+            color: #667eea;
+        }
+
+        .secondary-button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+
+        .primary-button:hover, .secondary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .primary-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Hidden file input */
+        #fileInput {
+            display: none;
+        }
+
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .filter-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #4facfe 100%);
+            padding: 20px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .view-toggle input[type="radio"] {
+            display: none;
+        }
+
+        .view-toggle label {
+            padding: 10px 20px;
+            background: #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-toggle input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #667eea 0%, #4facfe 100%);
+            color: white;
+        }
+
+        .data-section {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .data-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-header span {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .export-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .export-button {
+            padding: 6px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .export-button:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .data-content {
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .no-data-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .credits {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #28a745);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-button {
+            padding: 4px 8px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .action-button.edit {
+            background: #28a745;
+        }
+
+        .action-button.delete {
+            background: #dc3545;
+        }
+
+        .action-button:hover {
+            opacity: 0.8;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header Section -->
         <div class="header">
-            <div class="logo-section">
-                <div>
-                    <div class="logo-text">NAKUPUNA</div>
-                    <div class="logo-tagline">CONSULTING</div>
+            <div class="header-top-row">
+                <div class="logo-section">
+                    <img src="company_logo.png" alt="Company Logo" class="company-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';">
+                    <div id="fallback-logo" style="display:none; width:50px; height:50px; background:white; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#667eea;">NC</div>
+                    <div class="company-info">
+                        <div class="company-name">NAKUPUNA CONSULTING</div>
+                        <div class="page-title">Time Tracker Admin Console</div>
+                    </div>
                 </div>
             </div>
-            <h1>Time Tracker Admin Console v1.1.1</h1>
-            <p>Enterprise-grade team time tracking consolidation and analysis</p>
+            <div class="header-subtitle">Enterprise-grade team time tracking consolidation and analysis</div>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content">
-            <!-- Control Section -->
+            <!-- Hidden file input for CSV import -->
+            <input type="file" id="fileInput" accept=".csv" multiple onchange="handleFileImport(event)">
+            
             <div class="control-section">
-                <!-- Import Section -->
                 <div class="import-section">
                     <h2 class="section-title">Import Team Data</h2>
-                    <p class="section-subtitle">Upload multiple CSV timesheets for consolidation</p>
+                    <p class="section-subtitle">Import multiple CSV timesheets from team members</p>
                     <div class="button-group">
-                        <button class="primary-button" onclick="selectFiles()">Import Timesheets</button>
-                        <button class="secondary-button" onclick="downloadSampleCSV()">Download Sample</button>
+                        <button class="primary-button" id="importButton" onclick="triggerImport()">
+                            Import Timesheets
+                        </button>
+                        <button class="secondary-button" onclick="showSampleData()">
+                            Download Sample
+                        </button>
                     </div>
-                    <input type="file" id="fileInput" class="file-input" multiple accept=".csv" onchange="importFiles(event)">
                     <div id="importStatus" class="status-message"></div>
                 </div>
 
-                <!-- Data Management Section -->
-                <div class="data-management">
+                <div class="analysis-section">
                     <h2 class="section-title">Data Management</h2>
-                    <p class="section-subtitle">Process and validate imported data</p>
+                    <p class="section-subtitle">Process and analyze consolidated timesheet data</p>
                     <div class="button-group">
-                        <button class="secondary-button" onclick="cleanData()">Clean Data</button>
-                        <button class="secondary-button" onclick="performDataValidation()">Validate</button>
-                        <button class="secondary-button" onclick="generateSummary()">Summary</button>
-                        <button class="secondary-button danger" onclick="clearAllData()">Clear All</button>
+                        <button class="primary-button" onclick="showDataCleanup()">
+                            Data Cleanup
+                        </button>
+                        <button class="secondary-button" onclick="showSummary()">
+                            Quick Summary
+                        </button>
+                        <button class="secondary-button" onclick="clearAllData()" style="background: rgba(220,53,69,0.2); border-color: rgba(220,53,69,0.4);">
+                            Clear All Data
+                        </button>
                     </div>
-                    <div id="managementStatus" class="status-message"></div>
+                    <div id="analysisStatus" class="status-message"></div>
                 </div>
             </div>
 
-            <!-- Statistics Section -->
-            <div class="stats-section">
+            <div class="filter-controls">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="employeeFilter">Employee</label>
+                        <select id="employeeFilter" onchange="applyFilters()">
+                            <option value="">All Employees</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="projectFilter">Project</label>
+                        <select id="projectFilter" onchange="applyFilters()">
+                            <option value="">All Projects</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="categoryFilter">Category</label>
+                        <select id="categoryFilter" onchange="applyFilters()">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="startDate">Start Date</label>
+                        <input type="date" id="startDate" onchange="applyFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label for="endDate">End Date</label>
+                        <input type="date" id="endDate" onchange="applyFilters()">
+                    </div>
+                    <button class="primary-button" onclick="resetFilters()">Reset Filters</button>
+                </div>
+            </div>
+
+            <div class="stats-container" id="statsContainer">
                 <div class="stat-card">
-                    <div class="stat-value" id="teamCount">0</div>
-                    <div class="stat-label">Team Members</div>
+                    <div class="stat-value" id="totalEntries">0</div>
+                    <div class="stat-label">Total Entries</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="totalHours">0</div>
                     <div class="stat-label">Total Hours</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="projectCount">0</div>
+                    <div class="stat-value" id="totalEmployees">0</div>
+                    <div class="stat-label">Employees</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalProjects">0</div>
                     <div class="stat-label">Projects</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="dateRange">--</div>
-                    <div class="stat-label">Date Range</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="dataQuality">--</div>
+                    <div class="stat-value" id="dataQuality">100%</div>
                     <div class="stat-label">Data Quality</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="lastUpdated">Never</div>
-                    <div class="stat-label">Last Updated</div>
-                </div>
             </div>
 
-            <!-- Pay Period Section -->
-            <div class="pay-period-section">
-                <div class="pay-period-header">
-                    <h3>Pay Period Management</h3>
-                    <div class="pay-period-controls">
-                        <select id="payPeriodSelect" onchange="filterByPayPeriod()">
-                            <option value="">All Pay Periods</option>
-                        </select>
-                        <button class="secondary-button" onclick="loadPayPeriodsConfig()">Refresh Periods</button>
-                    </div>
-                </div>
-                <div id="payPeriodInfo" class="pay-period-info"></div>
+            <div class="view-toggle">
+                <input type="radio" id="tableView" name="viewType" checked onchange="switchView()">
+                <label for="tableView">Table View</label>
+                <input type="radio" id="analyticsView" name="viewType" onchange="switchView()">
+                <label for="analyticsView">Analytics</label>
             </div>
 
-            <!-- Filter Section -->
-            <div class="filter-section">
-                <h3>Data Filters</h3>
-                <div class="filter-controls">
-                    <div class="filter-group">
-                        <label for="startDate">Start Date:</label>
-                        <input type="date" id="startDate" onchange="applyFilters()">
+            <div class="data-section">
+                <div class="data-header" id="dataHeader">
+                    <span>Team Time Entries</span>
+                    <div class="export-options">
+                        <button class="export-button" onclick="exportExcel()" title="Export to Excel">
+                            Excel
+                        </button>
+                        <button class="export-button" onclick="exportCSV()" title="Export to CSV">
+                            CSV
+                        </button>
+                        <button class="export-button" onclick="exportJSON()" title="Export to JSON">
+                            JSON
+                        </button>
+                        <button class="export-button" onclick="exportAccess()" title="Export for Access">
+                            Access
+                        </button>
                     </div>
-                    <div class="filter-group">
-                        <label for="endDate">End Date:</label>
-                        <input type="date" id="endDate" onchange="applyFilters()">
-                    </div>
-                    <div class="filter-group">
-                        <label for="employeeFilter">Employee:</label>
-                        <select id="employeeFilter" onchange="applyFilters()">
-                            <option value="">All Employees</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="categoryFilter">Category:</label>
-                        <select id="categoryFilter" onchange="applyFilters()">
-                            <option value="">All Categories</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="projectFilter">Project:</label>
-                        <select id="projectFilter" onchange="applyFilters()">
-                            <option value="">All Projects</option>
-                        </select>
+                </div>
+                <div class="data-content" id="dataContent">
+                    <div class="no-data">
+                        <div class="no-data-icon">📂</div>
+                        <div>No timesheet data imported yet</div>
+                        <div style="font-size: 1rem; margin-top: 10px; opacity: 0.7;">
+                            Click "Import Timesheets" to get started
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- View Mode Section -->
-            <div class="view-mode-section">
-                <h3>View Mode</h3>
-                <div class="view-controls">
-                    <label class="radio-label">
-                        <input type="radio" name="viewMode" value="all" checked onchange="switchView()">
-                        <span>All Entries</span>
+        <div class="footer">
+            <p class="credits">Time Tracker Admin Console v1.1.2 | Created: August 18, 2025 PST | Modified: August 18, 2025 PST | Philippe Addelia</p>
+        </div>
+    </div>
+
+    <!-- Data Cleanup Modal -->
+    <div class="modal" id="cleanupModal">
+        <div class="modal-content">
+            <div class="modal-header">Data Cleanup Tools</div>
+            <div id="cleanupContent">
+                <p>Select cleanup operations to perform:</p>
+                <div style="margin: 20px 0;">
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="removeDuplicates" checked>
+                        Remove duplicate entries (same employee, date, time)
                     </label>
-                    <label class="radio-label">
-                        <input type="radio" name="viewMode" value="individual" onchange="switchView()">
-                        <span>By Individual</span>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="validateTimes">
+                        Fix invalid time entries (end before start, etc.)
                     </label>
-                    <label class="radio-label">
-                        <input type="radio" name="viewMode" value="category" onchange="switchView()">
-                        <span>By Category</span>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="standardizeProjects">
+                        Standardize project names (remove extra spaces, fix case)
                     </label>
-                    <label class="radio-label">
-                        <input type="radio" name="viewMode" value="project" onchange="switchView()">
-                        <span>By Project</span>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="validateDates">
+                        Remove entries with invalid dates
                     </label>
-                    <label class="radio-label">
-                        <input type="radio" name="viewMode" value="analytics" onchange="switchView()">
-                        <span>Analytics</span>
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="viewMode" value="payperiod" onchange="switchView()">
-                        <span>By Pay Period</span>
-                    </label>
+                </div>
+                <div class="progress-bar" id="cleanupProgress" style="display: none;">
+                    <div class="progress-fill" id="cleanupProgressFill"></div>
                 </div>
             </div>
-
-            <!-- Export Section -->
-            <div class="export-section">
-                <h3>Export Data</h3>
-                <div class="button-group">
-                    <button class="primary-button" onclick="exportToCSV()">Export to CSV</button>
-                    <button class="primary-button" onclick="exportToExcel()">Export to Excel</button>
-                    <button class="secondary-button" onclick="exportToJSON()">Export to JSON</button>
-                    <button class="secondary-button" onclick="generateReport()">Generate Report</button>
-                </div>
-            </div>
-
-            <!-- Data Display Area -->
-            <div id="dataDisplay" class="data-display">
-                <div class="empty-state">
-                    <div class="empty-icon">📊</div>
-                    <h3>No Data Available</h3>
-                    <p>Import timesheet CSV files to begin analysis</p>
-                </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="performCleanup()">Run Cleanup</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- Load JavaScript -->
-    <script src="time_tracker_admin_functions.js"></script>
+    <script>
+        // Global variables
+        let allTimeEntries = [];
+        let filteredEntries = [];
+        let employees = new Set();
+        let projects = new Set();
+        let categories = new Set();
+        let duplicateCount = 0;
+        let invalidCount = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPersistedData();
+            updateStats();
+            updateFilters();
+        });
+
+        // File import functions
+        function triggerImport() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileImport(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            const importButton = document.getElementById('importButton');
+            const importStatus = document.getElementById('importStatus');
+            
+            importButton.disabled = true;
+            importButton.textContent = 'Processing files...';
+            showStatus('Processing ' + files.length + ' files...', 'info', 'importStatus');
+
+            processFiles(files);
+        }
+
+        async function processFiles(files) {
+            allTimeEntries = [];
+            employees.clear();
+            projects.clear();
+            categories.clear();
+            duplicateCount = 0;
+            invalidCount = 0;
+
+            let processedFiles = 0;
+            let totalEntries = 0;
+            let errors = [];
+
+            for (let file of files) {
+                try {
+                    const entries = await processFile(file);
+                    allTimeEntries = [...allTimeEntries, ...entries];
+                    totalEntries += entries.length;
+                    processedFiles++;
+                } catch (error) {
+                    errors.push(`${file.name}: ${error.message}`);
+                }
+            }
+
+            // Initial data quality check
+            performDataValidation();
+
+            // Update UI
+            const importButton = document.getElementById('importButton');
+            importButton.disabled = false;
+            importButton.textContent = 'Import Timesheets';
+
+            if (errors.length > 0) {
+                showStatus(`Processed ${processedFiles}/${files.length} files. Errors: ${errors.join(', ')}`, 'error', 'importStatus');
+            } else {
+                showStatus(`Successfully imported ${totalEntries} entries from ${processedFiles} files`, 'success', 'importStatus');
+            }
+
+            // Persist data
+            persistData();
+
+            // Update displays
+            filteredEntries = [...allTimeEntries];
+            updateStats();
+            updateFilters();
+            displayData();
+        }
+
+        function processFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const csv = e.target.result;
+                        const lines = csv.split('\n').filter(line => line.trim());
+                        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+                        
+                        const entries = [];
+                        for (let i = 1; i < lines.length; i++) {
+                            const values = parseCSVLine(lines[i]);
+                            if (values.length !== headers.length) continue;
+                            
+                            const entry = {
+                                id: Date.now() + Math.random(),
+                                employee: values[0].replace(/"/g, '').trim(),
+                                date: values[1].replace(/"/g, '').trim(),
+                                category: values[2].replace(/"/g, '').trim().toLowerCase(),
+                                project: values[3].replace(/"/g, '').trim(),
+                                startTime: values[4].replace(/"/g, '').trim(),
+                                endTime: values[5].replace(/"/g, '').trim(),
+                                duration: parseFloat(values[6]) || 0,
+                                fileName: file.name,
+                                importDate: new Date().toISOString()
+                            };
+                            
+                            // Collect unique values
+                            employees.add(entry.employee);
+                            projects.add(entry.project);
+                            categories.add(entry.category);
+                            
+                            entries.push(entry);
+                        }
+                        
+                        resolve(entries);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error('Failed to read file'));
+                };
+                
+                reader.readAsText(file);
+            });
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
+        }
+
+        // Data validation
+        function performDataValidation() {
+            const seen = new Set();
+            duplicateCount = 0;
+            invalidCount = 0;
+            
+            allTimeEntries.forEach(entry => {
+                // Check for duplicates
+                const key = `${entry.employee}-${entry.date}-${entry.startTime}-${entry.endTime}`;
+                if (seen.has(key)) {
+                    entry.isDuplicate = true;
+                    duplicateCount++;
+                } else {
+                    seen.add(key);
+                    entry.isDuplicate = false;
+                }
+                
+                // Validate times
+                const start = parseTime(entry.startTime);
+                const end = parseTime(entry.endTime);
+                entry.isValid = start < end;
+                if (!entry.isValid) {
+                    invalidCount++;
+                }
+            });
+        }
+
+        function parseTime(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + (minutes || 0);
+        }
+
+        // Display functions
+        function displayData() {
+            const dataContent = document.getElementById('dataContent');
+            const viewType = document.querySelector('input[name="viewType"]:checked').id;
+            
+            if (filteredEntries.length === 0) {
+                dataContent.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">📂</div>
+                        <div>No data to display</div>
+                        <div style="font-size: 1rem; margin-top: 10px; opacity: 0.7;">
+                            ${allTimeEntries.length === 0 ? 'Import timesheets to get started' : 'Adjust filters to see data'}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (viewType === 'tableView') {
+                displayTableView();
+            } else {
+                displayAnalyticsView();
+            }
+        }
+
+        function displayTableView() {
+            const dataContent = document.getElementById('dataContent');
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Project</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration (hrs)</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            filteredEntries.forEach(entry => {
+                const status = entry.isDuplicate ? 'DUPLICATE' : (!entry.isValid ? 'INVALID' : 'VALID');
+                const statusColor = status === 'VALID' ? 'green' : (status === 'DUPLICATE' ? 'orange' : 'red');
+                
+                html += `
+                    <tr id="entry-row-${entry.id}">
+                        <td>${entry.employee}</td>
+                        <td>${entry.date}</td>
+                        <td>${entry.category}</td>
+                        <td>${entry.project}</td>
+                        <td>${entry.startTime}</td>
+                        <td>${entry.endTime}</td>
+                        <td>${entry.duration.toFixed(2)}</td>
+                        <td style="color: ${statusColor}; font-weight: 600;">${status}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-button edit" onclick="editEntry('${entry.id}')">Edit</button>
+                                <button class="action-button delete" onclick="deleteEntry('${entry.id}')">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            dataContent.innerHTML = html;
+        }
+
+        function displayAnalyticsView() {
+            const dataContent = document.getElementById('dataContent');
+            
+            // Calculate analytics
+            const employeeHours = {};
+            const projectHours = {};
+            const categoryHours = {};
+            const dailyHours = {};
+            
+            filteredEntries.forEach(entry => {
+                if (!entry.isValid || entry.isDuplicate) return;
+                
+                employeeHours[entry.employee] = (employeeHours[entry.employee] || 0) + entry.duration;
+                projectHours[entry.project] = (projectHours[entry.project] || 0) + entry.duration;
+                categoryHours[entry.category] = (categoryHours[entry.category] || 0) + entry.duration;
+                dailyHours[entry.date] = (dailyHours[entry.date] || 0) + entry.duration;
+            });
+            
+            let html = '<div style="display: grid; gap: 30px;">';
+            
+            // Employee Hours
+            html += '<div><h3>Hours by Employee</h3><table class="data-table">';
+            html += '<thead><tr><th>Employee</th><th>Total Hours</th><th>Average Daily</th></tr></thead><tbody>';
+            Object.entries(employeeHours)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([employee, hours]) => {
+                    const days = new Set(filteredEntries.filter(e => e.employee === employee).map(e => e.date)).size;
+                    html += `<tr><td>${employee}</td><td>${hours.toFixed(2)}</td><td>${(hours / days).toFixed(2)}</td></tr>`;
+                });
+            html += '</tbody></table></div>';
+            
+            // Project Hours
+            html += '<div><h3>Hours by Project</h3><table class="data-table">';
+            html += '<thead><tr><th>Project</th><th>Total Hours</th><th>Percentage</th></tr></thead><tbody>';
+            const totalProjectHours = Object.values(projectHours).reduce((a, b) => a + b, 0);
+            Object.entries(projectHours)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([project, hours]) => {
+                    const percentage = ((hours / totalProjectHours) * 100).toFixed(1);
+                    html += `<tr><td>${project}</td><td>${hours.toFixed(2)}</td><td>${percentage}%</td></tr>`;
+                });
+            html += '</tbody></table></div>';
+            
+            // Category Distribution
+            html += '<div><h3>Hours by Category</h3><table class="data-table">';
+            html += '<thead><tr><th>Category</th><th>Total Hours</th><th>Percentage</th></tr></thead><tbody>';
+            const totalCategoryHours = Object.values(categoryHours).reduce((a, b) => a + b, 0);
+            Object.entries(categoryHours)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([category, hours]) => {
+                    const percentage = ((hours / totalCategoryHours) * 100).toFixed(1);
+                    html += `<tr><td>${category}</td><td>${hours.toFixed(2)}</td><td>${percentage}%</td></tr>`;
+                });
+            html += '</tbody></table></div>';
+            
+            html += '</div>';
+            dataContent.innerHTML = html;
+        }
+
+        // Filter functions
+        function updateFilters() {
+            // Update employee filter
+            const employeeFilter = document.getElementById('employeeFilter');
+            employeeFilter.innerHTML = '<option value="">All Employees</option>';
+            Array.from(employees).sort().forEach(emp => {
+                employeeFilter.innerHTML += `<option value="${emp}">${emp}</option>`;
+            });
+            
+            // Update project filter
+            const projectFilter = document.getElementById('projectFilter');
+            projectFilter.innerHTML = '<option value="">All Projects</option>';
+            Array.from(projects).sort().forEach(proj => {
+                projectFilter.innerHTML += `<option value="${proj}">${proj}</option>`;
+            });
+            
+            // Update category filter
+            const categoryFilter = document.getElementById('categoryFilter');
+            categoryFilter.innerHTML = '<option value="">All Categories</option>';
+            Array.from(categories).sort().forEach(cat => {
+                categoryFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+
+        function applyFilters() {
+            const employeeFilter = document.getElementById('employeeFilter').value;
+            const projectFilter = document.getElementById('projectFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            filteredEntries = allTimeEntries.filter(entry => {
+                if (employeeFilter && entry.employee !== employeeFilter) return false;
+                if (projectFilter && entry.project !== projectFilter) return false;
+                if (categoryFilter && entry.category !== categoryFilter) return false;
+                if (startDate && entry.date < startDate) return false;
+                if (endDate && entry.date > endDate) return false;
+                return true;
+            });
+            
+            updateStats();
+            displayData();
+        }
+
+        function resetFilters() {
+            document.getElementById('employeeFilter').value = '';
+            document.getElementById('projectFilter').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            
+            filteredEntries = [...allTimeEntries];
+            updateStats();
+            displayData();
+        }
+
+        // Stats update
+        function updateStats() {
+            const validEntries = filteredEntries.filter(e => !e.isDuplicate && e.isValid);
+            const totalHours = validEntries.reduce((sum, e) => sum + e.duration, 0);
+            const uniqueEmployees = new Set(filteredEntries.map(e => e.employee)).size;
+            const uniqueProjects = new Set(filteredEntries.map(e => e.project)).size;
+            const dataQuality = filteredEntries.length > 0 
+                ? Math.round((validEntries.length / filteredEntries.length) * 100) 
+                : 100;
+            
+            document.getElementById('totalEntries').textContent = filteredEntries.length;
+            document.getElementById('totalHours').textContent = totalHours.toFixed(1);
+            document.getElementById('totalEmployees').textContent = uniqueEmployees;
+            document.getElementById('totalProjects').textContent = uniqueProjects;
+            document.getElementById('dataQuality').textContent = dataQuality + '%';
+        }
+
+        // View switching
+        function switchView() {
+            displayData();
+        }
+
+        // Export functions
+        function exportExcel() {
+            if (filteredEntries.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            const ws = XLSX.utils.json_to_sheet(filteredEntries.map(e => ({
+                Employee: e.employee,
+                Date: e.date,
+                Category: e.category,
+                Project: e.project,
+                'Start Time': e.startTime,
+                'End Time': e.endTime,
+                'Duration (Hours)': e.duration,
+                Status: e.isDuplicate ? 'DUPLICATE' : (!e.isValid ? 'INVALID' : 'VALID')
+            })));
+            
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Timesheet Data');
+            
+            XLSX.writeFile(wb, `Team_Timesheet_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        function exportCSV() {
+            if (filteredEntries.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            let csv = 'Employee,Date,Category,Project,Start Time,End Time,Duration (Hours),Status\n';
+            filteredEntries.forEach(entry => {
+                const status = entry.isDuplicate ? 'DUPLICATE' : (!entry.isValid ? 'INVALID' : 'VALID');
+                csv += `"${entry.employee}","${entry.date}","${entry.category}","${entry.project}","${entry.startTime}","${entry.endTime}",${entry.duration},"${status}"\n`;
+            });
+            
+            downloadFile(csv, `Team_Timesheet_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+        }
+
+        function exportJSON() {
+            if (filteredEntries.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            const jsonData = JSON.stringify(filteredEntries, null, 2);
+            downloadFile(jsonData, `Team_Timesheet_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+        }
+
+        function exportAccess() {
+            if (filteredEntries.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            // Create CSV for Access import
+            let csvContent = 'EmployeeID,EmployeeName,WorkDate,Category,Project,StartTime,EndTime,DurationHours,EntryStatus,RowID\n';
+            
+            filteredEntries.forEach((entry, index) => {
+                const status = entry.isDuplicate ? 'DUPLICATE' : (!entry.isValid ? 'INVALID' : 'VALID');
+                const employeeID = Array.from(employees).indexOf(entry.employee) + 1;
+                csvContent += `${employeeID},"${entry.employee}","${entry.date}","${entry.category}","${entry.project}","${entry.startTime}","${entry.endTime}",${entry.duration},"${status}",${index + 1}\n`;
+            });
+            
+            downloadFile(csvContent, `Team_Timesheet_Access_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            URL.revokeObjectURL(url);
+        }
+
+        // Data management functions
+        function showDataCleanup() {
+            document.getElementById('cleanupModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('cleanupModal').style.display = 'none';
+        }
+
+        function performCleanup() {
+            const removeDuplicates = document.getElementById('removeDuplicates').checked;
+            const validateTimes = document.getElementById('validateTimes').checked;
+            const standardizeProjects = document.getElementById('standardizeProjects').checked;
+            const validateDates = document.getElementById('validateDates').checked;
+            
+            let cleanedEntries = [...allTimeEntries];
+            let operations = [];
+            
+            if (removeDuplicates) {
+                const seen = new Set();
+                cleanedEntries = cleanedEntries.filter(entry => {
+                    const key = `${entry.employee}-${entry.date}-${entry.startTime}-${entry.endTime}`;
+                    if (seen.has(key)) {
+                        return false;
+                    }
+                    seen.add(key);
+                    return true;
+                });
+                operations.push('Removed duplicates');
+            }
+            
+            if (validateTimes) {
+                cleanedEntries = cleanedEntries.filter(entry => {
+                    const start = parseTime(entry.startTime);
+                    const end = parseTime(entry.endTime);
+                    return start < end;
+                });
+                operations.push('Removed invalid time entries');
+            }
+            
+            if (standardizeProjects) {
+                cleanedEntries = cleanedEntries.map(entry => ({
+                    ...entry,
+                    project: entry.project.trim().replace(/\s+/g, ' ')
+                }));
+                operations.push('Standardized project names');
+            }
+            
+            if (validateDates) {
+                cleanedEntries = cleanedEntries.filter(entry => {
+                    const date = new Date(entry.date);
+                    return !isNaN(date.getTime());
+                });
+                operations.push('Removed invalid dates');
+            }
+            
+            const removedCount = allTimeEntries.length - cleanedEntries.length;
+            allTimeEntries = cleanedEntries;
+            filteredEntries = [...allTimeEntries];
+            
+            performDataValidation();
+            updateStats();
+            updateFilters();
+            displayData();
+            persistData();
+            
+            closeModal();
+            showStatus(`Cleanup complete. ${operations.join(', ')}. Removed ${removedCount} entries.`, 'success', 'analysisStatus');
+        }
+
+        function showSummary() {
+            const validEntries = allTimeEntries.filter(e => !e.isDuplicate && e.isValid);
+            const totalHours = validEntries.reduce((sum, e) => sum + e.duration, 0);
+            
+            const summary = `
+TEAM TIMESHEET SUMMARY
+======================
+Total Entries: ${allTimeEntries.length}
+Valid Entries: ${validEntries.length}
+Duplicate Entries: ${duplicateCount}
+Invalid Entries: ${invalidCount}
+
+Total Hours: ${totalHours.toFixed(2)}
+Unique Employees: ${employees.size}
+Unique Projects: ${projects.size}
+Categories: ${Array.from(categories).join(', ')}
+
+Data Quality Score: ${Math.round((validEntries.length / allTimeEntries.length) * 100) || 0}%
+Date Range: ${allTimeEntries.length > 0 ? (() => {
+        const dates = allTimeEntries.map(entry => entry.date).sort();
+        return dates[0] === dates[dates.length - 1] ? dates[0] : `${dates[0]} to ${dates[dates.length - 1]}`;
+    })() : 'No data'}
+            `;
+            
+            alert(summary);
+        }
+
+        function clearAllData() {
+            if (allTimeEntries.length === 0) {
+                alert('No data to clear.');
+                return;
+            }
+            
+            const confirmed = confirm(
+                `WARNING: This will permanently delete all ${allTimeEntries.length} time entries!\n\n` +
+                `This action cannot be undone.\n\n` +
+                `Are you sure you want to continue?`
+            );
+            
+            if (confirmed) {
+                const finalConfirm = confirm('FINAL CONFIRMATION\n\nDelete ALL imported timesheet data?');
+                if (finalConfirm) {
+                    allTimeEntries = [];
+                    filteredEntries = [];
+                    employees.clear();
+                    projects.clear();
+                    categories.clear();
+                    duplicateCount = 0;
+                    invalidCount = 0;
+                    
+                    // Clear persisted data
+                    clearPersistedData();
+                    
+                    updateStats();
+                    updateFilters();
+                    switchView();
+                    
+                    showStatus('All data cleared successfully', 'success', 'importStatus');
+                }
+            }
+        }
+
+        function showStatus(message, type, elementId) {
+            const status = document.getElementById(elementId);
+            status.textContent = message;
+            status.className = `status-message ${type}`;
+            status.style.display = 'block';
+            
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function showSampleData() {
+            const sampleCSV = `Employee Name,Date,Category,Project,Start Time,End Time,Duration (Hours)
+"John Doe","2025-06-29","work","Project Alpha","09:00","17:00",8.0
+"Jane Smith","2025-06-29","overhead","Admin Tasks","08:30","12:30",4.0
+"John Doe","2025-06-28","travel","Client Meeting","10:00","14:00",4.0
+"Jane Smith","2025-06-28","work","Project Beta","09:00","17:30",8.5`;
+            
+            downloadFile(sampleCSV, 'sample_timesheet.csv', 'text/csv');
+            showStatus('Sample CSV file downloaded. Use this format for importing team timesheets.', 'info', 'importStatus');
+        }
+
+        // Entry management functions
+        function editEntry(entryId) {
+            const entry = allTimeEntries.find(e => e.id == entryId);
+            if (!entry) {
+                alert('Entry not found');
+                return;
+            }
+            
+            const row = document.getElementById(`entry-row-${entryId}`);
+            if (!row) return;
+            
+            // Store original values for cancel functionality
+            const original = { ...entry };
+            
+            row.innerHTML = `
+                <td><input type="text" class="edit-input" id="edit-employee-${entryId}" value="${entry.employee}"></td>
+                <td><input type="date" class="edit-input" id="edit-date-${entryId}" value="${entry.date}"></td>
+                <td>
+                    <select class="edit-input" id="edit-category-${entryId}">
+                        <option value="work" ${entry.category === 'work' ? 'selected' : ''}>Work</option>
+                        <option value="overhead" ${entry.category === 'overhead' ? 'selected' : ''}>Overhead</option>
+                        <option value="travel" ${entry.category === 'travel' ? 'selected' : ''}>Travel</option>
+                        <option value="pto" ${entry.category === 'pto' ? 'selected' : ''}>PTO</option>
+                        <option value="sick" ${entry.category === 'sick' ? 'selected' : ''}>Sick</option>
+                        <option value="holiday" ${entry.category === 'holiday' ? 'selected' : ''}>Holiday</option>
+                        <option value="bereavement" ${entry.category === 'bereavement' ? 'selected' : ''}>Bereavement</option>
+                        <option value="jury" ${entry.category === 'jury' ? 'selected' : ''}>Jury</option>
+                    </select>
+                </td>
+                <td><input type="text" class="edit-input" id="edit-project-${entryId}" value="${entry.project}"></td>
+                <td><input type="time" class="edit-input" id="edit-start-${entryId}" value="${entry.startTime}"></td>
+                <td><input type="time" class="edit-input" id="edit-end-${entryId}" value="${entry.endTime}"></td>
+                <td><input type="number" class="edit-input" id="edit-duration-${entryId}" value="${entry.duration}" step="0.5"></td>
+                <td>-</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-button" style="background: #28a745;" onclick="saveEntry('${entryId}')">Save</button>
+                        <button class="action-button" style="background: #6c757d;" onclick="cancelEdit('${entryId}')">Cancel</button>
+                    </div>
+                </td>
+            `;
+        }
+
+        function saveEntry(entryId) {
+            const entry = allTimeEntries.find(e => e.id == entryId);
+            if (!entry) return;
+            
+            entry.employee = document.getElementById(`edit-employee-${entryId}`).value;
+            entry.date = document.getElementById(`edit-date-${entryId}`).value;
+            entry.category = document.getElementById(`edit-category-${entryId}`).value;
+            entry.project = document.getElementById(`edit-project-${entryId}`).value;
+            entry.startTime = document.getElementById(`edit-start-${entryId}`).value;
+            entry.endTime = document.getElementById(`edit-end-${entryId}`).value;
+            entry.duration = parseFloat(document.getElementById(`edit-duration-${entryId}`).value);
+            
+            // Update collections
+            employees.add(entry.employee);
+            projects.add(entry.project);
+            categories.add(entry.category);
+            
+            performDataValidation();
+            persistData();
+            updateStats();
+            updateFilters();
+            displayData();
+            
+            showStatus('Entry updated successfully', 'success', 'analysisStatus');
+        }
+
+        function cancelEdit(entryId) {
+            displayData();
+        }
+
+        function deleteEntry(entryId) {
+            if (!confirm('Are you sure you want to delete this entry?')) return;
+            
+            allTimeEntries = allTimeEntries.filter(e => e.id != entryId);
+            filteredEntries = filteredEntries.filter(e => e.id != entryId);
+            
+            performDataValidation();
+            persistData();
+            updateStats();
+            updateFilters();
+            displayData();
+            
+            showStatus('Entry deleted successfully', 'success', 'analysisStatus');
+        }
+
+        // Local storage functions
+        function persistData() {
+            try {
+                localStorage.setItem('timeTrackerAdminData', JSON.stringify({
+                    entries: allTimeEntries,
+                    lastUpdate: new Date().toISOString()
+                }));
+            } catch (e) {
+                console.error('Failed to persist data:', e);
+            }
+        }
+
+        function loadPersistedData() {
+            try {
+                const stored = localStorage.getItem('timeTrackerAdminData');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    allTimeEntries = data.entries || [];
+                    
+                    // Rebuild collections
+                    allTimeEntries.forEach(entry => {
+                        employees.add(entry.employee);
+                        projects.add(entry.project);
+                        categories.add(entry.category);
+                    });
+                    
+                    performDataValidation();
+                    filteredEntries = [...allTimeEntries];
+                    displayData();
+                }
+            } catch (e) {
+                console.error('Failed to load persisted data:', e);
+            }
+        }
+
+        function clearPersistedData() {
+            try {
+                localStorage.removeItem('timeTrackerAdminData');
+            } catch (e) {
+                console.error('Failed to clear persisted data:', e);
+            }
+        }
+    </script>
 </body>
 </html>
