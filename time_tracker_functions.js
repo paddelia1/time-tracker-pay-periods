@@ -1,747 +1,995 @@
-/* 
-Time Tracker Functions - All Business Logic
-Version: 1.1.2
+/*
+Time Tracker Functions v1.1.2
+Author: Philippe Addelia
+Company: NAKUPUNA CONSULTING
 Created: August 17, 2025 PST
-Preferred location: Main time tracker directory
-Purpose: Separated functionality following code-behind pattern
+Modified: August 17, 2025 PST
+Preferred location: Modules\Time Tracker\time_tracker_functions.js
+Purpose: All JavaScript functionality for the Employee Time Tracker application
 */
 
-const TimeTracker = {
-    // State variables
-    timeEntries: [],
-    currentSession: null,
-    timerInterval: null,
-    isRunning: false,
-    dailyTarget: 8,
-    currentView: 'detailed',
-    payPeriodsConfig: null,
-    selectedPayPeriod: null,
-    companyHolidays: [],
+// Company Configuration - EDIT THIS SECTION TO CUSTOMIZE FOR YOUR COMPANY
+const COMPANY_CONFIG = {
+    "companyName": "NAKUPUNA CONSULTING",
+    "companyLogoPath": "Company_logo.png",
+    "companyTagline": "Time Management Solutions",
+    "showTagline": false,
+    "logoMaxHeight": "60px",
+    "logoMaxWidth": "200px"
+};
 
-    // Public API
-    init() {
-        console.log('Time tracker initializing...');
-        
-        this.loadData();
-        console.log('After loadData, timeEntries:', this.timeEntries, 'Type:', typeof this.timeEntries, 'IsArray:', Array.isArray(this.timeEntries));
-        
-        this.loadSettings();
-        this.setupEventListeners();
-        this.loadPayPeriodsConfig();
-        this.updateDisplay();
-        
-        console.log('Time tracker initialization complete');
+// Built-in pay periods configuration
+const DEFAULT_PAY_PERIODS_CONFIG = {
+    "version": "1.1.2",
+    "lastUpdated": "2025-08-17T12:00:00-08:00",
+    "company": {
+        "name": COMPANY_CONFIG.companyName || "NAKUPUNA CONSULTING",
+        "payrollCycle": "bi-weekly",
+        "timeZone": "PST"
     },
+    "payPeriods": [
+        {
+            "id": "PP-2025-16",
+            "startDate": "2025-08-02",
+            "endDate": "2025-08-15",
+            "timesheetDue": "2025-08-15",
+            "payDay": "2025-08-22",
+            "description": "Pay Period 16 - August 2nd to 15th"
+        },
+        {
+            "id": "PP-2025-17",
+            "startDate": "2025-08-16",
+            "endDate": "2025-08-29",
+            "timesheetDue": "2025-08-29",
+            "payDay": "2025-09-05",
+            "description": "Pay Period 17 - August 16th to 29th"
+        },
+        {
+            "id": "PP-2025-18",
+            "startDate": "2025-08-30",
+            "endDate": "2025-09-12",
+            "timesheetDue": "2025-09-12",
+            "payDay": "2025-09-19",
+            "description": "Pay Period 18 - August 30th to September 12th"
+        },
+        {
+            "id": "PP-2025-19",
+            "startDate": "2025-09-13",
+            "endDate": "2025-09-26",
+            "timesheetDue": "2025-09-26",
+            "payDay": "2025-10-03",
+            "description": "Pay Period 19 - September 13th to 26th"
+        }
+    ],
+    "holidays": [
+        {
+            "date": "2025-01-01",
+            "name": "New Year's Day",
+            "type": "federal"
+        },
+        {
+            "date": "2025-01-20",
+            "name": "Martin Luther King Jr. Day",
+            "type": "federal"
+        },
+        {
+            "date": "2025-02-17",
+            "name": "Presidents Day",
+            "type": "federal"
+        },
+        {
+            "date": "2025-05-26",
+            "name": "Memorial Day",
+            "type": "federal"
+        },
+        {
+            "date": "2025-06-19",
+            "name": "Juneteenth",
+            "type": "federal"
+        },
+        {
+            "date": "2025-07-04",
+            "name": "Independence Day",
+            "type": "federal"
+        },
+        {
+            "date": "2025-09-01",
+            "name": "Labor Day",
+            "type": "federal"
+        },
+        {
+            "date": "2025-10-13",
+            "name": "Columbus Day",
+            "type": "federal"
+        },
+        {
+            "date": "2025-11-11",
+            "name": "Veteran's Day",
+            "type": "federal"
+        },
+        {
+            "date": "2025-11-27",
+            "name": "Thanksgiving Day",
+            "type": "federal"
+        },
+        {
+            "date": "2025-12-25",
+            "name": "Christmas Day",
+            "type": "federal"
+        }
+    ],
+    "configVersion": "1.1.2",
+    "lastUpdated": "2025-08-17",
+    "company": COMPANY_CONFIG.companyName || "NAKUPUNA CONSULTING"
+};
 
-    // Event Listeners Setup
-    setupEventListeners() {
-        // Employee name and daily target changes
-        document.getElementById('employeeName').addEventListener('input', () => this.saveSettings());
-        document.getElementById('dailyTarget').addEventListener('input', () => {
-            this.saveSettings();
-            this.updateDisplay();
-        });
+// Global state variables
+let isTracking = false;
+let startTime = null;
+let timerInterval = null;
+let timeEntries = [];
+let warningShown = false;
+let autoSaveInterval = null;
+let currentView = 'detailed';
+let selectedImportMode = 'append';
+let payPeriodsConfig = null;
+let selectedPayPeriod = null;
+let companyHolidays = [];
 
-        // Pay period changes
-        document.getElementById('payPeriodSelect').addEventListener('change', () => this.onPayPeriodChange());
-        document.getElementById('periodStart').addEventListener('change', () => this.onCustomDateChange());
-        document.getElementById('periodEnd').addEventListener('change', () => this.onCustomDateChange());
+// Initialize app on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Time tracker initializing...');
+    loadData();
+    loadPayPeriodsConfig();
+    setupEventListeners();
+    setupBeforeUnload();
+    checkForIncompleteSession();
+    console.log('Time tracker initialization complete');
+});
 
-        // Timer button
-        document.getElementById('timerButton').addEventListener('click', () => this.toggleTimer());
+// ============================================================================
+// PAY PERIODS AND CONFIGURATION MANAGEMENT
+// ============================================================================
 
-        // Export/Import buttons
-        document.getElementById('exportBtn').addEventListener('click', () => this.exportToCSV());
-        document.getElementById('importBtn').addEventListener('click', () => this.importCSV());
-        document.getElementById('clearBtn').addEventListener('click', () => this.clearAllData());
-
-        // View buttons
-        document.querySelectorAll('.view-button').forEach(btn => {
-            btn.addEventListener('click', (e) => this.setView(e.target.dataset.view));
-        });
-
-        // CSV file input
-        document.getElementById('csvFileInput').addEventListener('change', (e) => this.handleCSVImport(e));
-    },
-
-    // Pay Period Configuration Management - Hybrid Approach
-    async loadPayPeriodsConfig() {
-        console.log('Loading pay periods configuration...');
-        
-        // Try multiple approaches in order of preference
-        const loadStrategies = [
-            () => this.loadExternalJSON(),           // Best: External JSON (PowerShell compatible)
-            () => this.loadEmbeddedConfig(),         // Fallback: Embedded JS config
-            () => this.enableManualDateSelection()   // Last resort: Manual dates
-        ];
-        
-        for (const strategy of loadStrategies) {
-            try {
-                const result = await strategy();
-                if (result) {
-                    console.log('Pay periods config loaded successfully');
-                    return;
-                }
-            } catch (error) {
-                console.warn('Config loading strategy failed:', error.message);
-                continue;
-            }
+function loadPayPeriodsConfig() {
+    try {
+        const savedConfig = localStorage.getItem('payPeriodsConfig');
+        if (savedConfig) {
+            payPeriodsConfig = JSON.parse(savedConfig);
+            console.log('Loaded pay periods config from localStorage');
+        } else {
+            payPeriodsConfig = DEFAULT_PAY_PERIODS_CONFIG;
+            console.log('Using default pay periods config');
         }
         
-        console.error('All config loading strategies failed');
-    },
+        companyHolidays = payPeriodsConfig.holidays || [];
+        populatePayPeriods();
+        setDefaultPeriod();
+        
+    } catch (error) {
+        console.error('Error loading pay periods config:', error);
+        payPeriodsConfig = DEFAULT_PAY_PERIODS_CONFIG;
+        companyHolidays = payPeriodsConfig.holidays || [];
+        populatePayPeriods();
+        setDefaultPeriod();
+    }
+}
 
-    async loadExternalJSON() {
-        console.log('Attempting to load external pay_periods_config.json...');
-        
-        // Try multiple possible paths for GitHub Pages compatibility
-        const possiblePaths = [
-            './pay_periods_config.json',                    // Same directory
-            'pay_periods_config.json',                      // Relative to current
-            '/pay_periods_config.json',                     // Root of site
-            `${window.location.pathname.replace(/\/[^\/]*$/, '/')}/pay_periods_config.json`  // Current directory
-        ];
-        
-        for (const path of possiblePaths) {
-            try {
-                console.log(`Trying to fetch: ${path}`);
-                const response = await fetch(path);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const config = await response.json();
-                
-                this.payPeriodsConfig = config;
-                
-                // Load holidays if available
-                if (config.holidays) {
-                    this.companyHolidays = config.holidays;
-                }
-                
-                this.populatePayPeriodDropdown();
-                this.selectCurrentPayPeriod();
-                
-                // Update status
-                const status = document.getElementById('configStatus');
-                status.className = 'config-status success';
-                status.textContent = `✅ External JSON config loaded successfully! (${path})`;
-                
-                console.log('External JSON config loaded from:', path, config);
-                return true; // Success
-                
-            } catch (error) {
-                console.warn(`Failed to load from ${path}:`, error.message);
-                continue; // Try next path
-            }
-        }
-        
-        throw new Error('All external JSON paths failed');
-    },
-
-    loadEmbeddedConfig() {
-        console.log('Loading embedded pay periods configuration...');
-        
-        // Use the global PAY_PERIODS_CONFIG from pay_periods_config.js
-        if (typeof PAY_PERIODS_CONFIG === 'undefined') {
-            throw new Error('Embedded PAY_PERIODS_CONFIG not found');
-        }
-        
-        this.payPeriodsConfig = PAY_PERIODS_CONFIG;
-        
-        // Load holidays if available
-        if (PAY_PERIODS_CONFIG.holidays) {
-            this.companyHolidays = PAY_PERIODS_CONFIG.holidays;
-        }
-        
-        this.populatePayPeriodDropdown();
-        this.selectCurrentPayPeriod();
-        
-        // Update status
-        const status = document.getElementById('configStatus');
-        status.className = 'config-status success';
-        status.textContent = '✅ Embedded config loaded successfully! (Fallback mode)';
-        
-        console.log('Embedded config loaded successfully:', PAY_PERIODS_CONFIG);
-        return true; // Success
-    },
-
-    populatePayPeriodDropdown() {
-        const select = document.getElementById('payPeriodSelect');
-        select.innerHTML = '<option value="">-- Select Pay Period --</option>';
-        
-        if (!this.payPeriodsConfig || !this.payPeriodsConfig.payPeriods) return;
-        
-        this.payPeriodsConfig.payPeriods.forEach((period) => {
+function populatePayPeriods() {
+    const select = document.getElementById('payPeriodSelect');
+    select.innerHTML = '<option value="">Select Pay Period</option>';
+    
+    if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+        payPeriodsConfig.payPeriods.forEach(period => {
             const option = document.createElement('option');
             option.value = period.id;
-            
-            // Handle both formats: periodStart/periodEnd (PowerShell scripts) and startDate/endDate (legacy)
-            const startDate = period.periodStart || period.startDate;
-            const endDate = period.periodEnd || period.endDate;
-            
-            if (period.description) {
-                option.textContent = period.description;
-            } else {
-                option.textContent = `${period.id} (${startDate} to ${endDate})`;
-            }
-            
+            option.textContent = period.description;
             select.appendChild(option);
         });
-    },
+    }
+}
 
-    selectCurrentPayPeriod() {
-        if (!this.payPeriodsConfig || !this.payPeriodsConfig.payPeriods) return;
+function setSelectedPayPeriod() {
+    const selectedId = document.getElementById('payPeriodSelect').value;
+    selectedPayPeriod = payPeriodsConfig.payPeriods.find(p => p.id === selectedId);
+    
+    if (selectedPayPeriod) {
+        // Set period dates
+        document.getElementById('periodEnd').value = selectedPayPeriod.endDate;
         
-        // Check if we have a saved selection first
-        const savedSelection = localStorage.getItem('selectedPayPeriod');
-        if (savedSelection) {
-            const period = this.payPeriodsConfig.payPeriods.find(p => p.id === savedSelection);
-            if (period) {
-                this.setPayPeriod(period);
-                document.getElementById('payPeriodSelect').value = period.id;
-                return;
-            }
-        }
-        
-        // Auto-select current pay period based on today's date
-        const today = new Date();
-        
-        for (const period of this.payPeriodsConfig.payPeriods) {
-            const startDate = new Date(period.periodStart || period.startDate);
-            const endDate = new Date(period.periodEnd || period.endDate);
-            
-            if (today >= startDate && today <= endDate) {
-                this.setPayPeriod(period);
-                document.getElementById('payPeriodSelect').value = period.id;
-                console.log('Auto-selected current pay period:', period.id);
-                return;
-            }
-        }
-        
-        console.log('No current pay period found, user must select manually');
-    },
-
-    setPayPeriod(period) {
-        this.selectedPayPeriod = period;
-        
-        // Handle both formats: periodStart/periodEnd (PowerShell scripts) and startDate/endDate (legacy)
-        const startDate = period.periodStart || period.startDate;
-        const endDate = period.periodEnd || period.endDate;
-        
-        document.getElementById('periodStart').value = startDate;
-        document.getElementById('periodEnd').value = endDate;
-        
-        this.updatePayPeriodInfo();
-        this.updateDisplay();
-        
-        localStorage.setItem('selectedPayPeriod', period.id);
-    },
-
-    onPayPeriodChange() {
-        const select = document.getElementById('payPeriodSelect');
-        const periodId = select.value;
-        
-        if (!periodId) {
-            this.selectedPayPeriod = null;
-            document.getElementById('payPeriodInfo').style.display = 'none';
-            return;
-        }
-        
-        const period = this.payPeriodsConfig.payPeriods.find(p => p.id === periodId);
-        if (period) {
-            this.setPayPeriod(period);
-        }
-    },
-
-    onCustomDateChange() {
-        document.getElementById('payPeriodSelect').value = '';
-        this.selectedPayPeriod = null;
-        localStorage.removeItem('selectedPayPeriod');
+        // Show pay period info
+        updatePayPeriodInfo();
+        document.getElementById('payPeriodInfo').style.display = 'grid';
+    } else {
         document.getElementById('payPeriodInfo').style.display = 'none';
-        this.updateDisplay();
-    },
+    }
+    
+    updateDisplay();
+}
 
-    updatePayPeriodInfo() {
-        if (!this.selectedPayPeriod) {
-            document.getElementById('payPeriodInfo').style.display = 'none';
-            return;
-        }
+function updatePayPeriodInfo() {
+    if (!selectedPayPeriod) return;
+    
+    const today = new Date();
+    const endDate = new Date(selectedPayPeriod.endDate);
+    const daysRemaining = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+    
+    document.getElementById('periodRange').textContent = 
+        `${selectedPayPeriod.startDate} to ${selectedPayPeriod.endDate}`;
+    document.getElementById('timesheetDue').textContent = selectedPayPeriod.timesheetDue;
+    document.getElementById('payDay').textContent = selectedPayPeriod.payDay;
+    document.getElementById('daysRemaining').textContent = daysRemaining;
+}
 
-        // Handle both formats: periodStart/periodEnd (PowerShell scripts) and startDate/endDate (legacy)
-        const startDate = new Date(this.selectedPayPeriod.periodStart || this.selectedPayPeriod.startDate);
-        const endDate = new Date(this.selectedPayPeriod.periodEnd || this.selectedPayPeriod.endDate);
-        const today = new Date();
-        
-        const workingDays = this.calculateWorkingDays(startDate, endDate);
-        const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
-        
-        const periodStartStr = this.selectedPayPeriod.periodStart || this.selectedPayPeriod.startDate;
-        const periodEndStr = this.selectedPayPeriod.periodEnd || this.selectedPayPeriod.endDate;
-        
-        document.getElementById('periodDisplay').textContent = `${periodStartStr} to ${periodEndStr}`;
-        document.getElementById('timesheetDue').textContent = this.selectedPayPeriod.timesheetDue || 'N/A';
-        document.getElementById('payDay').textContent = this.selectedPayPeriod.payDay || 'N/A';
-        document.getElementById('workingDays').textContent = workingDays;
-        document.getElementById('daysRemaining').textContent = remainingDays;
-        
-        document.getElementById('payPeriodInfo').style.display = 'block';
-    },
-
-    enableManualDateSelection() {
-        console.log('Enabling manual date selection mode...');
-        
-        // Set default period (last 14 days)
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 13);
-        
-        document.getElementById('periodStart').value = startDate.toISOString().split('T')[0];
-        document.getElementById('periodEnd').value = endDate.toISOString().split('T')[0];
-        
-        // Update pay period selector
-        const select = document.getElementById('payPeriodSelect');
-        select.innerHTML = '<option value="">Manual date selection mode</option>';
-        select.disabled = true;
-        
-        // Update status
-        const status = document.getElementById('configStatus');
-        status.className = 'config-status warning';
-        status.textContent = '⚠️ Using manual date selection. Place pay_periods_config.json in same directory for automatic periods.';
-        
-        document.getElementById('payPeriodInfo').style.display = 'none';
-        
-        return true; // Always succeeds as fallback
-    },
-
-    calculateWorkingDays(startDate, endDate) {
-        let workingDays = 0;
-        const currentDate = new Date(startDate);
-        
-        while (currentDate <= endDate) {
-            const dayOfWeek = currentDate.getDay();
-            
-            // Count Monday (1) through Friday (5)
-            if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                // Check if this date is not a holiday
-                const dateStr = currentDate.toISOString().split('T')[0];
-                const isHoliday = this.companyHolidays.some(holiday => holiday.date === dateStr);
-                
-                if (!isHoliday) {
-                    workingDays++;
-                }
-            }
-            
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-        
-        return workingDays;
-    },
-
-    // Timer functionality
-    toggleTimer() {
-        if (this.isRunning) {
-            this.stopTimer();
-        } else {
-            this.startTimer();
-        }
-    },
-
-    startTimer() {
-        const category = document.getElementById('categorySelect').value;
-        const project = document.getElementById('projectInput').value.trim();
-        
-        this.currentSession = {
-            startTime: Date.now(),
-            category: category,
-            project: project || 'General'
-        };
-        
-        this.isRunning = true;
-        const button = document.getElementById('timerButton');
-        button.textContent = 'Stop';
-        button.className = 'timer-button stop';
-        
-        this.timerInterval = setInterval(() => this.updateTimer(), 1000);
-        
-        this.saveActiveSession();
-        console.log('Timer started:', this.currentSession);
-    },
-
-    stopTimer() {
-        if (!this.currentSession) return;
-        
-        const endTime = Date.now();
-        const duration = (endTime - this.currentSession.startTime) / (1000 * 60 * 60); // hours
-        
-        const entry = {
-            id: Date.now().toString(),
-            date: new Date().toISOString().split('T')[0],
-            startTime: new Date(this.currentSession.startTime).toLocaleTimeString(),
-            endTime: new Date(endTime).toLocaleTimeString(),
-            duration: Math.round(duration * 100) / 100,
-            category: this.currentSession.category,
-            project: this.currentSession.project
-        };
-        
-        this.timeEntries.push(entry);
-        this.saveData();
-        
-        this.isRunning = false;
-        this.currentSession = null;
-        clearInterval(this.timerInterval);
-        
-        const button = document.getElementById('timerButton');
-        button.textContent = 'Start';
-        button.className = 'timer-button start';
-        document.getElementById('timerDisplay').textContent = '00:00:00';
-        
-        this.updateDisplay();
-        this.clearActiveSession();
-        
-        console.log('Timer stopped, entry added:', entry);
-    },
-
-    updateTimer() {
-        if (!this.currentSession) return;
-        
-        const now = Date.now();
-        const elapsed = now - this.currentSession.startTime;
-        
-        const hours = Math.floor(elapsed / (1000 * 60 * 60));
-        const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
-        
-        const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        document.getElementById('timerDisplay').textContent = display;
-        
-        this.updateDailyCounter();
-        
-        // Save session periodically
-        if (seconds % 30 === 0) {
-            this.saveActiveSession();
-        }
-    },
-
-    // Session recovery functionality
-    saveActiveSession() {
-        if (this.currentSession) {
-            localStorage.setItem('activeSession', JSON.stringify(this.currentSession));
-        }
-    },
-
-    clearActiveSession() {
-        localStorage.removeItem('activeSession');
-    },
-
-    recoverSession() {
-        const saved = localStorage.getItem('activeSession');
-        if (saved) {
-            const session = JSON.parse(saved);
-            const now = Date.now();
-            const elapsed = now - session.startTime;
-            const maxSessionTime = 12 * 60 * 60 * 1000; // 12 hours
-            
-            if (elapsed < maxSessionTime) {
-                if (confirm(`Found an active session from ${new Date(session.startTime).toLocaleString()}.\nCategory: ${session.category}\nProject: ${session.project}\n\nWould you like to continue this session?`)) {
-                    this.currentSession = session;
-                    this.isRunning = true;
-                    const button = document.getElementById('timerButton');
-                    button.textContent = 'Stop';
-                    button.className = 'timer-button stop';
-                    document.getElementById('categorySelect').value = session.category;
-                    document.getElementById('projectInput').value = session.project;
-                    
-                    this.timerInterval = setInterval(() => this.updateTimer(), 1000);
-                    this.updateTimer();
-                    
-                    console.log('Session recovered:', session);
-                    return;
-                }
-            }
-            this.clearActiveSession();
-        }
-    },
-
-    // Data management
-    loadData() {
-        try {
-            const saved = localStorage.getItem('timeTrackerData');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed)) {
-                    this.timeEntries = parsed;
-                } else {
-                    console.warn('Invalid time entries data in localStorage, resetting to empty array');
-                    this.timeEntries = [];
-                    localStorage.removeItem('timeTrackerData');
-                }
-            } else {
-                this.timeEntries = [];
-            }
-        } catch (error) {
-            console.error('Error loading time entries data:', error);
-            console.warn('Corrupted data detected, resetting to empty array');
-            this.timeEntries = [];
-            localStorage.removeItem('timeTrackerData');
-        }
-    },
-
-    saveData() {
-        try {
-            localStorage.setItem('timeTrackerData', JSON.stringify(this.timeEntries));
-        } catch (error) {
-            console.error('Error saving time entries data:', error);
-            alert('Error saving data. Your browser storage may be full.');
-        }
-    },
-
-    saveSettings() {
-        const settings = {
-            employeeName: document.getElementById('employeeName').value,
-            dailyTarget: document.getElementById('dailyTarget').value
-        };
-        localStorage.setItem('timeTrackerSettings', JSON.stringify(settings));
-        this.dailyTarget = parseFloat(settings.dailyTarget || 8);
-    },
-
-    loadSettings() {
-        const saved = localStorage.getItem('timeTrackerSettings');
-        if (saved) {
-            const settings = JSON.parse(saved);
-            document.getElementById('employeeName').value = settings.employeeName || '';
-            document.getElementById('dailyTarget').value = settings.dailyTarget || 8;
-            this.dailyTarget = parseFloat(settings.dailyTarget || 8);
-        }
-        
-        // Check for active session on load
-        setTimeout(() => this.recoverSession(), 1000);
-    },
-
-    // Display updates
-    updateDisplay() {
-        this.updateStats();
-        this.updateDailyCounter();
-        this.updateEntriesList();
-    },
-
-    updateStats() {
-        const filteredEntries = this.getFilteredEntries();
-        const totalHours = filteredEntries.reduce((sum, entry) => sum + entry.duration, 0);
-        const workDays = new Set(filteredEntries.map(entry => entry.date)).size;
-        const avgDaily = workDays > 0 ? totalHours / workDays : 0;
-        
-        document.getElementById('totalHours').textContent = totalHours.toFixed(1);
-        document.getElementById('workDays').textContent = workDays;
-        document.getElementById('avgDaily').textContent = avgDaily.toFixed(1);
-        
-        // Calculate days in period
-        const startDate = new Date(document.getElementById('periodStart').value);
-        const endDate = new Date(document.getElementById('periodEnd').value);
-        const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-        document.getElementById('daysElapsed').textContent = daysDiff;
-    },
-
-    updateDailyCounter() {
-        const today = new Date().toISOString().split('T')[0];
-        const todayEntries = this.timeEntries.filter(entry => entry.date === today);
-        let todayHours = todayEntries.reduce((sum, entry) => sum + entry.duration, 0);
-        
-        // Add current session time if running
-        if (this.isRunning && this.currentSession) {
-            const elapsed = (Date.now() - this.currentSession.startTime) / (1000 * 60 * 60);
-            todayHours += elapsed;
-        }
-        
-        const target = parseFloat(document.getElementById('dailyTarget').value) || 8;
-        const progress = Math.min((todayHours / target) * 100, 100);
-        
-        document.getElementById('dailyCounter').textContent = `${todayHours.toFixed(1)} / ${target}h`;
-        document.getElementById('progressFillSmall').style.width = `${progress}%`;
-    },
-
-    getFilteredEntries() {
-        const startDate = document.getElementById('periodStart').value;
-        const endDate = document.getElementById('periodEnd').value;
-        
-        if (!startDate || !endDate) return this.timeEntries;
-        
-        return this.timeEntries.filter(entry => {
-            return entry.date >= startDate && entry.date <= endDate;
-        });
-    },
-
-    updateEntriesList() {
-        const container = document.getElementById('entriesList');
-        const filteredEntries = this.getFilteredEntries();
-        
-        if (filteredEntries.length === 0) {
-            container.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d;">No time entries for this period.</div>';
-            return;
-        }
-        
-        if (this.currentView === 'detailed') {
-            container.innerHTML = filteredEntries
-                .sort((a, b) => new Date(b.date + 'T' + b.startTime) - new Date(a.date + 'T' + a.startTime))
-                .map(entry => `
-                    <div class="entry-item">
-                        <div class="entry-info">
-                            <strong>${entry.date}</strong> | ${entry.startTime} - ${entry.endTime}<br>
-                            <small style="color: #6c757d;">${entry.category} • ${entry.project}</small>
-                        </div>
-                        <div class="entry-time">${entry.duration.toFixed(1)}h</div>
-                    </div>
-                `).join('');
-        } else {
-            // Daily summary view
-            const dailyTotals = {};
-            filteredEntries.forEach(entry => {
-                if (!dailyTotals[entry.date]) {
-                    dailyTotals[entry.date] = 0;
-                }
-                dailyTotals[entry.date] += entry.duration;
-            });
-            
-            container.innerHTML = Object.entries(dailyTotals)
-                .sort(([a], [b]) => new Date(b) - new Date(a))
-                .map(([date, hours]) => `
-                    <div class="entry-item">
-                        <div class="entry-info">
-                            <strong>${date}</strong><br>
-                            <small style="color: #6c757d;">${new Date(date).toLocaleDateString('en-US', { weekday: 'long' })}</small>
-                        </div>
-                        <div class="entry-time">${hours.toFixed(1)}h</div>
-                    </div>
-                `).join('');
-        }
-    },
-
-    setView(view) {
-        this.currentView = view;
-        
-        document.querySelectorAll('.view-button').forEach(btn => {
-            btn.classList.remove('active');
+function setDefaultPeriod() {
+    const today = new Date();
+    
+    // Try to find current pay period
+    if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+        const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
+            const start = new Date(period.startDate);
+            const end = new Date(period.endDate);
+            return today >= start && today <= end;
         });
         
-        document.querySelector(`[data-view="${view}"]`).classList.add('active');
-        this.updateEntriesList();
-    },
-
-    // Export functionality
-    exportToCSV() {
-        const employeeName = document.getElementById('employeeName').value || 'Employee';
-        const filteredEntries = this.getFilteredEntries();
-        
-        if (filteredEntries.length === 0) {
-            alert('No data to export for the selected period.');
+        if (currentPeriod) {
+            document.getElementById('payPeriodSelect').value = currentPeriod.id;
+            setSelectedPayPeriod();
             return;
         }
-        
-        const headers = ['Employee Name', 'Date', 'Category', 'Project', 'Start Time', 'End Time', 'Duration (Hours)'];
-        const csvContent = [
-            headers.join(','),
-            ...filteredEntries.map(entry => [
-                `"${employeeName}"`,
-                entry.date,
-                `"${entry.category}"`,
-                `"${entry.project}"`,
-                `"${entry.startTime}"`,
-                `"${entry.endTime}"`,
-                entry.duration
-            ].join(','))
-        ].join('\n');
-        
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        
-        const startDate = document.getElementById('periodStart').value;
-        const endDate = document.getElementById('periodEnd').value;
-        const filename = `timesheet_${employeeName.replace(/[^a-zA-Z0-9]/g, '_')}_${startDate}_to_${endDate}.csv`;
-        
-        a.href = url;
-        a.download = filename;
-        a.click();
-        
-        window.URL.revokeObjectURL(url);
-    },
+    }
+    
+    // Fallback to manual dates
+    document.getElementById('periodEnd').value = formatDate(today);
+}
 
-    importCSV() {
-        document.getElementById('csvFileInput').click();
-    },
+// ============================================================================
+// EVENT LISTENERS AND SETUP
+// ============================================================================
 
-    handleCSVImport(event) {
+function setupEventListeners() {
+    document.getElementById('employeeName').addEventListener('input', saveData);
+    document.getElementById('dailyTarget').addEventListener('input', saveData);
+    document.getElementById('periodEnd').addEventListener('change', updateDisplay);
+}
+
+function setupBeforeUnload() {
+    window.addEventListener('beforeunload', function(e) {
+        if (isTracking) {
+            saveTrackingState();
+            e.returnValue = 'You have an active time tracking session. Are you sure you want to leave?';
+        }
+    });
+}
+
+// ============================================================================
+// TIMER FUNCTIONALITY
+// ============================================================================
+
+function toggleTimer() {
+    const timerButton = document.getElementById('timerButton');
+    
+    if (timerButton.disabled) return;
+    timerButton.disabled = true;
+    
+    setTimeout(() => {
+        timerButton.disabled = false;
+    }, 500);
+    
+    if (isTracking) {
+        stopTimer();
+    } else {
+        startTimer();
+    }
+}
+
+function startTimer() {
+    // Validation
+    const employeeName = document.getElementById('employeeName').value;
+    if (!employeeName.trim()) {
+        alert('Please enter your employee name before starting the timer.');
+        document.getElementById('employeeName').focus();
+        return;
+    }
+
+    isTracking = true;
+    startTime = new Date();
+    warningShown = false;
+    
+    const timerButton = document.getElementById('timerButton');
+    timerButton.textContent = 'Stop';
+    timerButton.classList.add('stop');
+    
+    setTimeout(() => {
+        timerButton.textContent = 'Stop';
+        timerButton.classList.add('stop');
+    }, 50);
+    
+    timerInterval = setInterval(updateTimer, 1000);
+    saveTrackingState();
+    autoSaveInterval = setInterval(saveTrackingState, 60000);
+}
+
+function stopTimer() {
+    if (!isTracking) return;
+    
+    isTracking = false;
+    const endTime = new Date();
+    const category = document.getElementById('categorySelect').value;
+    const project = document.getElementById('projectInput').value || 'No Project';
+    
+    const entry = {
+        id: Date.now(),
+        date: formatDate(startTime),
+        category: category,
+        project: project,
+        startTime: formatTime(startTime),
+        endTime: formatTime(endTime),
+        duration: calculateDuration(startTime, endTime)
+    };
+    
+    timeEntries = [...timeEntries, entry];
+    
+    clearInterval(timerInterval);
+    clearInterval(autoSaveInterval);
+    
+    const timerButton = document.getElementById('timerButton');
+    timerButton.textContent = 'Start';
+    timerButton.classList.remove('stop');
+    
+    setTimeout(() => {
+        timerButton.textContent = 'Start';
+        timerButton.classList.remove('stop');
+        timerButton.disabled = false;
+    }, 50);
+    
+    document.getElementById('timerDisplay').textContent = '00:00:00';
+    
+    saveData();
+    
+    setTimeout(() => {
+        updateDisplay();
+        setTimeout(() => {
+            updateEntriesList();
+        }, 100);
+    }, 100);
+    
+    clearTrackingState();
+    clearWarning();
+}
+
+function updateTimer() {
+    if (!isTracking) return;
+    
+    const now = new Date();
+    const elapsed = now - startTime;
+    const hours = Math.floor(elapsed / 3600000);
+    const minutes = Math.floor((elapsed % 3600000) / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    
+    document.getElementById('timerDisplay').textContent = 
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    updateDailyCounter();
+    
+    const filteredEntries = getFilteredEntries();
+    const todayEntries = filteredEntries.filter(entry => entry.date === formatDate(new Date()));
+    const todayHours = todayEntries.reduce((sum, entry) => sum + entry.duration, 0);
+    const dailyTarget = parseFloat(document.getElementById('dailyTarget').value) || 8;
+    const currentSession = elapsed / 3600000;
+    const projectedTotal = todayHours + currentSession;
+    
+    if (projectedTotal >= dailyTarget && !warningShown) {
+        showDailyTargetWarning(projectedTotal, dailyTarget);
+        warningShown = true;
+    }
+    
+    if (now.getHours() >= 18 && !warningShown) {
+        showWarning();
+        warningShown = true;
+    }
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+function calculateDuration(start, end) {
+    const diff = end - start;
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    return parseFloat((hours + minutes / 60).toFixed(2));
+}
+
+function formatDate(date) {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function formatTime(date) {
+    return date.toTimeString().split(' ')[0].substring(0, 5);
+}
+
+function formatDateTime(date) {
+    return date.toLocaleDateString() + ' ' + formatTime(date);
+}
+
+// ============================================================================
+// DISPLAY UPDATE FUNCTIONS
+// ============================================================================
+
+function updateDisplay() {
+    updateStats();
+    updateDailyCounter();
+    updateEntriesList();
+    updatePayPeriodInfo();
+}
+
+function updateStats() {
+    const filteredEntries = getFilteredEntries();
+    const totalHours = filteredEntries.reduce((sum, entry) => sum + entry.duration, 0);
+    const workDays = new Set(filteredEntries.map(entry => entry.date)).size;
+    
+    const periodEnd = document.getElementById('periodEnd').value;
+    const today = formatDate(new Date());
+    
+    let periodDays = 0;
+    let daysElapsed = 0;
+    
+    if (selectedPayPeriod) {
+        const start = new Date(selectedPayPeriod.startDate);
+        const end = new Date(selectedPayPeriod.endDate);
+        periodDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        
+        const currentDate = new Date(today);
+        if (currentDate >= start && currentDate <= end) {
+            daysElapsed = Math.ceil((currentDate - start) / (1000 * 60 * 60 * 24)) + 1;
+        } else if (currentDate > end) {
+            daysElapsed = periodDays;
+        }
+    } else if (periodEnd) {
+        // Fallback calculation for manual period
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+        const start = twoWeeksAgo;
+        const end = new Date(periodEnd);
+        periodDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        
+        const currentDate = new Date(today);
+        if (currentDate >= start && currentDate <= end) {
+            daysElapsed = Math.ceil((currentDate - start) / (1000 * 60 * 60 * 24)) + 1;
+        } else if (currentDate > end) {
+            daysElapsed = periodDays;
+        }
+    }
+
+    document.getElementById('totalHours').textContent = totalHours.toFixed(1);
+    document.getElementById('periodDays').textContent = periodDays;
+    document.getElementById('workDays').textContent = workDays;
+    document.getElementById('daysElapsed').textContent = daysElapsed;
+}
+
+function updateDailyCounter() {
+    const filteredEntries = getFilteredEntries();
+    const todayEntries = filteredEntries.filter(entry => entry.date === formatDate(new Date()));
+    const todayHours = todayEntries.reduce((sum, entry) => sum + entry.duration, 0);
+    const dailyTarget = parseFloat(document.getElementById('dailyTarget').value) || 8;
+    
+    const dailyCounter = document.getElementById('dailyCounter');
+    const progressFill = document.getElementById('progressFillSmall');
+    
+    let displayHours = todayHours;
+    let progressPercent = (todayHours / dailyTarget) * 100;
+    
+    if (isTracking && startTime) {
+        const currentSession = (new Date() - startTime) / 3600000;
+        displayHours = todayHours + currentSession;
+        progressPercent = (displayHours / dailyTarget) * 100;
+        dailyCounter.textContent = `${todayHours.toFixed(1)} (+${currentSession.toFixed(1)}) / ${dailyTarget.toFixed(1)}h`;
+    } else {
+        dailyCounter.textContent = `${todayHours.toFixed(1)} / ${dailyTarget.toFixed(1)}h`;
+    }
+    
+    progressFill.style.width = Math.min(progressPercent, 100) + '%';
+    
+    if (displayHours >= dailyTarget) {
+        progressFill.className = 'progress-fill-small exceeded';
+    } else if (displayHours >= dailyTarget * 0.9) {
+        progressFill.className = 'progress-fill-small approaching';
+    } else {
+        progressFill.className = 'progress-fill-small';
+    }
+}
+
+function getFilteredEntries() {
+    if (selectedPayPeriod) {
+        return timeEntries.filter(entry => {
+            return entry.date >= selectedPayPeriod.startDate && entry.date <= selectedPayPeriod.endDate;
+        });
+    } else {
+        // Fallback to period end date
+        const periodEnd = document.getElementById('periodEnd').value;
+        if (!periodEnd) return timeEntries;
+        
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+        const startDate = formatDate(twoWeeksAgo);
+        
+        return timeEntries.filter(entry => {
+            return entry.date >= startDate && entry.date <= periodEnd;
+        });
+    }
+}
+
+function updateEntriesList() {
+    const container = document.getElementById('entriesList');
+    const filteredEntries = getFilteredEntries();
+    
+    if (filteredEntries.length === 0) {
+        container.innerHTML = '<div class="no-entries">No time entries found for this period</div>';
+        return;
+    }
+    
+    if (currentView === 'detailed') {
+        // Add table header for detailed view
+        let tableHTML = `
+            <div class="entries-table-header">
+                <div class="header-cell">Date</div>
+                <div class="header-cell">Time Period</div>
+                <div class="header-cell">Duration</div>
+                <div class="header-cell">Category</div>
+                <div class="header-cell">Project</div>
+            </div>
+        `;
+        
+        tableHTML += filteredEntries
+            .sort((a, b) => new Date(b.date + 'T' + b.startTime) - new Date(a.date + 'T' + a.startTime))
+            .map(entry => `
+                <div class="entry-item">
+                    <div class="entry-date">${entry.date}</div>
+                    <div class="entry-time">${entry.startTime} - ${entry.endTime}</div>
+                    <div class="entry-duration">${entry.duration.toFixed(1)}h</div>
+                    <div class="entry-category category-${entry.category}">${entry.category.toUpperCase()}</div>
+                    <div class="entry-project">${entry.project || 'No Project'}</div>
+                </div>
+            `).join('');
+            
+        container.innerHTML = tableHTML;
+    } else {
+        // Daily summary view - also as a table
+        let tableHTML = `
+            <div class="entries-table-header">
+                <div class="header-cell">Date</div>
+                <div class="header-cell">Day of Week</div>
+                <div class="header-cell">Total Hours</div>
+                <div class="header-cell">Categories</div>
+            </div>
+        `;
+        
+        const dailyTotals = {};
+        filteredEntries.forEach(entry => {
+            if (!dailyTotals[entry.date]) {
+                dailyTotals[entry.date] = {
+                    hours: 0,
+                    categories: new Set()
+                };
+            }
+            dailyTotals[entry.date].hours += entry.duration;
+            dailyTotals[entry.date].categories.add(entry.category);
+        });
+        
+        tableHTML += Object.entries(dailyTotals)
+            .sort(([a], [b]) => new Date(b) - new Date(a))
+            .map(([date, data]) => `
+                <div class="entry-item">
+                    <div class="entry-date">${date}</div>
+                    <div class="entry-day">${new Date(date).toLocaleDateString('en-US', { weekday: 'long' })}</div>
+                    <div class="entry-duration">${data.hours.toFixed(1)}h</div>
+                    <div class="entry-categories">
+                        ${Array.from(data.categories).map(cat => 
+                            `<span class="entry-category category-${cat}">${cat.toUpperCase()}</span>`
+                        ).join(' ')}
+                    </div>
+                </div>
+            `).join('');
+            
+        container.innerHTML = tableHTML;
+    }
+}
+
+function setView(view) {
+    currentView = view;
+    
+    document.querySelectorAll('.view-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    event.target.classList.add('active');
+    updateEntriesList();
+}
+
+// ============================================================================
+// EXPORT FUNCTIONALITY
+// ============================================================================
+
+function exportToCSV() {
+    const employeeName = document.getElementById('employeeName').value || 'Employee';
+    const filteredEntries = getFilteredEntries();
+    
+    if (filteredEntries.length === 0) {
+        alert('No data to export for the selected period.');
+        return;
+    }
+    
+    const totalHours = filteredEntries.reduce((sum, entry) => sum + entry.duration, 0);
+    const workDays = new Set(filteredEntries.map(entry => entry.date)).size;
+    const avgDaily = workDays > 0 ? totalHours / workDays : 0;
+    
+    let csvContent = `Employee Name,Date,Category,Project,Start Time,End Time,Duration (Hours)\n`;
+    
+    filteredEntries
+        .sort((a, b) => new Date(a.date + 'T' + a.startTime) - new Date(b.date + 'T' + b.startTime))
+        .forEach(entry => {
+            csvContent += `"${employeeName}","${entry.date}","${entry.category}","${entry.project}","${entry.startTime}","${entry.endTime}",${entry.duration}\n`;
+        });
+    
+    if (selectedPayPeriod) {
+        csvContent += `\nSUMMARY\n`;
+        csvContent += `Period,"${selectedPayPeriod.startDate} to ${selectedPayPeriod.endDate}"\n`;
+        csvContent += `Total Hours,${totalHours.toFixed(1)}\n`;
+        csvContent += `Work Days,${workDays}\n`;
+        csvContent += `Average Daily Hours,${avgDaily.toFixed(2)}\n`;
+        csvContent += `Export Date,"${new Date().toISOString().split('T')[0]}"\n`;
+    }
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    const fileName = selectedPayPeriod ? 
+        `${employeeName.replace(/\s+/g, '_')}_${selectedPayPeriod.id}.csv` :
+        `${employeeName.replace(/\s+/g, '_')}_Timesheet.csv`;
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    
+    window.URL.revokeObjectURL(url);
+}
+
+// ============================================================================
+// IMPORT FUNCTIONALITY
+// ============================================================================
+
+function importCSV() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = function(event) {
         const file = event.target.files[0];
         if (!file) return;
         
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = function(e) {
             try {
-                const csv = e.target.result;
-                const lines = csv.split('\n');
-                const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-                
-                let imported = 0;
-                let skipped = 0;
-                
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    
-                    const values = line.split(',').map(v => v.replace(/"/g, '').trim());
-                    
-                    if (values.length >= 7) {
-                        const entry = {
-                            id: Date.now().toString() + '_' + imported,
-                            date: values[1],
-                            category: values[2],
-                            project: values[3],
-                            startTime: values[4],
-                            endTime: values[5],
-                            duration: parseFloat(values[6])
-                        };
-                        
-                        // Check for duplicates
-                        const isDuplicate = this.timeEntries.some(existing => 
-                            existing.date === entry.date &&
-                            existing.startTime === entry.startTime &&
-                            existing.category === entry.category &&
-                            existing.project === entry.project
-                        );
-                        
-                        if (!isDuplicate) {
-                            this.timeEntries.push(entry);
-                            imported++;
-                        } else {
-                            skipped++;
-                        }
-                    }
-                }
-                
-                this.saveData();
-                this.updateDisplay();
-                
-                alert(`Import complete!\nImported: ${imported} entries\nSkipped (duplicates): ${skipped} entries`);
-                
+                parseCSVImport(e.target.result);
             } catch (error) {
-                alert('Error importing CSV file. Please check the file format.');
-                console.error('CSV import error:', error);
+                alert('Error reading CSV file: ' + error.message);
             }
         };
-        
         reader.readAsText(file);
-        
-        // Reset file input
-        event.target.value = '';
-    },
+    };
+    input.click();
+}
 
-    clearAllData() {
-        if (confirm('Are you sure you want to clear all time entries? This action cannot be undone.')) {
-            this.timeEntries = [];
-            this.saveData();
-            this.updateDisplay();
-            alert('All data has been cleared.');
+function parseCSVImport(csvContent) {
+    const lines = csvContent.split('\n').filter(line => line.trim());
+    if (lines.length < 2) {
+        alert('CSV file appears to be empty or invalid.');
+        return;
+    }
+    
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
+    let importedCount = 0;
+    
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line || line.toLowerCase().includes('summary')) break;
+        
+        const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+        if (values.length < headers.length) continue;
+        
+        try {
+            const entry = {
+                id: Date.now() + Math.random(),
+                date: values[1],
+                category: values[2] || 'work',
+                project: values[3] || 'No Project',
+                startTime: values[4],
+                endTime: values[5],
+                duration: parseFloat(values[6]) || 0
+            };
+            
+            if (entry.date && entry.startTime && entry.endTime && entry.duration > 0) {
+                timeEntries.push(entry);
+                importedCount++;
+            }
+        } catch (error) {
+            console.warn('Skipped invalid line:', line);
         }
     }
-};
+    
+    if (importedCount > 0) {
+        saveData();
+        updateDisplay();
+        alert(`Successfully imported ${importedCount} time entries.`);
+    } else {
+        alert('No valid entries found in the CSV file.');
+    }
+}
+
+// ============================================================================
+// DATA MANAGEMENT
+// ============================================================================
+
+function clearAllData() {
+    if (confirm('Are you sure you want to clear ALL time tracking data? This cannot be undone.')) {
+        timeEntries = [];
+        saveData();
+        updateDisplay();
+        alert('All data has been cleared.');
+    }
+}
+
+function saveData() {
+    try {
+        if (typeof(Storage) === "undefined" || !localStorage) {
+            console.warn('localStorage not available');
+            return;
+        }
+        
+        const dataToSave = {
+            employeeName: document.getElementById('employeeName').value,
+            dailyTarget: document.getElementById('dailyTarget').value,
+            timeEntries: timeEntries.map(entry => ({
+                id: entry.id,
+                date: entry.date,
+                category: entry.category,
+                project: entry.project,
+                startTime: entry.startTime,
+                endTime: entry.endTime,
+                duration: entry.duration
+            }))
+        };
+        
+        localStorage.setItem('timeTrackerData', JSON.stringify(dataToSave));
+    } catch (error) {
+        console.error('Error saving data:', error);
+    }
+}
+
+function loadData() {
+    try {
+        if (typeof(Storage) === "undefined" || !localStorage) {
+            console.warn('localStorage not available');
+            return;
+        }
+        
+        const data = localStorage.getItem('timeTrackerData');
+        if (data) {
+            const parsed = JSON.parse(data);
+            document.getElementById('employeeName').value = parsed.employeeName || '';
+            document.getElementById('dailyTarget').value = parsed.dailyTarget || '8';
+            
+            timeEntries = (parsed.timeEntries || []).map(entry => ({
+                id: entry.id,
+                date: entry.date,
+                category: entry.category,
+                project: entry.project,
+                startTime: entry.startTime,
+                endTime: entry.endTime,
+                duration: parseFloat(entry.duration)
+            }));
+        }
+    } catch (error) {
+        console.error('Error loading data:', error);
+        timeEntries = [];
+        document.getElementById('employeeName').value = '';
+        document.getElementById('dailyTarget').value = '8';
+    }
+}
+
+// ============================================================================
+// SESSION RECOVERY AND TRACKING STATE
+// ============================================================================
+
+function saveTrackingState() {
+    try {
+        if (!isTracking || !startTime) return;
+        if (typeof(Storage) === "undefined" || !localStorage) return;
+        
+        const state = {
+            isTracking: true,
+            startTime: startTime.toISOString(),
+            category: document.getElementById('categorySelect').value,
+            project: document.getElementById('projectInput').value || 'No Project',
+            dailyTarget: document.getElementById('dailyTarget').value,
+            lastSaved: new Date().toISOString()
+        };
+        localStorage.setItem('timeTrackerState', JSON.stringify(state));
+    } catch (error) {
+        console.error('Error saving tracking state:', error);
+    }
+}
+
+function clearTrackingState() {
+    try {
+        if (typeof(Storage) === "undefined" || !localStorage) return;
+        localStorage.removeItem('timeTrackerState');
+    } catch (error) {
+        console.error('Error clearing tracking state:', error);
+    }
+}
+
+function checkForIncompleteSession() {
+    try {
+        if (typeof(Storage) === "undefined" || !localStorage) return;
+        const state = localStorage.getItem('timeTrackerState');
+        if (state) {
+            const savedState = JSON.parse(state);
+            if (savedState && savedState.isTracking) {
+                showRecoveryModal(savedState);
+                return;
+            }
+        }
+    } catch (error) {
+        console.error('Error checking incomplete session:', error);
+    }
+    
+    // Set initial state
+    const timerButton = document.getElementById('timerButton');
+    timerButton.textContent = 'Start';
+    timerButton.classList.remove('stop');
+    timerButton.disabled = false;
+    updateDisplay();
+}
+
+function showRecoveryModal(savedState) {
+    const now = new Date();
+    const savedStart = new Date(savedState.startTime);
+    const elapsedHours = ((now - savedStart) / 3600000).toFixed(2);
+    
+    if (savedState.dailyTarget) {
+        document.getElementById('dailyTarget').value = savedState.dailyTarget;
+    }
+    
+    const modal = document.createElement('div');
+    modal.className = 'recovery-modal';
+    modal.innerHTML = `
+        <div class="recovery-content">
+            <h3>🔄 Incomplete Time Session Detected</h3>
+            <div class="recovery-info">
+                <strong>Category:</strong> ${savedState.category.toUpperCase()}<br>
+                <strong>Project:</strong> ${savedState.project || 'No Project'}<br>
+                <strong>Started:</strong> ${formatDateTime(savedStart)}<br>
+                <strong>Calculated Duration:</strong> ${elapsedHours} hours<br>
+                <strong>Estimated End:</strong> ${formatDateTime(now)}
+            </div>
+            
+            <div class="adjust-section" id="adjustSection">
+                <h4>Adjust End Time:</h4>
+                <div class="time-inputs">
+                    <label>End Date:</label>
+                    <input type="date" id="adjustDate" value="${formatDate(now)}">
+                    <label>End Time:</label>
+                    <input type="time" id="adjustTime" value="${formatTime(now)}">
+                </div>
+                <div style="margin-top: 15px;">
+                    <strong>Adjusted Duration: <span id="adjustedDuration">${elapsedHours}h</span></strong>
+                </div>
+            </div>
+            
+            <div class="recovery-buttons">
+                <button class="recovery-btn btn-save" onclick="recoverSession('save')">
+                    💾 Save As-Is
+                </button>
+                <button class="recovery-btn btn-adjust" onclick="showAdjustSection()">
+                    ⏰ Adjust Time
+                </button>
+                <button class="recovery-btn btn-discard" onclick="recoverSession('discard')">
+                    🗑️ Discard
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Store state for recovery
+    window.pendingRecoveryState = savedState;
+}
+
+function showAdjustSection() {
+    document.getElementById('adjustSection').classList.add('show');
+}
+
+function recoverSession(action) {
+    const savedState = window.pendingRecoveryState;
+    const modal = document.querySelector('.recovery-modal');
+    
+    if (action === 'save') {
+        saveRecoveredSession(savedState, new Date());
+    } else if (action === 'adjust') {
+        const adjustDate = document.getElementById('adjustDate').value;
+        const adjustTime = document.getElementById('adjustTime').value;
+        const adjustedEnd = new Date(`${adjustDate}T${adjustTime}`);
+        saveRecoveredSession(savedState, adjustedEnd);
+    }
+    
+    clearTrackingState();
+    modal.remove();
+    
+    const timerButton = document.getElementById('timerButton');
+    timerButton.textContent = 'Start';
+    timerButton.classList.remove('stop');
+    timerButton.disabled = false;
+    
+    updateDisplay();
+}
+
+function saveRecoveredSession(savedState, endTime) {
+    const startTime = new Date(savedState.startTime);
+    const entry = {
+        id: Date.now(),
+        date: formatDate(startTime),
+        category: savedState.category,
+        project: savedState.project || 'No Project',
+        startTime: formatTime(startTime),
+        endTime: formatTime(endTime),
+        duration: calculateDuration(startTime, endTime)
+    };
+    
+    timeEntries = [...timeEntries, entry];
+    saveData();
+}
+
+// ============================================================================
+// WARNING AND NOTIFICATION FUNCTIONS
+// ============================================================================
+
+function showDailyTargetWarning(currentHours, targetHours) {
+    const warning = document.createElement('div');
+    warning.className = 'warning';
+    warning.innerHTML = `🎯 Daily target of ${targetHours}h reached! Current: ${currentHours.toFixed(1)}h`;
+    document.body.appendChild(warning);
+    
+    setTimeout(() => {
+        if (warning.parentNode) {
+            warning.parentNode.removeChild(warning);
+        }
+    }, 8000);
+}
+
+function showWarning() {
+    const warning = document.createElement('div');
+    warning.className = 'warning';
+    warning.innerHTML = '⚠️ It\'s past 6:00 PM - Don\'t forget to stop your timer!';
+    document.body.appendChild(warning);
+    
+    setTimeout(() => {
+        if (warning.parentNode) {
+            warning.parentNode.removeChild(warning);
+        }
+    }, 10000);
+}
+
+function clearWarning() {
+    const warnings = document.querySelectorAll('.warning');
+    warnings.forEach(warning => {
+        if (warning.parentNode) {
+            warning.parentNode.removeChild(warning);
+        }
+    });
+}
