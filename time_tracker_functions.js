@@ -1,11 +1,11 @@
 /*
-Time Tracker Functions v1.1.4
+Time Tracker Functions v1.1.5
 Author: Philippe Addelia
 Company: NAKUPUNA CONSULTING
 Created: August 17, 2025 PST
 Modified: August 18, 2025 PST
 Preferred location: Modules\Time Tracker\time_tracker_functions.js
-Purpose: All JavaScript functionality for the Employee Time Tracker application - RESTORED CLASSIC LAYOUT
+Purpose: All JavaScript functionality for the Employee Time Tracker application - ADDED EDIT/DELETE FUNCTIONALITY
 */
 
 // Company Configuration - EDIT THIS SECTION TO CUSTOMIZE FOR YOUR COMPANY
@@ -16,23 +16,12 @@ const COMPANY_CONFIG = {
     "showTagline": false,
     "logoMaxHeight": "60px",
     "logoMaxWidth": "200px"
-// Expose global functions for HTML onclick handlers
-window.toggleTimer = toggleTimer;
-window.setView = setView;
-window.exportToCSV = exportToCSV;
-window.importCSV = importCSV;
-window.clearAllData = clearAllData;
-window.showAdjustSection = showAdjustSection;
-window.recoverSession = recoverSession;
-window.editEntry = editEntry;
-window.saveEntry = saveEntry;
-window.cancelEdit = cancelEdit;
-window.deleteEntry = deleteEntry;;
+};
 
 // Built-in pay periods configuration
 const DEFAULT_PAY_PERIODS_CONFIG = {
-    "version": "1.1.4",
-    "lastUpdated": "2025-08-18T14:00:00-08:00",
+    "version": "1.1.5",
+    "lastUpdated": "2025-08-18T15:00:00-08:00",
     "company": {
         "name": COMPANY_CONFIG.companyName || "NAKUPUNA CONSULTING",
         "payrollCycle": "bi-weekly",
@@ -145,7 +134,7 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
             "type": "federal"
         }
     ],
-    "configVersion": "1.1.4",
+    "configVersion": "1.1.5",
     "lastUpdated": "2025-08-18",
     "company": COMPANY_CONFIG.companyName || "NAKUPUNA CONSULTING"
 };
@@ -257,9 +246,6 @@ function setSelectedPayPeriod() {
     updateDisplay();
 }
 
-// Make function globally available
-window.setSelectedPayPeriod = setSelectedPayPeriod;
-
 function updatePayPeriodInfo() {
     if (!selectedPayPeriod) return;
     
@@ -317,6 +303,9 @@ function setDefaultPeriod() {
         periodEndElement.value = formatDate(today);
     }
 }
+
+// Make function globally available
+window.setSelectedPayPeriod = setSelectedPayPeriod;
 
 // ============================================================================
 // EVENT LISTENERS AND SETUP
@@ -775,6 +764,132 @@ function setView(view) {
 }
 
 // ============================================================================
+// ENTRY EDITING AND DELETION FUNCTIONALITY
+// ============================================================================
+
+function editEntry(entryId) {
+    const entry = timeEntries.find(e => e.id === entryId);
+    if (!entry) return;
+    
+    const row = document.getElementById(`entry-${entryId}`);
+    if (!row) return;
+    
+    // Store original values for cancel functionality
+    const originalEntry = { ...entry };
+    
+    // Replace row content with editable inputs
+    row.innerHTML = `
+        <td><input type="date" class="edit-input" value="${entry.date}" id="edit-date-${entryId}"></td>
+        <td>
+            <input type="time" class="edit-input" value="${entry.startTime}" id="edit-start-${entryId}" style="width: 70px;">
+            -
+            <input type="time" class="edit-input" value="${entry.endTime}" id="edit-end-${entryId}" style="width: 70px;">
+        </td>
+        <td><input type="number" class="edit-input" value="${entry.duration}" step="0.1" min="0" id="edit-duration-${entryId}" style="width: 80px;"></td>
+        <td>
+            <select class="edit-input" id="edit-category-${entryId}">
+                <option value="work" ${entry.category === 'work' ? 'selected' : ''}>Work</option>
+                <option value="overhead" ${entry.category === 'overhead' ? 'selected' : ''}>Overhead</option>
+                <option value="travel" ${entry.category === 'travel' ? 'selected' : ''}>Travel</option>
+                <option value="pto" ${entry.category === 'pto' ? 'selected' : ''}>PTO</option>
+                <option value="sick" ${entry.category === 'sick' ? 'selected' : ''}>Sick</option>
+                <option value="holiday" ${entry.category === 'holiday' ? 'selected' : ''}>Holiday</option>
+                <option value="bereavement" ${entry.category === 'bereavement' ? 'selected' : ''}>Bereavement</option>
+                <option value="jury" ${entry.category === 'jury' ? 'selected' : ''}>Jury Duty</option>
+            </select>
+        </td>
+        <td><input type="text" class="edit-input" value="${entry.project || ''}" placeholder="Project name" id="edit-project-${entryId}"></td>
+        <td class="actions-cell">
+            <button class="action-button save-btn" onclick="saveEntry(${entryId})" title="Save Changes">
+                💾 Save
+            </button>
+            <button class="action-button cancel-btn" onclick="cancelEdit(${entryId}, ${JSON.stringify(originalEntry).replace(/"/g, '&quot;')})" title="Cancel Edit">
+                ❌ Cancel
+            </button>
+        </td>
+    `;
+}
+
+function saveEntry(entryId) {
+    const entry = timeEntries.find(e => e.id === entryId);
+    if (!entry) return;
+    
+    // Get updated values from inputs
+    const newDate = document.getElementById(`edit-date-${entryId}`).value;
+    const newStartTime = document.getElementById(`edit-start-${entryId}`).value;
+    const newEndTime = document.getElementById(`edit-end-${entryId}`).value;
+    const newDuration = parseFloat(document.getElementById(`edit-duration-${entryId}`).value);
+    const newCategory = document.getElementById(`edit-category-${entryId}`).value;
+    const newProject = document.getElementById(`edit-project-${entryId}`).value;
+    
+    // Validate inputs
+    if (!newDate || !newStartTime || !newEndTime || !newDuration || newDuration <= 0) {
+        alert('Please fill in all required fields with valid values.');
+        return;
+    }
+    
+    // Validate time range
+    if (newStartTime >= newEndTime) {
+        alert('End time must be after start time.');
+        return;
+    }
+    
+    // Update entry
+    entry.date = newDate;
+    entry.startTime = newStartTime;
+    entry.endTime = newEndTime;
+    entry.duration = newDuration;
+    entry.category = newCategory;
+    entry.project = newProject || 'No Project';
+    
+    // Save data and refresh display
+    saveData();
+    updateDisplay();
+    
+    // Show success message
+    showTemporaryMessage('Entry updated successfully!', 'success');
+}
+
+function cancelEdit(entryId, originalEntryJson) {
+    // Refresh the display to restore the original row
+    updateEntriesList();
+}
+
+function deleteEntry(entryId) {
+    const entry = timeEntries.find(e => e.id === entryId);
+    if (!entry) return;
+    
+    const confirmMessage = `Are you sure you want to delete this entry?\n\nDate: ${entry.date}\nTime: ${entry.startTime} - ${entry.endTime}\nDuration: ${entry.duration}h\nCategory: ${entry.category}\nProject: ${entry.project}`;
+    
+    if (confirm(confirmMessage)) {
+        // Remove entry from array
+        timeEntries = timeEntries.filter(e => e.id !== entryId);
+        
+        // Save data and refresh display
+        saveData();
+        updateDisplay();
+        
+        // Show success message
+        showTemporaryMessage('Entry deleted successfully!', 'success');
+    }
+}
+
+function showTemporaryMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `temporary-message ${type}`;
+    messageDiv.textContent = message;
+    
+    document.body.appendChild(messageDiv);
+    
+    // Remove message after 3 seconds
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 3000);
+}
+
+// ============================================================================
 // EXPORT FUNCTIONALITY
 // ============================================================================
 
@@ -1180,3 +1295,16 @@ function clearWarning() {
         }
     });
 }
+
+// Expose global functions for HTML onclick handlers
+window.toggleTimer = toggleTimer;
+window.setView = setView;
+window.exportToCSV = exportToCSV;
+window.importCSV = importCSV;
+window.clearAllData = clearAllData;
+window.showAdjustSection = showAdjustSection;
+window.recoverSession = recoverSession;
+window.editEntry = editEntry;
+window.saveEntry = saveEntry;
+window.cancelEdit = cancelEdit;
+window.deleteEntry = deleteEntry;

@@ -1,11 +1,11 @@
 /*
-Time Tracker CSS v1.1.4
+Time Tracker CSS v1.1.5
 Author: Philippe Addelia
 Company: NAKUPUNA CONSULTING
 Created: August 17, 2025 PST
 Modified: August 18, 2025 PST
 Preferred location: Modules\Time Tracker\time_tracker.css
-Purpose: All styling for the Employee Time Tracker application - RESTORED CLASSIC LAYOUT
+Purpose: All styling for the Employee Time Tracker application - ADDED EDIT/DELETE FUNCTIONALITY
 */
 
 * {
@@ -434,39 +434,6 @@ body {
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
 }
 
-/* Legacy grid styles (for backward compatibility) */
-.entry-item {
-    display: grid;
-    grid-template-columns: 100px 120px 150px 1fr 80px 120px;
-    gap: 15px;
-    padding: 15px 20px;
-    border-bottom: 1px solid #e9ecef;
-    align-items: center;
-}
-
-.entry-item:last-child {
-    border-bottom: none;
-}
-
-.entry-header {
-    background: #3498db;
-    color: white;
-    font-weight: 600;
-}
-
-.entry-date {
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-.entry-category {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-align: center;
-}
-
 /* Action buttons and editing functionality */
 .actions-cell {
     white-space: nowrap;
@@ -581,6 +548,39 @@ body {
         transform: translateX(0);
         opacity: 1;
     }
+}
+
+/* Legacy grid styles (for backward compatibility) */
+.entry-item {
+    display: grid;
+    grid-template-columns: 100px 120px 150px 1fr 80px 120px;
+    gap: 15px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    align-items: center;
+}
+
+.entry-item:last-child {
+    border-bottom: none;
+}
+
+.entry-header {
+    background: #3498db;
+    color: white;
+    font-weight: 600;
+}
+
+.entry-date {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.entry-category {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
 }
 
 /* Warning notifications */
