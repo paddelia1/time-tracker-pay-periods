@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Time Tracker v1.1.3</title>
+    <title>Employee Time Tracker v1.1.4</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234facfe'><circle cx='12' cy='12' r='10' stroke='%23667eea' stroke-width='2' fill='%234facfe'/><path d='M12 6v6l4 2' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>">
     <link rel="stylesheet" href="time_tracker.css">
 </head>
@@ -37,6 +37,11 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="periodStart">Period Start:</label>
+                    <input type="date" id="periodStart">
+                </div>
+                
+                <div class="form-group">
                     <label for="periodEnd">Period End:</label>
                     <input type="date" id="periodEnd">
                 </div>
@@ -46,19 +51,19 @@
         <!-- Pay Period Info Bar -->
         <div class="pay-period-info" id="payPeriodInfo" style="display: none;">
             <div class="pay-period-detail">
-                <span class="label">Period Range:</span>
+                <span class="label">📅 Period Range:</span>
                 <span class="value" id="periodRange">-</span>
             </div>
             <div class="pay-period-detail">
-                <span class="label">Timesheet Due:</span>
+                <span class="label">📋 Timesheet Due:</span>
                 <span class="value" id="timesheetDue">-</span>
             </div>
             <div class="pay-period-detail">
-                <span class="label">Pay Day:</span>
+                <span class="label">💰 Pay Day:</span>
                 <span class="value" id="payDay">-</span>
             </div>
             <div class="pay-period-detail">
-                <span class="label">Days Remaining:</span>
+                <span class="label">⏰ Days Remaining:</span>
                 <span class="value" id="daysRemaining">-</span>
             </div>
         </div>
@@ -143,7 +148,7 @@
         </div>
 
         <div class="footer">
-            <p class="credits">Philippe Addelia - Time Tracker v1.1.3 - August 18, 2025</p>
+            <p class="credits">Philippe Addelia - Time Tracker v1.1.4 - August 18, 2025</p>
         </div>
     </div>
 
