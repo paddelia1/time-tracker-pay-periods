@@ -4,141 +4,811 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Time Tracker v1.1.2</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234facfe'><circle cx='12' cy='12' r='10' stroke='%23667eea' stroke-width='2' fill='%234facfe'/><path d='M12 6v6l4 2' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>">
     <link rel="stylesheet" href="time_tracker.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo-section">
-                <div>
-                    <div class="logo-text">NAKUPUNA</div>
-                    <div class="logo-tagline">CONSULTING</div>
-                </div>
-            </div>
-            <h1>🕐 Employee Time Tracker v1.1.2</h1>
             <div class="header-controls">
-                <div class="form-group">
-                    <label>Employee Name:</label>
-                    <input type="text" id="employeeName" placeholder="Enter your name">
+                <div class="logo-section">
+                    <h1>⏰ Employee Time Tracker v1.1.2</h1>
+                    <p>Philippe Addelia | NAKUPUNA CONSULTING</p>
                 </div>
-                <div class="form-group">
-                    <label>Daily Target Hours:</label>
-                    <input type="number" id="dailyTarget" value="8" min="1" max="24" step="0.5" onchange="updateDisplay()">
+                
+                <div class="control-group">
+                    <label for="employeeName">Employee Name:</label>
+                    <input type="text" id="employeeName" placeholder="Enter your name" onchange="saveSettings()">
                 </div>
-                <div class="form-group">
-                    <label>Pay Period:</label>
-                    <select id="payPeriodSelect" onchange="setSelectedPayPeriod()">
-                        <option value="">Select Pay Period</option>
-                    </select>
+                
+                <div class="control-group">
+                    <label for="dailyTarget">Daily Target (hours):</label>
+                    <input type="number" id="dailyTarget" min="1" max="24" step="0.5" value="8" onchange="saveSettings(); updateDailyCounter()">
                 </div>
-                <div class="form-group">
-                    <label>Period End:</label>
+                
+                <div class="period-controls">
+                    <label for="periodStart">Period Start:</label>
+                    <input type="date" id="periodStart" onchange="updateDisplay()">
+                    
+                    <label for="periodEnd">Period End:</label>
                     <input type="date" id="periodEnd" onchange="updateDisplay()">
                 </div>
             </div>
         </div>
 
-        <!-- Pay Period Info Bar -->
-        <div class="pay-period-info" id="payPeriodInfo" style="display: none;">
-            <div class="pay-period-detail">
-                <span class="label">Period:</span>
-                <span class="value" id="periodRange">-</span>
-            </div>
-            <div class="pay-period-detail">
-                <span class="label">Timesheet Due:</span>
-                <span class="value" id="timesheetDue">-</span>
-            </div>
-            <div class="pay-period-detail">
-                <span class="label">Pay Day:</span>
-                <span class="value" id="payDay">-</span>
-            </div>
-            <div class="pay-period-detail">
-                <span class="label">Days Remaining:</span>
-                <span class="value" id="daysRemaining">-</span>
-            </div>
-        </div>
-
         <div class="main-content">
-            <div class="dashboard">
-                <div class="timer-section">
-                    <div class="timer-display" id="timerDisplay">00:00:00</div>
-                    <button class="timer-button" id="timerButton" onclick="toggleTimer()">Start</button>
-                    <div class="daily-counter">
-                        <div class="daily-label">Today's Progress</div>
-                        <div class="daily-progress" id="dailyCounter">0.0 / 8.0h</div>
-                        <div class="progress-bar-small">
-                            <div class="progress-fill-small" id="progressFillSmall"></div>
-                        </div>
-                    </div>
-                    <div class="category-selector">
-                        <label style="color: rgba(255,255,255,0.9); margin-right: 10px;">Category:</label>
-                        <select id="categorySelect">
-                            <option value="work">Work</option>
-                            <option value="overhead">Overhead</option>
-                            <option value="travel">Paid Travel</option>
-                            <option value="pto">PTO</option>
-                            <option value="sick">Sick Day</option>
-                            <option value="holiday">Holiday</option>
-                            <option value="bereavement">Bereavement</option>
-                            <option value="jury">Jury Duty</option>
-                        </select>
-                    </div>
-                    <div class="project-selector">
-                        <label style="color: rgba(255,255,255,0.9); margin-right: 10px;">Project:</label>
-                        <input type="text" id="projectInput" placeholder="Enter project name" style="padding: 10px; border: none; border-radius: 8px; background: rgba(255,255,255,0.9); font-size: 16px; margin-top: 10px; width: 100%;">
-                    </div>
+            <div class="timer-section">
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+                
+                <div class="timer-controls">
+                    <button class="timer-button start" id="startBtn" onclick="startTimer()">▶️ Start</button>
+                    <button class="timer-button stop" id="stopBtn" onclick="stopTimer()" disabled>⏹️ Stop</button>
                 </div>
-
-                <div class="stats-section">
-                    <h3 style="margin-bottom: 18px; text-align: center;">Period Summary</h3>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-value" id="totalHours">0.0</div>
-                            <div class="stat-label">Period Hours</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="periodDays">0</div>
-                            <div class="stat-label">Total Period Days</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="workDays">0</div>
-                            <div class="stat-label">Days Worked</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="daysElapsed">0</div>
-                            <div class="stat-label">Days Elapsed</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="entries-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 class="section-title" style="margin-bottom: 0;">Time Entries</h2>
-                    <div class="export-section">
-                        <button class="export-button" onclick="exportToCSV()">📥 Export CSV</button>
-                        <button class="export-button" onclick="importCSV()" style="background: #3498db;">📤 Import CSV</button>
-                        <button class="export-button" onclick="clearAllData()" style="background: #e74c3c;">🗑️ Clear All</button>
+                
+                <div class="daily-counter">
+                    <div class="daily-label">Today's Progress</div>
+                    <div class="daily-progress" id="dailyProgress">0.0h / 8.0h</div>
+                    <div class="progress-bar-small">
+                        <div class="progress-fill-small" id="dailyProgressBar" style="width: 0%"></div>
                     </div>
                 </div>
                 
-                <div class="view-controls">
-                    <button class="view-button active" onclick="setView('detailed')">Detailed View</button>
-                    <button class="view-button" onclick="setView('daily')">Daily Summary</button>
+                <div class="category-selector">
+                    <label for="categorySelect">Category:</label>
+                    <select id="categorySelect">
+                        <option value="work">Work</option>
+                        <option value="overhead">Overhead</option>
+                        <option value="travel">Travel</option>
+                        <option value="pto">PTO</option>
+                        <option value="sick">Sick</option>
+                        <option value="holiday">Holiday</option>
+                        <option value="bereavement">Bereavement</option>
+                        <option value="jury">Jury Duty</option>
+                    </select>
+                    
+                    <label for="projectInput">Project:</label>
+                    <input type="text" id="projectInput" placeholder="Project name (optional)">
                 </div>
+            </div>
 
-                <div class="entries-list" id="entriesList">
-                    <div class="no-entries">No time entries found for this period</div>
+            <div class="stats-section">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">📊 Period Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalHours">0.0h</span>
+                        <div class="stat-label">Total Hours</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="workDays">0</span>
+                        <div class="stat-label">Work Days</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="avgDaily">0.0h</span>
+                        <div class="stat-label">Avg Daily</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="daysInPeriod">0</span>
+                        <div class="stat-label">Days in Period</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="footer">
-            <p class="credits">Employee Time Tracker v1.1.2 | Philippe Addelia | NAKUPUNA CONSULTING</p>
+        <div class="entries-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #2c3e50;">📝 Time Entries</h3>
+                <div class="export-section">
+                    <button class="export-button" onclick="exportToCSV()">📥 Export CSV</button>
+                    <button class="export-button" onclick="importCSV()" style="background: #3498db;">📤 Import CSV</button>
+                    <button class="export-button" onclick="clearAllData()" style="background: #e74c3c;">🗑️ Clear All</button>
+                </div>
+            </div>
+            
+            <div class="view-controls">
+                <button class="view-button active" onclick="setView('detailed')">Detailed View</button>
+                <button class="view-button" onclick="setView('daily')">Daily Summary</button>
+            </div>
+            
+            <div class="entries-list" id="entriesList">
+                <div style="padding: 20px; text-align: center; color: #7f8c8d;">
+                    No time entries yet. Start the timer to begin tracking!
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="time_tracker_functions.js"></script>
+    <!-- Session Recovery Modal -->
+    <div id="recoveryModal" class="modal">
+        <div class="modal-content">
+            <h3>🔄 Session Recovery</h3>
+            <p>An incomplete timer session was detected:</p>
+            <div id="sessionDetails"></div>
+            <div class="modal-buttons">
+                <button onclick="recoverSession(true)" class="recovery-btn">💾 Save As-Is</button>
+                <button onclick="showTimeAdjust()" class="recovery-btn adjust">⏰ Adjust Time</button>
+                <button onclick="discardSession()" class="recovery-btn discard">🗑️ Discard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Adjustment Modal -->
+    <div id="timeAdjustModal" class="modal">
+        <div class="modal-content">
+            <h3>⏰ Adjust Session Time</h3>
+            <p>Set the actual end time for this session:</p>
+            <input type="time" id="adjustedEndTime">
+            <div class="modal-buttons">
+                <button onclick="recoverWithAdjustedTime()" class="recovery-btn">💾 Save</button>
+                <button onclick="hideTimeAdjust()" class="recovery-btn">❌ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let startTime = null;
+        let timerInterval = null;
+        let timeEntries = [];
+        let currentView = 'detailed';
+        let dailyTarget = 8;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTimeEntries();
+            loadSettings();
+            updateDisplay();
+            setDefaultPeriod();
+        });
+
+        function setDefaultPeriod() {
+            const today = new Date();
+            const twoWeeksAgo = new Date(today.getTime() - (14 * 24 * 60 * 60 * 1000));
+            
+            document.getElementById('periodStart').value = twoWeeksAgo.toISOString().split('T')[0];
+            document.getElementById('periodEnd').value = today.toISOString().split('T')[0];
+        }
+
+        // Timer functions
+        function startTimer() {
+            startTime = new Date();
+            timerInterval = setInterval(updateTimer, 1000);
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            
+            // Save session start
+            localStorage.setItem('activeSession', JSON.stringify({
+                startTime: startTime.toISOString(),
+                category: document.getElementById('categorySelect').value,
+                project: document.getElementById('projectInput').value || 'No Project'
+            }));
+            
+            updateTimer();
+        }
+
+        function stopTimer() {
+            if (!startTime) return;
+            
+            const endTime = new Date();
+            const duration = (endTime - startTime) / (1000 * 60 * 60); // Convert to hours
+            
+            clearInterval(timerInterval);
+            
+            const employeeName = document.getElementById('employeeName').value || 'Unknown Employee';
+            const category = document.getElementById('categorySelect').value;
+            const project = document.getElementById('projectInput').value || 'No Project';
+            
+            const entry = {
+                id: Date.now(),
+                employee: employeeName,
+                date: startTime.toISOString().split('T')[0],
+                category: category,
+                project: project,
+                startTime: startTime.toTimeString().split(' ')[0].substring(0, 5),
+                endTime: endTime.toTimeString().split(' ')[0].substring(0, 5),
+                duration: Math.round(duration * 100) / 100
+            };
+            
+            timeEntries.push(entry);
+            saveTimeEntries();
+            
+            // Reset timer
+            startTime = null;
+            document.getElementById('timerDisplay').textContent = '00:00:00';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            
+            // Clear active session
+            localStorage.removeItem('activeSession');
+            
+            updateDisplay();
+        }
+
+        function updateTimer() {
+            if (!startTime) return;
+            
+            const now = new Date();
+            const elapsed = now - startTime;
+            const hours = Math.floor(elapsed / (1000 * 60 * 60));
+            const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
+            
+            document.getElementById('timerDisplay').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Session recovery
+        function recoverSession() {
+            const saved = localStorage.getItem('activeSession');
+            if (!saved) return;
+            
+            try {
+                const session = JSON.parse(saved);
+                const sessionStart = new Date(session.startTime);
+                const now = new Date();
+                const elapsed = (now - sessionStart) / (1000 * 60 * 60);
+                
+                if (elapsed > 0.5) { // If more than 30 minutes
+                    document.getElementById('sessionDetails').innerHTML = `
+                        <p><strong>Started:</strong> ${sessionStart.toLocaleString()}</p>
+                        <p><strong>Category:</strong> ${session.category}</p>
+                        <p><strong>Project:</strong> ${session.project}</p>
+                        <p><strong>Estimated Duration:</strong> ${elapsed.toFixed(1)} hours</p>
+                    `;
+                    
+                    document.getElementById('recoveryModal').style.display = 'flex';
+                    
+                    // Store for recovery
+                    window.pendingSession = session;
+                } else {
+                    localStorage.removeItem('activeSession');
+                }
+            } catch (error) {
+                localStorage.removeItem('activeSession');
+            }
+        }
+
+        function recoverSession(saveAsIs) {
+            const session = window.pendingSession;
+            if (!session) return;
+            
+            const sessionStart = new Date(session.startTime);
+            const endTime = new Date();
+            const duration = (endTime - sessionStart) / (1000 * 60 * 60);
+            
+            const employeeName = document.getElementById('employeeName').value || 'Unknown Employee';
+            
+            const entry = {
+                id: Date.now(),
+                employee: employeeName,
+                date: sessionStart.toISOString().split('T')[0],
+                category: session.category,
+                project: session.project,
+                startTime: sessionStart.toTimeString().split(' ')[0].substring(0, 5),
+                endTime: endTime.toTimeString().split(' ')[0].substring(0, 5),
+                duration: Math.round(duration * 100) / 100
+            };
+            
+            timeEntries.push(entry);
+            saveTimeEntries();
+            updateDisplay();
+            
+            localStorage.removeItem('activeSession');
+            document.getElementById('recoveryModal').style.display = 'none';
+        }
+
+        function showTimeAdjust() {
+            document.getElementById('recoveryModal').style.display = 'none';
+            document.getElementById('timeAdjustModal').style.display = 'flex';
+            
+            const now = new Date();
+            document.getElementById('adjustedEndTime').value = now.toTimeString().split(' ')[0].substring(0, 5);
+        }
+
+        function hideTimeAdjust() {
+            document.getElementById('timeAdjustModal').style.display = 'none';
+            document.getElementById('recoveryModal').style.display = 'flex';
+        }
+
+        function recoverWithAdjustedTime() {
+            const session = window.pendingSession;
+            const adjustedTime = document.getElementById('adjustedEndTime').value;
+            
+            if (!session || !adjustedTime) return;
+            
+            const sessionStart = new Date(session.startTime);
+            const [hours, minutes] = adjustedTime.split(':').map(Number);
+            const endTime = new Date(sessionStart);
+            endTime.setHours(hours, minutes, 0, 0);
+            
+            const duration = (endTime - sessionStart) / (1000 * 60 * 60);
+            
+            if (duration <= 0) {
+                alert('End time must be after start time');
+                return;
+            }
+            
+            const employeeName = document.getElementById('employeeName').value || 'Unknown Employee';
+            
+            const entry = {
+                id: Date.now(),
+                employee: employeeName,
+                date: sessionStart.toISOString().split('T')[0],
+                category: session.category,
+                project: session.project,
+                startTime: sessionStart.toTimeString().split(' ')[0].substring(0, 5),
+                endTime: adjustedTime,
+                duration: Math.round(duration * 100) / 100
+            };
+            
+            timeEntries.push(entry);
+            saveTimeEntries();
+            updateDisplay();
+            
+            localStorage.removeItem('activeSession');
+            document.getElementById('timeAdjustModal').style.display = 'none';
+        }
+
+        function discardSession() {
+            localStorage.removeItem('activeSession');
+            document.getElementById('recoveryModal').style.display = 'none';
+        }
+
+        // Data management
+        function saveTimeEntries() {
+            try {
+                localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+            } catch (error) {
+                alert('Failed to save data. Your browser storage may be full.');
+            }
+        }
+
+        function loadTimeEntries() {
+            try {
+                const saved = localStorage.getItem('timeEntries');
+                if (saved) {
+                    timeEntries = JSON.parse(saved);
+                }
+            } catch (error) {
+                timeEntries = [];
+                alert('Failed to load saved data. Your browser storage may be full.');
+            }
+        }
+
+        function saveSettings() {
+            const settings = {
+                employeeName: document.getElementById('employeeName').value,
+                dailyTarget: document.getElementById('dailyTarget').value
+            };
+            localStorage.setItem('timeTrackerSettings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('timeTrackerSettings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                document.getElementById('employeeName').value = settings.employeeName || '';
+                document.getElementById('dailyTarget').value = settings.dailyTarget || 8;
+                dailyTarget = parseFloat(settings.dailyTarget || 8);
+            }
+            
+            // Check for active session on load
+            setTimeout(recoverSession, 1000);
+        }
+
+        // Display updates
+        function updateDisplay() {
+            updateStats();
+            updateDailyCounter();
+            updateEntriesList();
+        }
+
+        function updateStats() {
+            const filteredEntries = getFilteredEntries();
+            const totalHours = filteredEntries.reduce((sum, entry) => sum + entry.duration, 0);
+            const workDays = new Set(filteredEntries.map(entry => entry.date)).size;
+            const avgDaily = workDays > 0 ? totalHours / workDays : 0;
+            
+            document.getElementById('totalHours').textContent = totalHours.toFixed(1) + 'h';
+            document.getElementById('workDays').textContent = workDays;
+            document.getElementById('avgDaily').textContent = avgDaily.toFixed(1) + 'h';
+            
+            // Calculate period days
+            const startDate = document.getElementById('periodStart').value;
+            const endDate = document.getElementById('periodEnd').value;
+            
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const periodDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById('daysInPeriod').textContent = periodDays;
+            } else {
+                document.getElementById('daysInPeriod').textContent = '0';
+            }
+        }
+
+        function updateDailyCounter() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayEntries = timeEntries.filter(entry => entry.date === today);
+            const todayHours = todayEntries.reduce((sum, entry) => sum + entry.duration, 0);
+            
+            dailyTarget = parseFloat(document.getElementById('dailyTarget').value || 8);
+            const progress = Math.min((todayHours / dailyTarget) * 100, 100);
+            
+            document.getElementById('dailyProgress').textContent = `${todayHours.toFixed(1)}h / ${dailyTarget.toFixed(1)}h`;
+            document.getElementById('dailyProgressBar').style.width = progress + '%';
+        }
+
+        function getFilteredEntries() {
+            const startDate = document.getElementById('periodStart').value;
+            const endDate = document.getElementById('periodEnd').value;
+            
+            if (!startDate || !endDate) return timeEntries;
+            
+            return timeEntries.filter(entry => {
+                return entry.date >= startDate && entry.date <= endDate;
+            });
+        }
+
+        function updateEntriesList() {
+            const container = document.getElementById('entriesList');
+            const filteredEntries = getFilteredEntries();
+            
+            if (filteredEntries.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #7f8c8d;">No time entries for this period.</div>';
+                return;
+            }
+            
+            if (currentView === 'detailed') {
+                // Create table structure with headers
+                const table = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time Period</th>
+                                <th>Duration</th>
+                                <th>Category</th>
+                                <th>Project</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filteredEntries
+                                .sort((a, b) => new Date(b.date + 'T' + b.startTime) - new Date(a.date + 'T' + a.startTime))
+                                .map(entry => `
+                                    <tr>
+                                        <td><strong>${entry.date}</strong></td>
+                                        <td>${entry.startTime} - ${entry.endTime}</td>
+                                        <td><strong>${entry.duration.toFixed(1)}h</strong></td>
+                                        <td><span class="category-badge category-${entry.category}">${entry.category.toUpperCase()}</span></td>
+                                        <td>${entry.project}</td>
+                                    </tr>
+                                `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                container.innerHTML = table;
+            } else {
+                // Daily summary view - also as a table
+                const dailyTotals = {};
+                filteredEntries.forEach(entry => {
+                    if (!dailyTotals[entry.date]) {
+                        dailyTotals[entry.date] = {
+                            hours: 0,
+                            categories: new Set()
+                        };
+                    }
+                    dailyTotals[entry.date].hours += entry.duration;
+                    dailyTotals[entry.date].categories.add(entry.category);
+                });
+                
+                const table = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Day of Week</th>
+                                <th>Total Hours</th>
+                                <th>Categories</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(dailyTotals)
+                                .sort(([a], [b]) => new Date(b) - new Date(a))
+                                .map(([date, data]) => `
+                                    <tr>
+                                        <td><strong>${date}</strong></td>
+                                        <td>${new Date(date).toLocaleDateString('en-US', { weekday: 'long' })}</td>
+                                        <td><strong>${data.hours.toFixed(1)}h</strong></td>
+                                        <td>
+                                            ${Array.from(data.categories).map(cat => 
+                                                `<span class="category-badge category-${cat}">${cat.toUpperCase()}</span>`
+                                            ).join(' ')}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                container.innerHTML = table;
+            }
+        }
+
+        function setView(view) {
+            currentView = view;
+            
+            document.querySelectorAll('.view-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            updateEntriesList();
+        }
+
+        // Export functionality
+        function exportToCSV() {
+            const employeeName = document.getElementById('employeeName').value || 'Employee';
+            const filteredEntries = getFilteredEntries();
+            
+            if (filteredEntries.length === 0) {
+                alert('No data to export for the selected period.');
+                return;
+            }
+            
+            const startDate = document.getElementById('periodStart').value;
+            const endDate = document.getElementById('periodEnd').value;
+            const totalHours = filteredEntries.reduce((sum, entry) => sum + entry.duration, 0);
+            const workDays = new Set(filteredEntries.map(entry => entry.date)).size;
+            const avgDaily = workDays > 0 ? totalHours / workDays : 0;
+            
+            let csvContent = `Employee Name,Date,Category,Project,Start Time,End Time,Duration (Hours)\n`;
+            
+            filteredEntries
+                .sort((a, b) => new Date(a.date + 'T' + a.startTime) - new Date(b.date + 'T' + b.startTime))
+                .forEach(entry => {
+                    csvContent += `"${employeeName}","${entry.date}","${entry.category}","${entry.project}","${entry.startTime}","${entry.endTime}",${entry.duration}\n`;
+                });
+            
+            // Add summary
+            csvContent += `\nSUMMARY\n`;
+            csvContent += `Period,"${startDate} to ${endDate}"\n`;
+            csvContent += `Total Hours,${totalHours.toFixed(1)}\n`;
+            csvContent += `Work Days,${workDays}\n`;
+            csvContent += `Average Daily Hours,${avgDaily.toFixed(2)}\n`;
+            csvContent += `Export Date,"${new Date().toISOString().split('T')[0]}"\n`;
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            const fileName = `${employeeName.replace(/\s+/g, '_')}_Timesheet_${startDate}_to_${endDate}.csv`;
+            link.href = url;
+            link.download = fileName;
+            link.click();
+            
+            window.URL.revokeObjectURL(url);
+        }
+
+        function importCSV() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.csv';
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        parseCSVImport(e.target.result);
+                    } catch (error) {
+                        alert('Error reading CSV file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function parseCSVImport(csvContent) {
+            const lines = csvContent.split('\n').filter(line => line.trim());
+            if (lines.length < 2) {
+                alert('CSV file appears to be empty or invalid.');
+                return;
+            }
+            
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
+            let importedCount = 0;
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line || line.toLowerCase().includes('summary')) break;
+                
+                const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+                if (values.length < headers.length) continue;
+                
+                try {
+                    const entry = {
+                        id: Date.now() + Math.random(),
+                        employee: values[0] || document.getElementById('employeeName').value || 'Unknown',
+                        date: values[1],
+                        category: values[2] || 'work',
+                        project: values[3] || 'No Project',
+                        startTime: values[4],
+                        endTime: values[5],
+                        duration: parseFloat(values[6]) || 0
+                    };
+                    
+                    if (entry.date && entry.startTime && entry.endTime && entry.duration > 0) {
+                        timeEntries.push(entry);
+                        importedCount++;
+                    }
+                } catch (error) {
+                    console.warn('Skipped invalid line:', line);
+                }
+            }
+            
+            if (importedCount > 0) {
+                saveTimeEntries();
+                updateDisplay();
+                alert(`Successfully imported ${importedCount} time entries.`);
+            } else {
+                alert('No valid entries found in the CSV file.');
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear ALL time tracking data? This cannot be undone.')) {
+                timeEntries = [];
+                localStorage.removeItem('timeEntries');
+                localStorage.removeItem('activeSession');
+                updateDisplay();
+                alert('All data has been cleared.');
+            }
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const recoveryModal = document.getElementById('recoveryModal');
+            const timeAdjustModal = document.getElementById('timeAdjustModal');
+            
+            if (event.target === recoveryModal) {
+                recoveryModal.style.display = 'none';
+            }
+            if (event.target === timeAdjustModal) {
+                timeAdjustModal.style.display = 'none';
+            }
+        }
+    </script>
+
+    <style>
+        /* Additional styles for tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #34495e;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 2px;
+        }
+
+        .category-work { background: #27ae60; color: white; }
+        .category-overhead { background: #3498db; color: white; }
+        .category-travel { background: #9b59b6; color: white; }
+        .category-pto { background: #e67e22; color: white; }
+        .category-sick { background: #e74c3c; color: white; }
+        .category-holiday { background: #f39c12; color: white; }
+        .category-bereavement { background: #95a5a6; color: white; }
+        .category-jury { background: #34495e; color: white; }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .recovery-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .recovery-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .recovery-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .recovery-btn.adjust {
+            background: #3498db;
+        }
+
+        .recovery-btn.discard {
+            background: #e74c3c;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .data-table {
+                font-size: 0.9em;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 8px;
+            }
+            
+            .modal-content {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
 </body>
 </html>
