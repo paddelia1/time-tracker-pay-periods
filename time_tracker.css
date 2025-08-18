@@ -1,11 +1,11 @@
 /*
-Time Tracker CSS v1.1.3
+Time Tracker CSS v1.1.4
 Author: Philippe Addelia
 Company: NAKUPUNA CONSULTING
 Created: August 17, 2025 PST
 Modified: August 18, 2025 PST
 Preferred location: Modules\Time Tracker\time_tracker.css
-Purpose: All styling for the Employee Time Tracker application - FIXED GRID INTERFACE
+Purpose: All styling for the Employee Time Tracker application - RESTORED CLASSIC LAYOUT
 */
 
 * {
@@ -76,7 +76,7 @@ body {
 
 .header-controls {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 120px 1fr 1fr 1fr;
     gap: 20px;
     align-items: end;
 }
@@ -100,9 +100,9 @@ body {
     background: rgba(255,255,255,0.9);
 }
 
-/* Pay Period Info Bar */
+/* Pay Period Info Bar - Enhanced styling for better visibility */
 .pay-period-info {
-    background: rgba(255,255,255,0.1);
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     padding: 15px 30px;
     backdrop-filter: blur(10px);
     border-top: 1px solid rgba(255,255,255,0.2);
@@ -110,29 +110,33 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .pay-period-detail {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.2);
     padding: 8px 15px;
     border-radius: 8px;
     backdrop-filter: blur(5px);
+    border: 1px solid rgba(255,255,255,0.3);
 }
 
 .pay-period-detail .label {
-    font-weight: 500;
+    font-weight: 600;
     opacity: 0.9;
     font-size: 0.9rem;
     color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .pay-period-detail .value {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.95rem;
     color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .main-content {
@@ -677,6 +681,13 @@ body {
         grid-template-columns: 1fr;
         gap: 10px;
         padding: 15px 20px;
+    }
+    
+    .pay-period-detail {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 5px;
     }
     
     .main-content {

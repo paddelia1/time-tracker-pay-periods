@@ -1,11 +1,11 @@
 /*
-Time Tracker Functions v1.1.3
+Time Tracker Functions v1.1.4
 Author: Philippe Addelia
 Company: NAKUPUNA CONSULTING
 Created: August 17, 2025 PST
 Modified: August 18, 2025 PST
 Preferred location: Modules\Time Tracker\time_tracker_functions.js
-Purpose: All JavaScript functionality for the Employee Time Tracker application - FIXED GRID INTERFACE
+Purpose: All JavaScript functionality for the Employee Time Tracker application - RESTORED CLASSIC LAYOUT
 */
 
 // Company Configuration - EDIT THIS SECTION TO CUSTOMIZE FOR YOUR COMPANY
@@ -20,8 +20,8 @@ const COMPANY_CONFIG = {
 
 // Built-in pay periods configuration
 const DEFAULT_PAY_PERIODS_CONFIG = {
-    "version": "1.1.3",
-    "lastUpdated": "2025-08-18T12:00:00-08:00",
+    "version": "1.1.4",
+    "lastUpdated": "2025-08-18T14:00:00-08:00",
     "company": {
         "name": COMPANY_CONFIG.companyName || "NAKUPUNA CONSULTING",
         "payrollCycle": "bi-weekly",
@@ -134,7 +134,7 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
             "type": "federal"
         }
     ],
-    "configVersion": "1.1.3",
+    "configVersion": "1.1.4",
     "lastUpdated": "2025-08-18",
     "company": COMPANY_CONFIG.companyName || "NAKUPUNA CONSULTING"
 };
@@ -213,14 +213,19 @@ function populatePayPeriods() {
 
 function setSelectedPayPeriod() {
     const selectElement = document.getElementById('payPeriodSelect');
-    if (!selectElement) return; // Element doesn't exist in employee version
+    if (!selectElement) return;
     
     const selectedId = selectElement.value;
     selectedPayPeriod = payPeriodsConfig.payPeriods.find(p => p.id === selectedId);
     
     if (selectedPayPeriod) {
-        // Set period dates
+        // Set both period start and end dates
+        const periodStartEl = document.getElementById('periodStart');
         const periodEndEl = document.getElementById('periodEnd');
+        
+        if (periodStartEl) {
+            periodStartEl.value = selectedPayPeriod.periodStart;
+        }
         if (periodEndEl) {
             periodEndEl.value = selectedPayPeriod.periodEnd;
         }
@@ -287,8 +292,16 @@ function setDefaultPeriod() {
         }
     }
     
-    // Fallback to manual dates
+    // Fallback to manual dates - set default 2-week period
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+    
+    const periodStartElement = document.getElementById('periodStart');
     const periodEndElement = document.getElementById('periodEnd');
+    
+    if (periodStartElement) {
+        periodStartElement.value = formatDate(twoWeeksAgo);
+    }
     if (periodEndElement) {
         periodEndElement.value = formatDate(today);
     }
@@ -301,10 +314,12 @@ function setDefaultPeriod() {
 function setupEventListeners() {
     const employeeNameEl = document.getElementById('employeeName');
     const dailyTargetEl = document.getElementById('dailyTarget');
+    const periodStartEl = document.getElementById('periodStart');
     const periodEndEl = document.getElementById('periodEnd');
     
     if (employeeNameEl) employeeNameEl.addEventListener('input', saveData);
     if (dailyTargetEl) dailyTargetEl.addEventListener('input', saveData);
+    if (periodStartEl) periodStartEl.addEventListener('change', updateDisplay);
     if (periodEndEl) periodEndEl.addEventListener('change', updateDisplay);
 }
 
@@ -580,17 +595,26 @@ function getFilteredEntries() {
             return entry.date >= selectedPayPeriod.periodStart && entry.date <= selectedPayPeriod.periodEnd;
         });
     } else {
-        // Fallback to period end date
+        // Use manual period start and end dates if available
+        const periodStart = document.getElementById('periodStart').value;
         const periodEnd = document.getElementById('periodEnd').value;
-        if (!periodEnd) return timeEntries;
         
-        const twoWeeksAgo = new Date();
-        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-        const startDate = formatDate(twoWeeksAgo);
+        if (periodStart && periodEnd) {
+            return timeEntries.filter(entry => {
+                return entry.date >= periodStart && entry.date <= periodEnd;
+            });
+        } else if (periodEnd) {
+            // Fallback to period end date with default start (2 weeks ago)
+            const twoWeeksAgo = new Date();
+            twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+            const startDate = formatDate(twoWeeksAgo);
+            
+            return timeEntries.filter(entry => {
+                return entry.date >= startDate && entry.date <= periodEnd;
+            });
+        }
         
-        return timeEntries.filter(entry => {
-            return entry.date >= startDate && entry.date <= periodEnd;
-        });
+        return timeEntries;
     }
 }
 
