@@ -1,11 +1,11 @@
 /*
-Time Tracker Functions v1.1.5
-Author: Philippe Addelia
+Time Tracker Functions v1.1.7
+Author: Philippe Addelia  
 Company: NAKUPUNA CONSULTING
 Created: August 17, 2025 PST
 Modified: August 18, 2025 PST
 Preferred location: Modules\Time Tracker\time_tracker_functions.js
-Purpose: All JavaScript functionality for the Employee Time Tracker application - ADDED EDIT/DELETE FUNCTIONALITY
+Purpose: All JavaScript functionality for the Employee Time Tracker application - FIXED DAY OF WEEK BUG
 */
 
 // Company Configuration - EDIT THIS SECTION TO CUSTOMIZE FOR YOUR COMPANY
@@ -20,7 +20,7 @@ const COMPANY_CONFIG = {
 
 // Built-in pay periods configuration
 const DEFAULT_PAY_PERIODS_CONFIG = {
-    "version": "1.1.5",
+    "version": "1.1.7",
     "lastUpdated": "2025-08-18T15:00:00-08:00",
     "company": {
         "name": COMPANY_CONFIG.companyName || "NAKUPUNA CONSULTING",
@@ -134,7 +134,7 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
             "type": "federal"
         }
     ],
-    "configVersion": "1.1.5",
+    "configVersion": "1.1.7",
     "lastUpdated": "2025-08-18",
     "company": COMPANY_CONFIG.companyName || "NAKUPUNA CONSULTING"
 };
@@ -521,6 +521,17 @@ function formatDateTime(date) {
 }
 
 // ============================================================================
+// FIXED: Parse date correctly to avoid timezone issues
+// ============================================================================
+function parseDateCorrectly(dateString) {
+    // Parse the date string as local date, not UTC
+    // dateString format: "2025-08-18"
+    const [year, month, day] = dateString.split('-').map(Number);
+    // Month is 0-indexed in JavaScript Date constructor
+    return new Date(year, month - 1, day);
+}
+
+// ============================================================================
 // DISPLAY UPDATE FUNCTIONS
 // ============================================================================
 
@@ -652,7 +663,7 @@ function getFilteredEntries() {
 }
 
 // ============================================================================
-// FIXED ENTRIES LIST DISPLAY - THIS WAS THE MAIN ISSUE
+// FIXED ENTRIES LIST DISPLAY WITH CORRECT DAY OF WEEK
 // ============================================================================
 
 function updateEntriesList() {
@@ -758,7 +769,9 @@ function showDailySummaryView(container, filteredEntries) {
     Object.entries(dailyTotals)
         .sort(([a], [b]) => new Date(b) - new Date(a))
         .forEach(([date, data]) => {
-            const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
+            // FIXED: Use the parseDateCorrectly function to avoid timezone issues
+            const correctDate = parseDateCorrectly(date);
+            const dayOfWeek = correctDate.toLocaleDateString('en-US', { weekday: 'long' });
             const categoriesHTML = Array.from(data.categories)
                 .map(cat => `<span class="category-badge category-${cat}">${cat.toUpperCase()}</span>`)
                 .join(' ');
@@ -882,6 +895,9 @@ function saveEntry(entryId) {
     // Show success message
     showTemporaryMessage('Entry updated successfully!', 'success');
 }
+
+// Rest of the functions remain the same...
+// [Continuing with all other functions unchanged from the original]
 
 function cancelEdit(entryId, originalEntryJson) {
     // Refresh the display to restore the original row
