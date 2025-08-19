@@ -5,7 +5,7 @@ A comprehensive time tracking solution with configurable pay periods, designed f
 ## 🚀 Quick Access
 
 ### For Employees
-**[Employee Time Tracker](https://paddelia1.github.io/time-tracker-pay-periods/enhanced_time_tracker_v1_1_1.html)**
+**[Employee Time Tracker](https://paddelia1.github.io/time-tracker-pay-periods/time_tracker_employee.html)**
 - Clock in/out functionality
 - View current hours and pay period progress
 - Track time across configurable pay periods
@@ -19,11 +19,12 @@ A comprehensive time tracking solution with configurable pay periods, designed f
 - Administrative controls and system configuration
 
 ### Documentation
-**[Project Documentation](https://paddelia1.github.io/time-tracker-pay-periods/Doc/)**
-- Setup and installation guides
-- User manuals and tutorials
-- API documentation
-- Troubleshooting and FAQ
+**User Guides & Documentation:**
+- **[Employee Time Tracker - User Guide](https://paddelia1.github.io/time-tracker-pay-periods/Doc/Employee%20Time%20Tracker%20-%20User%20Guide.pdf)** - Complete guide for employees using the time tracker
+- **[Time Tracker Admin Console User Guide](https://paddelia1.github.io/time-tracker-pay-periods/Doc/Time%20Tracker%20Admin%20Console%20User%20Guide.pdf)** - Administrator manual for managing the system
+- **[Pay Periods Time Tracker Implementation Guide](https://paddelia1.github.io/time-tracker-pay-periods/Doc/Pay%20Periods%20Time%20Tracker%20Implementation%20Guide.pdf)** - Setup and implementation instructions
+- **[Company Holiday Setup Examples](https://paddelia1.github.io/time-tracker-pay-periods/Doc/Company%20Holiday%20Setup%20examples.pdf)** - Examples for configuring company holidays
+- **[License Information](https://paddelia1.github.io/time-tracker-pay-periods/Doc/LICENSE.txt)** - Project license and terms
 
 ## 📋 Features
 
@@ -37,7 +38,7 @@ A comprehensive time tracking solution with configurable pay periods, designed f
 
 1. **Employees**: Start with the [Employee Time Tracker](https://paddelia1.github.io/time-tracker-pay-periods/enhanced_time_tracker_v1_1_1.html) to begin tracking your time
 2. **Administrators**: Use the [Management Console](https://paddelia1.github.io/time-tracker-pay-periods/time_tracker_admin.html) to configure the system
-3. **Need Help?**: Check the [Documentation](https://paddelia1.github.io/time-tracker-pay-periods/Doc/) for detailed guides
+3. **Need Help?**: Check the individual documentation files listed above for detailed guides
 
 ## 📞 Support
 
