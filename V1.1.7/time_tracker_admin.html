@@ -499,7 +499,7 @@
         <div class="header">
             <div class="header-top-row">
                 <div class="logo-section">
-                    <img src="company_logo.png" alt="Company Logo" class="company-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
+                    <img src="Company_logo.png" alt="Company Logo" class="company-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
                     <div id="fallback-logo" style="display:none; width:50px; height:50px; background:white; border-radius:8px; align-items:center; justify-content:center; font-weight:bold; color:#667eea;">NC</div>
                     <div class="company-info" id="companyInfoDiv">
                         <div class="company-name" id="companyNameDisplay">NAKUPUNA CONSULTING</div>
@@ -694,6 +694,11 @@
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">Application Configuration</div>
             <div id="configureContent">
+                <div style="background: #d1ecf1; padding: 12px; border-radius: 6px; border-left: 4px solid #0c5460; margin-bottom: 20px;">
+                    <strong style="color: #0c5460;">How This Works:</strong>
+                    <span style="color: #0c5460;">These settings affect both the Admin Console AND the Employee Time Tracker when they're on the same domain. Changes here will be reflected in the employee app immediately.</span>
+                </div>
+
                 <div style="margin-bottom: 30px;">
                     <h3 style="color: #495057; margin-bottom: 15px;">Company Settings</h3>
                     <div style="margin-bottom: 15px;">
@@ -703,7 +708,7 @@
                         <input type="text" id="companyNameInput" placeholder="Enter company name (leave blank to use logo only)" 
                                style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
                         <small style="color: #6c757d; display: block; margin-top: 5px;">
-                            This will be displayed in the header. Leave blank if you prefer to show only the logo.
+                            This will be displayed in both Admin and Employee apps. Leave blank if you prefer to show only the logo.
                         </small>
                     </div>
                 </div>
@@ -712,14 +717,22 @@
                     <h3 style="color: #495057; margin-bottom: 15px;">Data Entry Permissions</h3>
                     <label style="display: block; margin: 10px 0;">
                         <input type="checkbox" id="allowEditCheckbox" checked>
-                        <span style="margin-left: 8px;">Allow Edit buttons in detail reports</span>
+                        <span style="margin-left: 8px;">Allow Edit buttons in Admin detail reports</span>
                     </label>
                     <label style="display: block; margin: 10px 0;">
                         <input type="checkbox" id="allowDeleteCheckbox" checked>
-                        <span style="margin-left: 8px;">Allow Delete buttons in detail reports</span>
+                        <span style="margin-left: 8px;">Allow Delete buttons in Admin detail reports</span>
+                    </label>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="allowEmployeeEdit" checked>
+                        <span style="margin-left: 8px;">Allow employees to edit their own entries</span>
+                    </label>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="allowEmployeeDelete" checked>
+                        <span style="margin-left: 8px;">Allow employees to delete their own entries</span>
                     </label>
                     <small style="color: #6c757d; display: block; margin-top: 10px;">
-                        Unchecking these options will hide the respective buttons in the table view.
+                        These permissions control what users can do in their respective applications.
                     </small>
                 </div>
 
@@ -746,9 +759,22 @@
                     </small>
                 </div>
 
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #495057; margin-bottom: 15px;">Deployment Requirements</h3>
+                    <div style="padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                        <p style="margin: 5px 0;"><strong>For configuration sharing to work:</strong></p>
+                        <ul style="margin: 10px 0 5px 20px;">
+                            <li>Both Admin and Employee apps must be on the same domain</li>
+                            <li>Files needed: <code>Company_logo.png</code> (same file for both apps)</li>
+                            <li>Employee Tracker needs to be updated to read <code>sharedAppConfig</code></li>
+                            <li>Current Employee Version: v1.1.7 V2</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107;">
                     <strong style="color: #856404;">Note:</strong> 
-                    <span style="color: #856404;">These settings are saved locally and will persist across sessions.</span>
+                    <span style="color: #856404;">These settings are saved locally and will persist across sessions. The Employee app must be refreshed to see changes.</span>
                 </div>
             </div>
             <div class="modal-buttons">
@@ -772,7 +798,9 @@
         let appConfig = {
             companyName: 'NAKUPUNA CONSULTING',
             allowEdit: true,
-            allowDelete: true
+            allowDelete: true,
+            allowEmployeeEdit: true,
+            allowEmployeeDelete: true
         };
 
         // Pay Periods Configuration
@@ -917,6 +945,8 @@
                 document.getElementById('companyNameInput').value = appConfig.companyName || '';
                 document.getElementById('allowEditCheckbox').checked = appConfig.allowEdit !== false;
                 document.getElementById('allowDeleteCheckbox').checked = appConfig.allowDelete !== false;
+                document.getElementById('allowEmployeeEdit').checked = appConfig.allowEmployeeEdit !== false;
+                document.getElementById('allowEmployeeDelete').checked = appConfig.allowEmployeeDelete !== false;
                 
                 modal.style.display = 'flex';
             }
@@ -927,17 +957,32 @@
             const companyName = document.getElementById('companyNameInput').value;
             const allowEdit = document.getElementById('allowEditCheckbox').checked;
             const allowDelete = document.getElementById('allowDeleteCheckbox').checked;
+            const allowEmployeeEdit = document.getElementById('allowEmployeeEdit').checked;
+            const allowEmployeeDelete = document.getElementById('allowEmployeeDelete').checked;
             
             appConfig = {
                 companyName: companyName,
                 allowEdit: allowEdit,
-                allowDelete: allowDelete
+                allowDelete: allowDelete,
+                allowEmployeeEdit: allowEmployeeEdit,
+                allowEmployeeDelete: allowEmployeeDelete
             };
             
-            // Save to localStorage
+            // Save to localStorage for Admin Console
             try {
                 localStorage.setItem('adminAppConfig', JSON.stringify(appConfig));
-                console.log('Saved app configuration to localStorage');
+                
+                // Also save shared configuration for Employee App
+                const sharedConfig = {
+                    companyName: companyName,
+                    allowEmployeeEdit: allowEmployeeEdit,
+                    allowEmployeeDelete: allowEmployeeDelete,
+                    configuredBy: 'Admin Console',
+                    lastUpdated: new Date().toISOString()
+                };
+                localStorage.setItem('sharedAppConfig', JSON.stringify(sharedConfig));
+                
+                console.log('Saved configuration to both admin and shared storage');
                 
                 // Apply the new configuration
                 applyConfiguration();
@@ -946,7 +991,7 @@
                 displayData();
                 
                 closeConfigureModal();
-                showStatus('Configuration saved successfully', 'success', 'analysisStatus');
+                showStatus('Configuration saved successfully. Employee app will use these settings.', 'success', 'analysisStatus');
             } catch (error) {
                 console.error('Error saving configuration:', error);
                 showStatus('Error saving configuration', 'error', 'analysisStatus');
@@ -1852,16 +1897,31 @@ Date Range: ${allTimeEntries.length > 0 ? (() => {
                 appConfig = {
                     companyName: 'NAKUPUNA CONSULTING',
                     allowEdit: true,
-                    allowDelete: true
+                    allowDelete: true,
+                    allowEmployeeEdit: true,
+                    allowEmployeeDelete: true
                 };
                 
                 // Update form fields
                 document.getElementById('companyNameInput').value = appConfig.companyName;
                 document.getElementById('allowEditCheckbox').checked = appConfig.allowEdit;
                 document.getElementById('allowDeleteCheckbox').checked = appConfig.allowDelete;
+                document.getElementById('allowEmployeeEdit').checked = appConfig.allowEmployeeEdit;
+                document.getElementById('allowEmployeeDelete').checked = appConfig.allowEmployeeDelete;
                 
                 // Save and apply
                 localStorage.setItem('adminAppConfig', JSON.stringify(appConfig));
+                
+                // Update shared config too
+                const sharedConfig = {
+                    companyName: appConfig.companyName,
+                    allowEmployeeEdit: appConfig.allowEmployeeEdit,
+                    allowEmployeeDelete: appConfig.allowEmployeeDelete,
+                    configuredBy: 'Admin Console',
+                    lastUpdated: new Date().toISOString()
+                };
+                localStorage.setItem('sharedAppConfig', JSON.stringify(sharedConfig));
+                
                 applyConfiguration();
                 displayData();
                 
@@ -1914,6 +1974,16 @@ Date Range: ${allTimeEntries.length > 0 ? (() => {
                     if (configData.appConfig) {
                         appConfig = configData.appConfig;
                         localStorage.setItem('adminAppConfig', JSON.stringify(appConfig));
+                        
+                        // Update shared config for employee app
+                        const sharedConfig = {
+                            companyName: appConfig.companyName,
+                            allowEmployeeEdit: appConfig.allowEmployeeEdit !== false,
+                            allowEmployeeDelete: appConfig.allowEmployeeDelete !== false,
+                            configuredBy: 'Admin Console (Import)',
+                            lastUpdated: new Date().toISOString()
+                        };
+                        localStorage.setItem('sharedAppConfig', JSON.stringify(sharedConfig));
                     }
                     
                     // Import pay periods configuration if present
@@ -1931,6 +2001,8 @@ Date Range: ${allTimeEntries.length > 0 ? (() => {
                     document.getElementById('companyNameInput').value = appConfig.companyName || '';
                     document.getElementById('allowEditCheckbox').checked = appConfig.allowEdit !== false;
                     document.getElementById('allowDeleteCheckbox').checked = appConfig.allowDelete !== false;
+                    document.getElementById('allowEmployeeEdit').checked = appConfig.allowEmployeeEdit !== false;
+                    document.getElementById('allowEmployeeDelete').checked = appConfig.allowEmployeeDelete !== false;
                     
                     showStatus('Configuration imported successfully', 'success', 'analysisStatus');
                     
