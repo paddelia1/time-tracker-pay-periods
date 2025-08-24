@@ -6,8 +6,6 @@
     <title>Time Tracker Admin Console v1.1.6</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234facfe'><circle cx='12' cy='12' r='10' stroke='%23667eea' stroke-width='2' fill='%234facfe'/><path d='M12 6v6l4 2' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Optional: Include shared configuration file if it exists -->
-    <script src="config.js" onerror="console.log('config.js not found - using default settings')"></script>
     <style>
         * {
             margin: 0;
@@ -51,8 +49,8 @@
         }
 
         .company-logo {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
             background: white;
             padding: 5px;
@@ -80,6 +78,42 @@
             font-size: 1rem;
             opacity: 0.85;
             margin-top: 5px;
+        }
+
+        /* License Watermark Styles */
+        .license-watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: pulse 2s infinite;
+            cursor: pointer;
+        }
+
+        .license-watermark:hover {
+            background: rgba(220, 53, 69, 1);
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; }
+        }
+
+        .license-watermark.licensed {
+            background: rgba(40, 167, 69, 0.9);
+            animation: none;
+        }
+
+        .license-watermark.licensed:hover {
+            background: rgba(40, 167, 69, 1);
         }
 
         .main-content {
@@ -495,58 +529,87 @@
             font-size: 14px;
         }
 
-        /* License System Styles */
+        /* License-specific styles */
         .license-section {
-            background: #f8f9fa;
-            padding: 20px;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
             border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
         }
 
-        .license-section.licensed {
-            border-left-color: #28a745;
-            background: #d4edda;
+        .license-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .paypal-btn {
+        .license-section .license-icon {
+            font-size: 1.2rem;
+        }
+
+        .license-form {
+            display: grid;
+            gap: 15px;
+        }
+
+        .license-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .license-input-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .license-input {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .paypal-button {
             background: #0070ba;
             color: white;
             padding: 12px 24px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             text-decoration: none;
             display: inline-block;
-            margin: 10px 0;
-            transition: all 0.3s;
+            text-align: center;
+            transition: all 0.3s ease;
         }
 
-        .paypal-btn:hover {
-            background: #005ea6;
+        .paypal-button:hover {
+            background: #005691;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        /* Watermark styles */
-        #watermark {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-size: 12px;
-            z-index: 9999;
-            pointer-events: none;
-            animation: pulse 3s infinite;
+        .license-status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 600;
         }
 
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
+        .license-status.unlicensed {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .license-status.licensed {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
     </style>
 </head>
@@ -556,7 +619,7 @@
             <div class="header-top-row">
                 <div class="logo-section">
                     <img src="Company_logo.png" alt="Company Logo" class="company-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
-                    <div id="fallback-logo" style="display:none; width:60px; height:60px; background:white; border-radius:8px; align-items:center; justify-content:center; font-weight:bold; color:#667eea; font-size:20px;">CL</div>
+                    <div id="fallback-logo" style="display:none; width:50px; height:50px; background:white; border-radius:8px; align-items:center; justify-content:center; font-weight:bold; color:#667eea;">CL</div>
                     <div class="company-info" id="companyInfoDiv">
                         <div class="company-name" id="companyNameDisplay">CAND, LLC</div>
                         <div class="page-title">Time Tracker Admin Console</div>
@@ -666,10 +729,6 @@
                     <div class="stat-value" id="dataQuality">100%</div>
                     <div class="stat-label">Data Quality</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="licenseStatusStat">Free</div>
-                    <div class="stat-label">License Status</div>
-                </div>
             </div>
 
             <div class="view-toggle">
@@ -710,7 +769,77 @@
         </div>
 
         <div class="footer">
-            <p class="credits">Time Tracker Admin Console v1.1.6 | Created: August 18, 2025 PST | Modified: August 18, 2025 PST | Philippe Addelia | <span id="licenseStatus">Free Version</span></p>
+            <p class="credits">Time Tracker Admin Console v1.1.6 | Created: August 24, 2025 PST | Modified: August 24, 2025 PST | Philippe Addelia</p>
+        </div>
+    </div>
+
+    <!-- License Watermark -->
+    <div class="license-watermark" id="licenseWatermark" onclick="showLicenseModal()">
+        <span id="watermarkText">Powered by CAND, LLC - Unlicensed</span>
+    </div>
+
+    <!-- License Modal -->
+    <div class="modal" id="licenseModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">Software License - $9.95</div>
+            <div id="licenseContent">
+                <div class="license-status unlicensed" id="licenseStatusDisplay">
+                    <strong>🔒 Free Version (Unlicensed)</strong><br>
+                    This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company name.
+                </div>
+
+                <div class="license-section">
+                    <h3><span class="license-icon">💳</span> Purchase License - $9.95</h3>
+                    <p style="margin-bottom: 15px;">Get a lifetime license to:</p>
+                    <ul style="margin-left: 20px; margin-bottom: 15px;">
+                        <li>Remove all watermarks permanently</li>
+                        <li>Customize company name and branding</li>
+                        <li>Support ongoing development</li>
+                        <li>One-time payment, lifetime usage</li>
+                    </ul>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <a href="https://www.paypal.com/ncp/payment/FYUAQ4AVBPQYQ" target="_blank" class="paypal-button">
+                            Pay $9.95 via PayPal
+                        </a>
+                    </div>
+                    
+                    <p style="font-size: 0.9rem; color: #6c757d; text-align: center;">
+                        After payment, email your company name to get your license key
+                    </p>
+                </div>
+
+                <div class="license-section" style="background: #f8f9fa; border-color: #dee2e6;">
+                    <h3><span class="license-icon">🔑</span> Activate License</h3>
+                    <p style="margin-bottom: 15px;">Enter your license details to activate:</p>
+                    
+                    <div class="license-form">
+                        <div class="license-input-group">
+                            <label for="licenseCompanyName">Company Name (exactly as provided):</label>
+                            <input type="text" id="licenseCompanyName" class="license-input" placeholder="Enter your company name">
+                        </div>
+                        <div class="license-input-group">
+                            <label for="licenseKey">License Key:</label>
+                            <input type="text" id="licenseKey" class="license-input" placeholder="Enter your license key" style="font-family: monospace;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <h4 style="color: #004085; margin-bottom: 10px;">How to get your license:</h4>
+                    <ol style="margin-left: 20px; color: #004085;">
+                        <li>Click "Pay $9.95 via PayPal" above and complete payment</li>
+                        <li>Email your exact company name to the developer</li>
+                        <li>Receive your license key within 24 hours</li>
+                        <li>Enter both fields above and click "Activate License"</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-success" onclick="activateLicense()">Activate License</button>
+                <button class="btn btn-danger" onclick="resetLicense()" id="resetLicenseBtn" style="display: none;">Reset License</button>
+                <button class="btn btn-secondary" onclick="closeLicenseModal()">Close</button>
+            </div>
         </div>
     </div>
 
@@ -751,25 +880,12 @@
 
     <!-- Configure App Modal -->
     <div class="modal" id="configureModal">
-        <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">Application Configuration</div>
             <div id="configureContent">
-                <!-- License Section -->
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #495057; margin-bottom: 15px;">License Settings</h3>
-                    <div id="licenseSection" style="padding: 15px; background: #f8f9fa; border-radius: 6px;">
-                        <!-- License content will be loaded here -->
-                    </div>
-                </div>
-
                 <div style="background: #d1ecf1; padding: 12px; border-radius: 6px; border-left: 4px solid #0c5460; margin-bottom: 20px;">
-                    <strong style="color: #0c5460;">Configuration Sharing - How It Works:</strong>
-                    <ul style="margin: 5px 0 0 20px; color: #0c5460;">
-                        <li><strong>Method 1 - Local Browser:</strong> Settings auto-save to localStorage (same computer/browser only)</li>
-                        <li><strong>Method 2 - GitHub Pages:</strong> Export config.js → commit to repo → both apps read it (all users)</li>
-                        <li><strong>Method 3 - Manual:</strong> Export JSON → email to team → they import in their admin</li>
-                    </ul>
-                    <p style="margin: 10px 0 0 0; color: #0c5460;"><strong>Note:</strong> GitHub cannot automatically update files. You must manually commit config.js after exporting.</p>
+                    <strong style="color: #0c5460;">How This Works:</strong>
+                    <span style="color: #0c5460;">These settings affect both the Admin Console AND the Employee Time Tracker when they're on the same domain. Changes here will be reflected in the employee app immediately.</span>
                 </div>
 
                 <div style="margin-bottom: 30px;">
@@ -809,6 +925,25 @@
                     </small>
                 </div>
 
+                <!-- License Settings Section -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #495057; margin-bottom: 15px;">License Settings</h3>
+                    <div style="padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>License Status:</strong> 
+                                <span id="configLicenseStatus" style="font-weight: bold; color: #dc3545;">Unlicensed</span>
+                            </div>
+                            <button class="btn btn-primary" onclick="showLicenseModal()" style="padding: 6px 12px; font-size: 14px;">
+                                Manage License
+                            </button>
+                        </div>
+                        <div id="configLicenseInfo" style="margin-top: 10px; font-size: 0.9rem; color: #6c757d;">
+                            Purchase a $9.95 license to remove watermarks and customize branding.
+                        </div>
+                    </div>
+                </div>
+
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: #495057; margin-bottom: 15px;">Employee App Version</h3>
                     <div style="padding: 10px; background: #f8f9fa; border-radius: 6px;">
@@ -818,26 +953,36 @@
 
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: #495057; margin-bottom: 15px;">Configuration Management</h3>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 10px;">
                         <button class="btn btn-secondary" onclick="exportConfiguration()" style="padding: 8px 16px; font-size: 14px;">
-                            Export Config JSON
-                        </button>
-                        <button class="btn btn-secondary" onclick="exportConfigJS()" style="padding: 8px 16px; font-size: 14px;">
-                            Export as config.js
+                            Export Config
                         </button>
                         <button class="btn btn-secondary" onclick="document.getElementById('configImportFile').click()" style="padding: 8px 16px; font-size: 14px;">
                             Import Config
                         </button>
-                        <input type="file" id="configImportFile" accept=".json,.js" style="display: none;" onchange="importConfiguration(event)">
+                        <input type="file" id="configImportFile" accept=".json" style="display: none;" onchange="importConfiguration(event)">
                     </div>
                     <small style="color: #6c757d; display: block; margin-top: 5px;">
-                        <strong>For GitHub Pages:</strong> Use "Export as config.js", commit to repo, then both apps can read it.
+                        Export or import configuration settings to share across different instances.
                     </small>
                 </div>
 
-                <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107; margin-top: 15px;">
-                    <strong style="color: #856404;">⚠️ Important:</strong> 
-                    <span style="color: #856404;">The Employee Time Tracker (v1.1.7) needs to be updated to include <code>&lt;script src="config.js"&gt;&lt;/script&gt;</code> in its HTML head section for configuration sharing to work.</span>
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #495057; margin-bottom: 15px;">Deployment Requirements</h3>
+                    <div style="padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                        <p style="margin: 5px 0;"><strong>For configuration sharing to work:</strong></p>
+                        <ul style="margin: 10px 0 5px 20px;">
+                            <li>Both Admin and Employee apps must be on the same domain</li>
+                            <li>Files needed: <code>Company_logo.png</code> (same file for both apps)</li>
+                            <li>Employee Tracker needs to be updated to read <code>sharedAppConfig</code></li>
+                            <li>Current Employee Version: v1.1.7 V2</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107;">
+                    <strong style="color: #856404;">Note:</strong> 
+                    <span style="color: #856404;">These settings are saved locally and will persist across sessions. The Employee app must be refreshed to see changes.</span>
                 </div>
             </div>
             <div class="modal-buttons">
@@ -863,7 +1008,10 @@
             allowEdit: true,
             allowDelete: true,
             allowEmployeeEdit: true,
-            allowEmployeeDelete: true
+            allowEmployeeDelete: true,
+            isLicensed: false,
+            licensedCompany: '',
+            licenseKey: ''
         };
 
         // Pay Periods Configuration
@@ -952,174 +1100,165 @@
             ]
         };
 
-        // License System
-        function isLicensed() {
-            const company = localStorage.getItem('licensedCompany');
-            const key = localStorage.getItem('licenseKey');
-            
-            if (!company || !key) return false;
-            
-            const expectedKey = generateLicenseKey(company);
-            return key === expectedKey;
-        }
-
-        function generateLicenseKey(company) {
-            // This generates the expected key for validation
-            return btoa(company.toUpperCase() + "CAND2025PAY").substring(0, 12);
-        }
-
-        // Secret admin function - type this in browser console
-        // generateKeyForCustomer("Company Name")
-        window.generateKeyForCustomer = function(companyName) {
-            const key = generateLicenseKey(companyName);
-            console.log(`License Key for "${companyName}": ${key}`);
-            console.log(`Send this to customer after payment`);
-            return key;
-        };
-
-        function updateWatermark(licensed) {
-            if (!licensed) {
-                // Add watermark for unlicensed version
-                if (!document.getElementById('watermark')) {
-                    const watermark = document.createElement('div');
-                    watermark.id = 'watermark';
-                    watermark.textContent = 'Powered by CAND, LLC - Unlicensed';
-                    document.body.appendChild(watermark);
-                }
-            } else {
-                // Remove watermark if licensed
-                const watermark = document.getElementById('watermark');
-                if (watermark) watermark.remove();
+        // License Management Functions
+        function generateLicenseKey(companyName) {
+            if (!companyName || companyName.trim() === '') {
+                return null;
             }
+            return btoa(companyName.toUpperCase() + "CAND2025PAY").substring(0, 12);
         }
 
-        function updateLicenseDisplay() {
-            const licenseSection = document.getElementById('licenseSection');
-            if (!licenseSection) return;
+        function validateLicenseKey(companyName, licenseKey) {
+            const expectedKey = generateLicenseKey(companyName);
+            return expectedKey === licenseKey;
+        }
+
+        function showLicenseModal() {
+            const modal = document.getElementById('licenseModal');
+            updateLicenseModalContent();
+            modal.style.display = 'flex';
+        }
+
+        function closeLicenseModal() {
+            const modal = document.getElementById('licenseModal');
+            modal.style.display = 'none';
+        }
+
+        function updateLicenseModalContent() {
+            const statusDisplay = document.getElementById('licenseStatusDisplay');
+            const resetBtn = document.getElementById('resetLicenseBtn');
+            const companyInput = document.getElementById('licenseCompanyName');
+            const keyInput = document.getElementById('licenseKey');
             
-            const licensed = isLicensed();
-            const company = localStorage.getItem('licensedCompany');
-            
-            // Update license status in stats
-            const licenseStatusStat = document.getElementById('licenseStatusStat');
-            const licenseStatus = document.getElementById('licenseStatus');
-            
-            if (licensed) {
-                licenseSection.innerHTML = `
-                    <div style="color: #28a745; font-weight: bold; margin-bottom: 10px;">
-                        ✓ Licensed Version
-                    </div>
-                    <p>Licensed to: <strong>${company}</strong></p>
-                    <p style="font-size: 12px; color: #6c757d;">Thank you for purchasing!</p>
-                    <button class="btn btn-danger btn-sm" onclick="removeLicense()" style="margin-top: 10px; padding: 6px 12px; font-size: 12px;">
-                        Remove License
-                    </button>
+            if (appConfig.isLicensed) {
+                statusDisplay.innerHTML = `
+                    <strong>✅ Licensed Version</strong><br>
+                    Licensed to: <strong>${appConfig.licensedCompany}</strong><br>
+                    Watermark removed permanently. Thank you for your support!
                 `;
-                
-                licenseStatusStat.textContent = 'Licensed';
-                licenseStatus.textContent = 'Licensed Version';
-                
-                // Update company name display
-                if (company) {
-                    appConfig.companyName = company;
-                    document.getElementById('companyNameDisplay').textContent = company;
-                }
+                statusDisplay.className = 'license-status licensed';
+                resetBtn.style.display = 'inline-block';
+                companyInput.value = appConfig.licensedCompany;
+                keyInput.value = appConfig.licenseKey;
             } else {
-                licenseSection.innerHTML = `
-                    <div style="color: #dc3545; font-weight: bold; margin-bottom: 10px;">
-                        Free Version (Watermarked)
-                    </div>
-                    <p>Remove watermark and unlock full branding for just <strong>$9.95</strong></p>
-                    <div style="margin-top: 15px;">
-                        <a href="https://www.paypal.com/ncp/payment/FYUAQ4AVBPQYQ" target="_blank" 
-                           class="paypal-btn" style="width: 100%; text-align: center; margin-bottom: 10px;">
-                            💳 Purchase License - $9.95
-                        </a>
-                        <small style="display: block; margin-bottom: 15px; color: #6c757d; text-align: center;">
-                            After payment, email us your company name to get your license key
-                        </small>
-                        <input type="text" id="licenseCompanyInput" placeholder="Your Company Name" 
-                               style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ced4da; border-radius: 4px;">
-                        <input type="text" id="licenseKeyInput" placeholder="License Key (12 characters)" 
-                               style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ced4da; border-radius: 4px; font-family: monospace;">
-                        <div style="display: flex; gap: 5px;">
-                            <button class="btn btn-success" onclick="activateLicense()" style="flex: 1; font-size: 12px; padding: 8px;">
-                                Activate License
-                            </button>
-                            <button class="btn btn-secondary" onclick="testLicense()" style="flex: 1; font-size: 12px; padding: 8px;">
-                                Test Key
-                            </button>
-                        </div>
-                    </div>
+                statusDisplay.innerHTML = `
+                    <strong>🔒 Free Version (Unlicensed)</strong><br>
+                    This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company name.
                 `;
-                
-                licenseStatusStat.textContent = 'Free';
-                licenseStatus.textContent = 'Free Version';
+                statusDisplay.className = 'license-status unlicensed';
+                resetBtn.style.display = 'none';
+                companyInput.value = '';
+                keyInput.value = '';
             }
         }
 
         function activateLicense() {
-            const company = document.getElementById('licenseCompanyInput').value.trim();
-            const key = document.getElementById('licenseKeyInput').value.trim();
+            const companyName = document.getElementById('licenseCompanyName').value.trim();
+            const licenseKey = document.getElementById('licenseKey').value.trim();
             
-            if (!company || !key) {
-                alert('Please enter both company name and license key');
+            if (!companyName) {
+                alert('Please enter your company name exactly as provided.');
                 return;
             }
             
-            if (validateLicenseKey(company, key)) {
-                localStorage.setItem('licensedCompany', company);
-                localStorage.setItem('licenseKey', key);
-                
-                // Update company name
-                appConfig.companyName = company;
-                localStorage.setItem('adminAppConfig', JSON.stringify(appConfig));
-                document.getElementById('companyNameInput').value = company;
-                
-                alert('License activated successfully! Watermark removed.');
-                
-                // Reload to apply changes
-                location.reload();
-            } else {
-                alert('Invalid license key for this company name. Please check and try again.');
-            }
-        }
-
-        function testLicense() {
-            const company = document.getElementById('licenseCompanyInput').value.trim();
-            const key = document.getElementById('licenseKeyInput').value.trim();
-            
-            if (!company) {
-                alert('Please enter company name to test');
+            if (!licenseKey) {
+                alert('Please enter your license key.');
                 return;
             }
             
-            const expectedKey = generateLicenseKey(company);
-            
-            if (key === expectedKey) {
-                alert('✅ Valid license key!');
+            if (validateLicenseKey(companyName, licenseKey)) {
+                appConfig.isLicensed = true;
+                appConfig.licensedCompany = companyName;
+                appConfig.licenseKey = licenseKey;
+                appConfig.companyName = companyName;
+                
+                // Save configuration
+                try {
+                    localStorage.setItem('adminAppConfig', JSON.stringify(appConfig));
+                    
+                    // Update shared config for employee app
+                    const sharedConfig = {
+                        companyName: companyName,
+                        allowEmployeeEdit: appConfig.allowEmployeeEdit,
+                        allowEmployeeDelete: appConfig.allowEmployeeDelete,
+                        isLicensed: true,
+                        configuredBy: 'Admin Console',
+                        lastUpdated: new Date().toISOString()
+                    };
+                    localStorage.setItem('sharedAppConfig', JSON.stringify(sharedConfig));
+                    
+                    // Update UI
+                    applyConfiguration();
+                    updateLicenseWatermark();
+                    updateLicenseModalContent();
+                    
+                    alert('License activated successfully! Watermark removed and company name updated.');
+                    showStatus('License activated successfully', 'success', 'analysisStatus');
+                } catch (error) {
+                    console.error('Error saving license:', error);
+                    alert('Error saving license activation');
+                }
             } else {
-                alert(`❌ Invalid license key.\n\nExpected: ${expectedKey}\nEntered: ${key}`);
+                alert('Invalid license key for the provided company name. Please check your details and try again.');
             }
         }
 
-        function validateLicenseKey(company, key) {
-            return generateLicenseKey(company) === key;
-        }
-
-        function removeLicense() {
-            if (confirm('Are you sure you want to remove the license? The watermark will return.')) {
-                localStorage.removeItem('licensedCompany');
-                localStorage.removeItem('licenseKey');
-                location.reload();
+        function resetLicense() {
+            if (confirm('Are you sure you want to reset the license? This will restore the watermark and revert to the free version.')) {
+                appConfig.isLicensed = false;
+                appConfig.licensedCompany = '';
+                appConfig.licenseKey = '';
+                appConfig.companyName = 'CAND, LLC';
+                
+                // Save configuration
+                try {
+                    localStorage.setItem('adminAppConfig', JSON.stringify(appConfig));
+                    
+                    // Update shared config
+                    const sharedConfig = {
+                        companyName: 'CAND, LLC',
+                        allowEmployeeEdit: appConfig.allowEmployeeEdit,
+                        allowEmployeeDelete: appConfig.allowEmployeeDelete,
+                        isLicensed: false,
+                        configuredBy: 'Admin Console',
+                        lastUpdated: new Date().toISOString()
+                    };
+                    localStorage.setItem('sharedAppConfig', JSON.stringify(sharedConfig));
+                    
+                    // Update UI
+                    applyConfiguration();
+                    updateLicenseWatermark();
+                    updateLicenseModalContent();
+                    
+                    alert('License reset successfully. Application reverted to free version.');
+                    showStatus('License reset to free version', 'info', 'analysisStatus');
+                } catch (error) {
+                    console.error('Error resetting license:', error);
+                }
             }
         }
 
-        // License status check
-        function checkLicenseStatus() {
-            const licensed = isLicensed();
-            updateWatermark(licensed);
-            updateLicenseDisplay();
+        function updateLicenseWatermark() {
+            const watermark = document.getElementById('licenseWatermark');
+            const watermarkText = document.getElementById('watermarkText');
+            
+            if (appConfig.isLicensed) {
+                watermarkText.textContent = `Licensed to ${appConfig.licensedCompany}`;
+                watermark.className = 'license-watermark licensed';
+                watermark.title = 'Licensed Version - Click for license details';
+            } else {
+                watermarkText.textContent = 'Powered by CAND, LLC - Unlicensed';
+                watermark.className = 'license-watermark';
+                watermark.title = 'Free Version - Click to purchase license ($9.95)';
+            }
+        }
+
+        // Admin key generation function (for you to use in console)
+        function generateKeyForCustomer(customerCompanyName) {
+            const key = generateLicenseKey(customerCompanyName);
+            console.log(`License Key for "${customerCompanyName}": ${key}`);
+            console.log(`Share this key with your customer along with their exact company name.`);
+            return key;
         }
 
         // Initialize
@@ -1129,13 +1268,14 @@
             loadPersistedData();
             updateStats();
             updateFilters();
-            checkLicenseStatus(); // Add license check
+            updateLicenseWatermark();
             
             // Add escape key handler for modals
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeModal();
                     closeConfigureModal();
+                    closeLicenseModal();
                 }
             });
         });
@@ -1143,23 +1283,11 @@
         // Load application configuration
         function loadAppConfiguration() {
             try {
-                // First try to load from TRACKER_CONFIG if it exists (from config.js)
-                if (typeof TRACKER_CONFIG !== 'undefined' && TRACKER_CONFIG) {
-                    appConfig = {
-                        companyName: TRACKER_CONFIG.companyName || 'CAND, LLC',
-                        allowEdit: TRACKER_CONFIG.allowAdminEdit !== false,
-                        allowDelete: TRACKER_CONFIG.allowAdminDelete !== false,
-                        allowEmployeeEdit: TRACKER_CONFIG.allowEmployeeEdit !== false,
-                        allowEmployeeDelete: TRACKER_CONFIG.allowEmployeeDelete !== false
-                    };
-                    console.log('Loaded app configuration from config.js');
-                } else {
-                    // Otherwise load from localStorage
-                    const savedConfig = localStorage.getItem('adminAppConfig');
-                    if (savedConfig) {
-                        appConfig = JSON.parse(savedConfig);
-                        console.log('Loaded app configuration from localStorage');
-                    }
+                const savedConfig = localStorage.getItem('adminAppConfig');
+                if (savedConfig) {
+                    const loaded = JSON.parse(savedConfig);
+                    appConfig = { ...appConfig, ...loaded };
+                    console.log('Loaded app configuration from localStorage');
                 }
                 applyConfiguration();
             } catch (error) {
@@ -1171,15 +1299,34 @@
         function applyConfiguration() {
             // Update company name display
             const companyNameDisplay = document.getElementById('companyNameDisplay');
-            const companyInfoDiv = document.getElementById('companyInfoDiv');
             
             if (companyNameDisplay) {
-                if (appConfig.companyName && appConfig.companyName.trim() !== '') {
-                    companyNameDisplay.textContent = appConfig.companyName;
-                    companyNameDisplay.style.display = 'block';
+                const displayName = appConfig.isLicensed && appConfig.licensedCompany 
+                    ? appConfig.licensedCompany 
+                    : (appConfig.companyName || 'CAND, LLC');
+                    
+                companyNameDisplay.textContent = displayName;
+            }
+            
+            // Update configuration modal license status
+            updateConfigLicenseDisplay();
+        }
+
+        function updateConfigLicenseDisplay() {
+            const statusElement = document.getElementById('configLicenseStatus');
+            const infoElement = document.getElementById('configLicenseInfo');
+            
+            if (statusElement && infoElement) {
+                if (appConfig.isLicensed) {
+                    statusElement.textContent = `Licensed (${appConfig.licensedCompany})`;
+                    statusElement.style.color = '#28a745';
+                    infoElement.textContent = 'Watermark removed. Thank you for your support!';
+                    infoElement.style.color = '#28a745';
                 } else {
-                    // Hide company name but keep page title visible
-                    companyNameDisplay.style.display = 'none';
+                    statusElement.textContent = 'Unlicensed';
+                    statusElement.style.color = '#dc3545';
+                    infoElement.textContent = 'Purchase a $9.95 license to remove watermarks and customize branding.';
+                    infoElement.style.color = '#6c757d';
                 }
             }
         }
@@ -1189,15 +1336,17 @@
             const modal = document.getElementById('configureModal');
             if (modal) {
                 // Load current settings into the form
-                document.getElementById('companyNameInput').value = appConfig.companyName || '';
+                const displayName = appConfig.isLicensed && appConfig.licensedCompany 
+                    ? appConfig.licensedCompany 
+                    : (appConfig.companyName || '');
+                
+                document.getElementById('companyNameInput').value = displayName;
                 document.getElementById('allowEditCheckbox').checked = appConfig.allowEdit !== false;
                 document.getElementById('allowDeleteCheckbox').checked = appConfig.allowDelete !== false;
                 document.getElementById('allowEmployeeEdit').checked = appConfig.allowEmployeeEdit !== false;
                 document.getElementById('allowEmployeeDelete').checked = appConfig.allowEmployeeDelete !== false;
                 
-                // Update license display
-                updateLicenseDisplay();
-                
+                updateConfigLicenseDisplay();
                 modal.style.display = 'flex';
             }
         }
@@ -1210,13 +1359,21 @@
             const allowEmployeeEdit = document.getElementById('allowEmployeeEdit').checked;
             const allowEmployeeDelete = document.getElementById('allowEmployeeDelete').checked;
             
-            appConfig = {
-                companyName: companyName,
+            // Don't override license settings when saving general config
+            const newConfig = {
+                ...appConfig,
                 allowEdit: allowEdit,
                 allowDelete: allowDelete,
                 allowEmployeeEdit: allowEmployeeEdit,
                 allowEmployeeDelete: allowEmployeeDelete
             };
+            
+            // Only update company name if not licensed (licensed users can't change it here)
+            if (!appConfig.isLicensed) {
+                newConfig.companyName = companyName || 'CAND, LLC';
+            }
+            
+            appConfig = newConfig;
             
             // Save to localStorage for Admin Console
             try {
@@ -1224,9 +1381,10 @@
                 
                 // Also save shared configuration for Employee App
                 const sharedConfig = {
-                    companyName: companyName,
+                    companyName: appConfig.isLicensed ? appConfig.licensedCompany : appConfig.companyName,
                     allowEmployeeEdit: allowEmployeeEdit,
                     allowEmployeeDelete: allowEmployeeDelete,
+                    isLicensed: appConfig.isLicensed,
                     configuredBy: 'Admin Console',
                     lastUpdated: new Date().toISOString()
                 };
@@ -1259,20 +1417,13 @@
         // Load pay periods configuration
         function loadPayPeriodsConfig() {
             try {
-                // First try to load from TRACKER_CONFIG if it exists (from config.js)
-                if (typeof TRACKER_CONFIG !== 'undefined' && TRACKER_CONFIG && TRACKER_CONFIG.payPeriods) {
-                    payPeriodsConfig = TRACKER_CONFIG.payPeriods;
-                    console.log('Loaded pay periods config from config.js');
+                const savedConfig = localStorage.getItem('payPeriodsConfig');
+                if (savedConfig) {
+                    payPeriodsConfig = JSON.parse(savedConfig);
+                    console.log('Loaded pay periods config from localStorage');
                 } else {
-                    // Otherwise load from localStorage
-                    const savedConfig = localStorage.getItem('payPeriodsConfig');
-                    if (savedConfig) {
-                        payPeriodsConfig = JSON.parse(savedConfig);
-                        console.log('Loaded pay periods config from localStorage');
-                    } else {
-                        payPeriodsConfig = DEFAULT_PAY_PERIODS_CONFIG;
-                        console.log('Using default pay periods config');
-                    }
+                    payPeriodsConfig = DEFAULT_PAY_PERIODS_CONFIG;
+                    console.log('Using default pay periods config');
                 }
                 populatePayPeriods();
             } catch (error) {
@@ -1957,10 +2108,15 @@
                 }
             }
             
+            const licenseStatus = appConfig.isLicensed 
+                ? `Licensed to ${appConfig.licensedCompany}` 
+                : 'Unlicensed (Free Version)';
+            
             const summary = `
 TEAM TIMESHEET SUMMARY
 ======================
-Company: ${appConfig.companyName || 'Not configured'}
+Company: ${appConfig.isLicensed ? appConfig.licensedCompany : (appConfig.companyName || 'CAND, LLC')}
+License Status: ${licenseStatus}
 Current Pay Period: ${currentPeriodInfo}
 
 Configuration:
@@ -2039,10 +2195,10 @@ Date Range: ${allTimeEntries.length > 0 ? (() => {
 
         function showSampleData() {
             const sampleCSV = `Employee Name,Date,Category,Project,Start Time,End Time,Duration (Hours)
-"John Doe","2025-06-29","work","Project Alpha","09:00","17:00",8.0
-"Jane Smith","2025-06-29","overhead","Admin Tasks","08:30","12:30",4.0
-"John Doe","2025-06-28","travel","Client Meeting","10:00","14:00",4.0
-"Jane Smith","2025-06-28","work","Project Beta","09:00","17:30",8.5`;
+"John Doe","2025-08-29","work","Project Alpha","09:00","17:00",8.0
+"Jane Smith","2025-08-29","overhead","Admin Tasks","08:30","12:30",4.0
+"John Doe","2025-08-28","travel","Client Meeting","10:00","14:00",4.0
+"Jane Smith","2025-08-28","work","Project Beta","09:00","17:30",8.5`;
             
             downloadFile(sampleCSV, 'sample_timesheet.csv', 'text/csv');
             showStatus('Sample CSV file downloaded. Use this format for importing team timesheets.', 'info', 'importStatus');
@@ -2150,17 +2306,26 @@ Date Range: ${allTimeEntries.length > 0 ? (() => {
 
         // Reset to default configuration
         function resetToDefaults() {
-            if (confirm('Are you sure you want to reset all configuration settings to defaults?')) {
+            if (confirm('Are you sure you want to reset all configuration settings to defaults? This will NOT affect your license status.')) {
+                // Preserve license information
+                const preservedLicense = {
+                    isLicensed: appConfig.isLicensed,
+                    licensedCompany: appConfig.licensedCompany,
+                    licenseKey: appConfig.licenseKey
+                };
+                
                 appConfig = {
                     companyName: 'CAND, LLC',
                     allowEdit: true,
                     allowDelete: true,
                     allowEmployeeEdit: true,
-                    allowEmployeeDelete: true
+                    allowEmployeeDelete: true,
+                    ...preservedLicense
                 };
                 
                 // Update form fields
-                document.getElementById('companyNameInput').value = appConfig.companyName;
+                const displayName = appConfig.isLicensed ? appConfig.licensedCompany : appConfig.companyName;
+                document.getElementById('companyNameInput').value = displayName;
                 document.getElementById('allowEditCheckbox').checked = appConfig.allowEdit;
                 document.getElementById('allowDeleteCheckbox').checked = appConfig.allowDelete;
                 document.getElementById('allowEmployeeEdit').checked = appConfig.allowEmployeeEdit;
@@ -2171,9 +2336,10 @@ Date Range: ${allTimeEntries.length > 0 ? (() => {
                 
                 // Update shared config too
                 const sharedConfig = {
-                    companyName: appConfig.companyName,
+                    companyName: displayName,
                     allowEmployeeEdit: appConfig.allowEmployeeEdit,
                     allowEmployeeDelete: appConfig.allowEmployeeDelete,
+                    isLicensed: appConfig.isLicensed,
                     configuredBy: 'Admin Console',
                     lastUpdated: new Date().toISOString()
                 };
@@ -2182,19 +2348,17 @@ Date Range: ${allTimeEntries.length > 0 ? (() => {
                 applyConfiguration();
                 displayData();
                 
-                showStatus('Configuration reset to defaults', 'info', 'analysisStatus');
+                showStatus('Configuration reset to defaults (license preserved)', 'info', 'analysisStatus');
             }
         }
 
-        // Export configuration as JSON
+        // Export configuration
         function exportConfiguration() {
-            const licensed = isLicensed();
             const configData = {
                 version: '1.1.6',
                 exportDate: new Date().toISOString(),
                 appConfig: appConfig,
-                payPeriodsConfig: payPeriodsConfig,
-                licensed: licensed
+                payPeriodsConfig: payPeriodsConfig
             };
             
             const jsonStr = JSON.stringify(configData, null, 2);
@@ -2211,107 +2375,7 @@ Date Range: ${allTimeEntries.length > 0 ? (() => {
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
             
-            showStatus('Configuration exported as JSON file', 'success', 'analysisStatus');
-        }
-
-        // Export configuration as JavaScript file for GitHub
-        function exportConfigJS() {
-            const licensed = isLicensed();
-            const configData = {
-                companyName: appConfig.companyName || 'CAND, LLC',
-                allowEmployeeEdit: appConfig.allowEmployeeEdit !== false,
-                allowEmployeeDelete: appConfig.allowEmployeeDelete !== false,
-                allowAdminEdit: appConfig.allowEdit !== false,
-                allowAdminDelete: appConfig.allowDelete !== false,
-                licensed: licensed,
-                watermark: !licensed,
-                lastUpdated: new Date().toISOString(),
-                payPeriods: payPeriodsConfig
-            };
-            
-            // Create JavaScript file content
-            const jsContent = `/*
- * Time Tracker Shared Configuration
- * Generated: ${new Date().toISOString()}
- * Generated by: Admin Console v1.1.6
- * 
- * IMPORTANT: This file must be manually committed to your Git repository!
- * Web pages cannot automatically update Git repos for security reasons.
- * 
- * Instructions:
- * 1. Save this file as 'config.js' in your Git repository root
- * 2. In BOTH time_tracker_admin.html and time_tracker_employee.html, add before other scripts:
- *    <script src="config.js"></script>
- * 3. Commit and push to GitHub: 
- *    git add config.js
- *    git commit -m "Update tracker configuration"
- *    git push
- * 4. All users will get the new configuration when they refresh
- * 
- * Note: Employee Tracker v1.1.7 needs the script tag added to work with this config
- */
-
-const TRACKER_CONFIG = ${JSON.stringify(configData, null, 2)};
-
-// Auto-apply configuration when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // For Employee Tracker - update company name
-    const logoText = document.querySelector('.logo-text');
-    if (logoText && TRACKER_CONFIG.companyName) {
-        logoText.textContent = TRACKER_CONFIG.companyName;
-        if (!TRACKER_CONFIG.companyName.trim()) {
-            logoText.style.display = 'none';
-        }
-    }
-    
-    // For Admin Console - update company name  
-    const companyNameDisplay = document.getElementById('companyNameDisplay');
-    if (companyNameDisplay && TRACKER_CONFIG.companyName) {
-        companyNameDisplay.textContent = TRACKER_CONFIG.companyName;
-        if (!TRACKER_CONFIG.companyName.trim()) {
-            companyNameDisplay.style.display = 'none';
-        }
-    }
-    
-    // Apply permission settings for Employee Tracker
-    if (window.location.href.includes('employee')) {
-        // Hide edit buttons if not allowed
-        if (!TRACKER_CONFIG.allowEmployeeEdit) {
-            const style = document.createElement('style');
-            style.textContent = '.edit-button, .edit-entry { display: none !important; }';
-            document.head.appendChild(style);
-        }
-        
-        // Hide delete buttons if not allowed
-        if (!TRACKER_CONFIG.allowEmployeeDelete) {
-            const style = document.createElement('style');
-            style.textContent = '.delete-button, .delete-entry { display: none !important; }';
-            document.head.appendChild(style);
-        }
-    }
-    
-    console.log('Shared configuration loaded:', TRACKER_CONFIG);
-});
-
-// Make config available globally
-window.TRACKER_CONFIG = TRACKER_CONFIG;
-`;
-            
-            // Download the file
-            const blob = new Blob([jsContent], { type: 'application/javascript' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'config.js');
-            link.style.visibility = 'hidden';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            showStatus('Configuration exported as config.js - Now manually commit this file to your Git repo!', 'success', 'analysisStatus');
+            showStatus('Configuration exported successfully', 'success', 'analysisStatus');
         }
 
         // Import configuration
@@ -2335,10 +2399,12 @@ window.TRACKER_CONFIG = TRACKER_CONFIG;
                         localStorage.setItem('adminAppConfig', JSON.stringify(appConfig));
                         
                         // Update shared config for employee app
+                        const displayName = appConfig.isLicensed ? appConfig.licensedCompany : appConfig.companyName;
                         const sharedConfig = {
-                            companyName: appConfig.companyName,
+                            companyName: displayName,
                             allowEmployeeEdit: appConfig.allowEmployeeEdit !== false,
                             allowEmployeeDelete: appConfig.allowEmployeeDelete !== false,
+                            isLicensed: appConfig.isLicensed || false,
                             configuredBy: 'Admin Console (Import)',
                             lastUpdated: new Date().toISOString()
                         };
@@ -2354,10 +2420,12 @@ window.TRACKER_CONFIG = TRACKER_CONFIG;
                     
                     // Apply the imported configuration
                     applyConfiguration();
+                    updateLicenseWatermark();
                     displayData();
                     
                     // Update the form fields in the modal
-                    document.getElementById('companyNameInput').value = appConfig.companyName || '';
+                    const displayName = appConfig.isLicensed ? appConfig.licensedCompany : (appConfig.companyName || '');
+                    document.getElementById('companyNameInput').value = displayName;
                     document.getElementById('allowEditCheckbox').checked = appConfig.allowEdit !== false;
                     document.getElementById('allowDeleteCheckbox').checked = appConfig.allowDelete !== false;
                     document.getElementById('allowEmployeeEdit').checked = appConfig.allowEmployeeEdit !== false;
@@ -2419,6 +2487,12 @@ window.TRACKER_CONFIG = TRACKER_CONFIG;
                 console.error('Failed to clear persisted data:', e);
             }
         }
+
+        // Make generateKeyForCustomer available globally for admin use
+        window.generateKeyForCustomer = generateKeyForCustomer;
+        
+        console.log('Time Tracker Admin Console v1.1.6 loaded successfully!');
+        console.log('To generate license keys for customers, use: generateKeyForCustomer("Customer Company Name")');
     </script>
 </body>
 </html>
