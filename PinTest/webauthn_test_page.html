@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAuthn PIN Authentication Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .step {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .step h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .step p {
+            color: #6c757d;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #4facfe 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e8c 100%);
+        }
+
+        .credentials-info {
+            background: #e7f3ff;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .credentials-info h4 {
+            color: #004085;
+            margin-bottom: 10px;
+        }
+
+        .credentials-info p {
+            color: #004085;
+            font-size: 0.9rem;
+            margin: 5px 0;
+        }
+
+        .admin-panel {
+            display: none;
+            background: #d4edda;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .admin-panel h2 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        .admin-panel p {
+            color: #155724;
+            margin-bottom: 20px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+            width: auto;
+            display: inline-block;
+        }
+
+        .compatibility-check {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .compatibility-check h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .compatibility-check ul {
+            color: #856404;
+            margin-left: 20px;
+        }
+
+        .compatibility-check li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>WebAuthn PIN Test</h1>
+            <p>Test WebAuthn enrollment and authentication for admin access</p>
+        </div>
+
+        <div id="statusMessage" class="status"></div>
+
+        <div id="compatibilityCheck" class="compatibility-check">
+            <h4>Browser Compatibility Check</h4>
+            <p id="compatibilityResult">Checking WebAuthn support...</p>
+        </div>
+
+        <!-- Step 1: Enrollment -->
+        <div id="enrollmentStep" class="step">
+            <h3>Step 1: Enroll Your Device</h3>
+            <p>This one-time setup will register your device for admin access. You'll be prompted to set up a PIN or use biometric authentication depending on your device capabilities.</p>
+            <button id="enrollBtn" class="btn" onclick="enrollDevice()">
+                Enroll Device for Admin Access
+            </button>
+            <div id="credentialsInfo" class="credentials-info" style="display: none;">
+                <h4>Device Enrolled Successfully</h4>
+                <p><strong>Credential ID:</strong> <span id="credentialId"></span></p>
+                <p><strong>Device:</strong> <span id="deviceInfo"></span></p>
+                <p>Your device is now enrolled for admin access. You can now test authentication.</p>
+            </div>
+        </div>
+
+        <!-- Step 2: Authentication -->
+        <div id="authStep" class="step">
+            <h3>Step 2: Test Admin Authentication</h3>
+            <p>Click the button below to simulate accessing admin features. You'll be prompted for your device PIN or biometric authentication.</p>
+            <button id="authBtn" class="btn" onclick="authenticateAdmin()" disabled>
+                Access Admin Panel
+            </button>
+        </div>
+
+        <!-- Admin Panel Simulation -->
+        <div id="adminPanel" class="admin-panel">
+            <h2>🔓 Admin Panel Access Granted</h2>
+            <p>You have successfully authenticated as an administrator. This would be where admin features would appear.</p>
+            <button class="btn logout-btn" onclick="logoutAdmin()">Logout from Admin</button>
+        </div>
+
+        <!-- Reset -->
+        <div class="step">
+            <h3>Reset Test</h3>
+            <p>Clear stored credentials and start over.</p>
+            <button id="resetBtn" class="btn danger" onclick="resetTest()">
+                Clear All Data
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let storedCredential = null;
+
+        // Check WebAuthn compatibility
+        function checkCompatibility() {
+            const compatibilityResult = document.getElementById('compatibilityResult');
+            
+            if (!window.PublicKeyCredential) {
+                compatibilityResult.innerHTML = `
+                    <span style="color: #721c24;">❌ WebAuthn not supported in this browser</span>
+                    <ul>
+                        <li>Try Chrome, Firefox, Safari, or Edge</li>
+                        <li>Ensure your browser is up to date</li>
+                    </ul>
+                `;
+                document.getElementById('enrollBtn').disabled = true;
+                return false;
+            }
+
+            compatibilityResult.innerHTML = `
+                <span style="color: #155724;">✅ WebAuthn is supported</span>
+                <ul>
+                    <li>Your browser supports secure authentication</li>
+                    <li>Device PIN, biometrics, or security keys can be used</li>
+                </ul>
+            `;
+            return true;
+        }
+
+        // Generate random bytes for challenges
+        function generateRandomBytes(length) {
+            return crypto.getRandomValues(new Uint8Array(length));
+        }
+
+        // Convert ArrayBuffer to Base64 for display
+        function arrayBufferToBase64(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        // Convert Base64 to ArrayBuffer
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+            
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Enroll device
+        async function enrollDevice() {
+            const enrollBtn = document.getElementById('enrollBtn');
+            enrollBtn.disabled = true;
+            enrollBtn.textContent = 'Enrolling...';
+
+            try {
+                showStatus('Setting up device authentication. Follow your browser prompts to set up PIN or biometric authentication.', 'info');
+
+                const challenge = generateRandomBytes(32);
+                const userId = generateRandomBytes(16);
+
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        challenge: challenge,
+                        rp: {
+                            name: "Time Tracker Admin Panel",
+                            id: location.hostname
+                        },
+                        user: {
+                            id: userId,
+                            name: "admin",
+                            displayName: "Administrator"
+                        },
+                        pubKeyCredParams: [
+                            { alg: -7, type: "public-key" }, // ES256
+                            { alg: -257, type: "public-key" } // RS256
+                        ],
+                        authenticatorSelection: {
+                            authenticatorAttachment: "platform", // Prefer built-in authenticators
+                            userVerification: "required" // Require PIN or biometric
+                        },
+                        timeout: 60000,
+                        attestation: "direct"
+                    }
+                });
+
+                // Store credential info
+                storedCredential = {
+                    id: credential.id,
+                    rawId: arrayBufferToBase64(credential.rawId),
+                    type: credential.type,
+                    response: {
+                        attestationObject: arrayBufferToBase64(credential.response.attestationObject),
+                        clientDataJSON: arrayBufferToBase64(credential.response.clientDataJSON)
+                    }
+                };
+
+                // Save to localStorage for persistence
+                localStorage.setItem('webauthnCredential', JSON.stringify(storedCredential));
+
+                // Update UI
+                document.getElementById('credentialId').textContent = credential.id.substring(0, 20) + '...';
+                document.getElementById('deviceInfo').textContent = navigator.userAgent.includes('Mac') ? 'macOS Device' : 
+                                                                   navigator.userAgent.includes('Windows') ? 'Windows Device' : 
+                                                                   'Unknown Device';
+                document.getElementById('credentialsInfo').style.display = 'block';
+                document.getElementById('authBtn').disabled = false;
+
+                showStatus('Device enrolled successfully! You can now test admin authentication.', 'success');
+                enrollBtn.textContent = 'Device Already Enrolled';
+
+            } catch (error) {
+                console.error('Enrollment error:', error);
+                let errorMessage = 'Enrollment failed: ';
+                
+                if (error.name === 'NotSupportedError') {
+                    errorMessage += 'WebAuthn not supported on this device';
+                } else if (error.name === 'NotAllowedError') {
+                    errorMessage += 'User cancelled enrollment or timeout occurred';
+                } else if (error.name === 'InvalidStateError') {
+                    errorMessage += 'Authenticator already registered';
+                } else {
+                    errorMessage += error.message || 'Unknown error occurred';
+                }
+                
+                showStatus(errorMessage, 'error');
+                enrollBtn.disabled = false;
+                enrollBtn.textContent = 'Enroll Device for Admin Access';
+            }
+        }
+
+        // Authenticate for admin access
+        async function authenticateAdmin() {
+            const authBtn = document.getElementById('authBtn');
+            authBtn.disabled = true;
+            authBtn.textContent = 'Authenticating...';
+
+            try {
+                if (!storedCredential) {
+                    throw new Error('No credential found. Please enroll first.');
+                }
+
+                showStatus('Authenticate using your PIN or biometric authentication.', 'info');
+
+                const challenge = generateRandomBytes(32);
+                const credentialRawId = base64ToArrayBuffer(storedCredential.rawId);
+
+                const assertion = await navigator.credentials.get({
+                    publicKey: {
+                        challenge: challenge,
+                        allowCredentials: [{
+                            id: credentialRawId,
+                            type: "public-key"
+                        }],
+                        userVerification: "required",
+                        timeout: 60000
+                    }
+                });
+
+                // Authentication successful
+                showStatus('Admin authentication successful!', 'success');
+                document.getElementById('adminPanel').style.display = 'block';
+                authBtn.textContent = 'Already Authenticated';
+
+                // Scroll to admin panel
+                document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                console.error('Authentication error:', error);
+                let errorMessage = 'Authentication failed: ';
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMessage += 'Authentication was cancelled or timed out';
+                } else if (error.name === 'InvalidStateError') {
+                    errorMessage += 'Authenticator not available';
+                } else {
+                    errorMessage += error.message || 'Unknown error occurred';
+                }
+                
+                showStatus(errorMessage, 'error');
+                authBtn.disabled = false;
+                authBtn.textContent = 'Access Admin Panel';
+            }
+        }
+
+        // Logout from admin panel
+        function logoutAdmin() {
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('authBtn').disabled = false;
+            document.getElementById('authBtn').textContent = 'Access Admin Panel';
+            showStatus('Logged out from admin panel.', 'info');
+        }
+
+        // Reset test
+        function resetTest() {
+            if (confirm('This will clear all stored credentials. Are you sure?')) {
+                localStorage.removeItem('webauthnCredential');
+                storedCredential = null;
+                
+                // Reset UI
+                document.getElementById('enrollBtn').disabled = false;
+                document.getElementById('enrollBtn').textContent = 'Enroll Device for Admin Access';
+                document.getElementById('authBtn').disabled = true;
+                document.getElementById('credentialsInfo').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'none';
+                
+                showStatus('All data cleared. You can start the enrollment process again.', 'info');
+            }
+        }
+
+        // Load stored credentials on page load
+        function loadStoredCredentials() {
+            const stored = localStorage.getItem('webauthnCredential');
+            if (stored) {
+                try {
+                    storedCredential = JSON.parse(stored);
+                    document.getElementById('credentialId').textContent = storedCredential.id.substring(0, 20) + '...';
+                    document.getElementById('deviceInfo').textContent = navigator.userAgent.includes('Mac') ? 'macOS Device' : 
+                                                                       navigator.userAgent.includes('Windows') ? 'Windows Device' : 
+                                                                       'Unknown Device';
+                    document.getElementById('credentialsInfo').style.display = 'block';
+                    document.getElementById('authBtn').disabled = false;
+                    document.getElementById('enrollBtn').textContent = 'Device Already Enrolled';
+                    document.getElementById('enrollBtn').disabled = true;
+                } catch (error) {
+                    console.error('Error loading stored credentials:', error);
+                    localStorage.removeItem('webauthnCredential');
+                }
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            const isSupported = checkCompatibility();
+            if (isSupported) {
+                loadStoredCredentials();
+            }
+        });
+    </script>
+</body>
+</html>
