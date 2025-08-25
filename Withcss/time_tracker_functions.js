@@ -113,6 +113,31 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Time tracker v1.1.10 initializing...');
     
+    // Set current mode to employee by default
+    currentMode = 'employee';
+    
+    // Ensure employee section is visible by default - FORCE IT
+    const employeeSection = document.getElementById('employeeSection');
+    if (employeeSection) {
+        employeeSection.style.display = 'block';
+        employeeSection.classList.add('active');
+        console.log('Employee section forced visible');
+    } else {
+        console.error('Employee section not found!');
+    }
+    
+    // Hide other sections
+    const adminSection = document.getElementById('adminSection');
+    const webauthnSection = document.getElementById('webauthnEnrollment');
+    if (adminSection) {
+        adminSection.style.display = 'none';
+        adminSection.classList.remove('active');
+    }
+    if (webauthnSection) {
+        webauthnSection.style.display = 'none';
+        webauthnSection.classList.remove('active');
+    }
+    
     // Force a clean start by removing any existing titles
     const headerTopRow = document.querySelector('.header-top-row');
     if (headerTopRow) {
@@ -130,7 +155,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set initial employee mode styling
     updateModeIndicator('employee');
     
+    // Check for admin access after everything else is set up
     checkAdminAccess();
+    
     updateDisplay();
     updateEmployeeDisplay();
     setTodayDate();
@@ -153,7 +180,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     console.log('Time tracker initialization complete');
-    console.log('Current header class:', headerTopRow ? headerTopRow.className : 'not found');
+    console.log('Current mode:', currentMode);
+    console.log('Employee section classes:', employeeSection ? employeeSection.className : 'not found');
+    console.log('Employee section style:', employeeSection ? employeeSection.style.display : 'not found');
 });
 
 // ============================================================================
@@ -324,7 +353,10 @@ function updateModeIndicator(mode) {
                 headerSubtitle.textContent = '';  // Clear any existing text
                 headerSubtitle.style.display = 'none';
             }
-            if (employeeControls) employeeControls.style.display = 'grid';
+            if (employeeControls) {
+                employeeControls.style.display = 'grid';
+                console.log('Employee controls should be visible');
+            }
             if (headerTopRow) {
                 headerTopRow.className = 'header-top-row employee-mode';
                 
@@ -347,6 +379,7 @@ function updateModeIndicator(mode) {
     }
     
     console.log(`Mode indicator updated to: ${mode}`);
+    console.log('Employee controls display:', employeeControls ? employeeControls.style.display : 'not found');
 }
 
 // ============================================================================
@@ -500,8 +533,20 @@ function setDefaultPeriod() {
                     selectElement.value = futurePeriods[0].id;
                     setSelectedPayPeriod();
                     console.log('Auto-selected next pay period:', futurePeriods[0].description);
+                } else {
+                    // Ensure pay period info is hidden if no periods are available
+                    const info = document.getElementById('payPeriodInfo');
+                    if (info) {
+                        info.style.display = 'none';
+                    }
                 }
             }
+        }
+    } else {
+        // Ensure pay period info is hidden if no config is available
+        const info = document.getElementById('payPeriodInfo');
+        if (info) {
+            info.style.display = 'none';
         }
     }
 }
@@ -1158,6 +1203,9 @@ function checkAdminAccess() {
         } else {
             showStatus('WebAuthn not supported in this browser', 'error');
         }
+    } else {
+        // No admin access requested, ensure we stay in employee mode
+        console.log('No admin access requested, staying in employee mode');
     }
 }
 
@@ -1180,12 +1228,20 @@ async function handleAdminAccess() {
 }
 
 function showSection(sectionId) {
+    // Hide all sections first
     document.querySelectorAll('.section').forEach(function(section) {
         section.classList.remove('active');
+        section.style.display = 'none';
     });
+    
+    // Show the target section
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
+        targetSection.style.display = 'block';
+        console.log('Showing section:', sectionId);
+    } else {
+        console.error('Section not found:', sectionId);
     }
 }
 
