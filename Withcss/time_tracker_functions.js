@@ -264,6 +264,7 @@ function updateModeIndicator(mode) {
             indicator.className = 'mode-indicator admin';
             indicator.style.display = 'block';
             if (headerSubtitle) {
+                headerSubtitle.textContent = '';  // Clear any existing text
                 headerSubtitle.style.display = 'none';
             }
             if (employeeControls) employeeControls.style.display = 'none';
@@ -292,6 +293,7 @@ function updateModeIndicator(mode) {
             indicator.className = 'mode-indicator admin';
             indicator.style.display = 'block';
             if (headerSubtitle) {
+                headerSubtitle.textContent = '';  // Clear any existing text
                 headerSubtitle.style.display = 'none';
             }
             if (employeeControls) employeeControls.style.display = 'none';
@@ -319,6 +321,7 @@ function updateModeIndicator(mode) {
             // Employee mode - hide indicator and subtitle, add centered title
             indicator.style.display = 'none';
             if (headerSubtitle) {
+                headerSubtitle.textContent = '';  // Clear any existing text
                 headerSubtitle.style.display = 'none';
             }
             if (employeeControls) employeeControls.style.display = 'grid';
