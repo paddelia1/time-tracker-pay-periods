@@ -504,6 +504,19 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+.stat-card .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 5px;
+}
+
+.stat-card .stat-label {
+    font-size: 0.9rem;
+    color: black;
+    font-weight: 600;
+}
+
 .view-toggle {
     display: flex;
     gap: 10px;
