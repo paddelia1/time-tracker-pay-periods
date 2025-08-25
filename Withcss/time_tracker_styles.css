@@ -34,11 +34,48 @@ body {
     color: white;
 }
 
+/* Employee mode header adjustments */
+.header:has(.employee-mode) {
+    padding-bottom: 25px;
+}
+
+/* Fallback for browsers that don't support :has() */
+.header.employee-header {
+    padding-bottom: 25px;
+}
+
 .header-top-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 15px;
+}
+
+/* Employee mode specific styling */
+.header-top-row.employee-mode {
+    justify-content: center;
+    margin-bottom: 0;
+}
+
+.header-top-row.employee-mode .logo-section {
+    justify-content: center;
+    text-align: center;
+}
+
+.header-top-row.employee-mode .company-info {
+    align-items: center;
+    text-align: center;
+}
+
+.header-top-row.employee-mode .page-title {
+    font-size: 1.6rem;
+    margin-top: 8px;
+}
+
+/* Hide mode indicator and subtitle in employee mode */
+.employee-mode + .header-subtitle,
+.header-top-row.employee-mode .mode-indicator {
+    display: none;
 }
 
 .logo-section {
@@ -457,6 +494,12 @@ body {
     cursor: not-allowed;
 }
 
+/* Green background buttons should have white text */
+.primary-button[style*="28a745"], 
+.primary-button[style*="20c997"] {
+    color: white !important;
+}
+
 .filter-controls {
     background: #f8f9fa;
     padding: 20px;
@@ -864,5 +907,14 @@ body {
 
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+    
+    /* Mobile employee mode adjustments */
+    .header-top-row.employee-mode .page-title {
+        font-size: 1.3rem;
+    }
+    
+    .header-top-row.employee-mode .company-name {
+        font-size: 1.5rem;
     }
 }

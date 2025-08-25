@@ -116,6 +116,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadPayPeriodsConfig();
     loadPersistedData();
     loadEmployeeSettings();
+    
+    // Set initial employee mode styling
+    updateModeIndicator('employee');
+    
     checkAdminAccess();
     updateDisplay();
     updateEmployeeDisplay();
@@ -239,6 +243,8 @@ function updateModeIndicator(mode) {
     const subtitle = document.getElementById('pageSubtitle');
     const headerSubtitle = document.getElementById('headerSubtitle');
     const employeeControls = document.getElementById('employeeControls');
+    const headerTopRow = document.querySelector('.header-top-row');
+    const header = document.querySelector('.header');
     
     if (!indicator) return;
     
@@ -246,23 +252,51 @@ function updateModeIndicator(mode) {
         case 'admin':
             indicator.textContent = 'Admin Mode';
             indicator.className = 'mode-indicator admin';
+            indicator.style.display = 'block';
             if (subtitle) subtitle.textContent = 'Admin Console';
-            if (headerSubtitle) headerSubtitle.textContent = 'Enterprise-grade team time tracking consolidation and analysis';
+            if (headerSubtitle) {
+                headerSubtitle.textContent = 'Enterprise-grade team time tracking consolidation and analysis';
+                headerSubtitle.style.display = 'block';
+            }
             if (employeeControls) employeeControls.style.display = 'none';
+            if (headerTopRow) {
+                headerTopRow.className = 'header-top-row';
+            }
+            if (header) {
+                header.classList.remove('employee-header');
+            }
             break;
         case 'enrollment':
             indicator.textContent = 'Admin Setup';
             indicator.className = 'mode-indicator admin';
+            indicator.style.display = 'block';
             if (subtitle) subtitle.textContent = 'Admin Enrollment';
-            if (headerSubtitle) headerSubtitle.textContent = 'Device enrollment for secure admin access';
+            if (headerSubtitle) {
+                headerSubtitle.textContent = 'Device enrollment for secure admin access';
+                headerSubtitle.style.display = 'block';
+            }
             if (employeeControls) employeeControls.style.display = 'none';
+            if (headerTopRow) {
+                headerTopRow.className = 'header-top-row';
+            }
+            if (header) {
+                header.classList.remove('employee-header');
+            }
             break;
         default:
-            indicator.textContent = 'Employee Mode';
-            indicator.className = 'mode-indicator';
+            // Employee mode - hide indicator and subtitle, center layout
+            indicator.style.display = 'none';
             if (subtitle) subtitle.textContent = 'Employee Time Tracker';
-            if (headerSubtitle) headerSubtitle.textContent = 'Professional time tracking for teams and individuals';
+            if (headerSubtitle) {
+                headerSubtitle.style.display = 'none';
+            }
             if (employeeControls) employeeControls.style.display = 'grid';
+            if (headerTopRow) {
+                headerTopRow.className = 'header-top-row employee-mode';
+            }
+            if (header) {
+                header.classList.add('employee-header');
+            }
     }
 }
 
