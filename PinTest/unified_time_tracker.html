@@ -1241,15 +1241,8 @@
                 </div>
 
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #495057; margin-bottom: 15px;">Data Entry Permissions</h3>
-                    <label style="display: block; margin: 10px 0;">
-                        <input type="checkbox" id="allowEditCheckbox" checked>
-                        <span style="margin-left: 8px;">Allow Edit buttons in Admin detail reports</span>
-                    </label>
-                    <label style="display: block; margin: 10px 0;">
-                        <input type="checkbox" id="allowDeleteCheckbox" checked>
-                        <span style="margin-left: 8px;">Allow Delete buttons in Admin detail reports</span>
-                    </label>
+                    <h3 style="color: #495057; margin-bottom: 15px;">Employee Permissions</h3>
+                    <p style="margin-bottom: 15px; color: #6c757d;">Control what employees can do with their time entries in the employee interface:</p>
                     <label style="display: block; margin: 10px 0;">
                         <input type="checkbox" id="allowEmployeeEdit" checked>
                         <span style="margin-left: 8px;">Allow employees to edit their own entries</span>
@@ -1258,6 +1251,32 @@
                         <input type="checkbox" id="allowEmployeeDelete" checked>
                         <span style="margin-left: 8px;">Allow employees to delete their own entries</span>
                     </label>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #495057; margin-bottom: 15px;">Pay Period Configuration</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <p style="margin-bottom: 10px;"><strong>Current Configuration:</strong> Default 2025 Pay Periods</p>
+                        <p style="color: #6c757d; font-size: 0.9rem;">The system uses predefined bi-weekly pay periods. Custom pay period configurations can be loaded via CSV files.</p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <button class="btn btn-secondary" onclick="exportPayPeriodsConfig()" style="padding: 8px 16px; font-size: 14px;">
+                            Export Config
+                        </button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('payPeriodsImportFile').click()" style="padding: 8px 16px; font-size: 14px;">
+                            Import Config
+                        </button>
+                        <button class="btn btn-secondary" onclick="downloadPayPeriodTemplate()" style="padding: 8px 16px; font-size: 14px;">
+                            Download Template
+                        </button>
+                    </div>
+                    <input type="file" id="payPeriodsImportFile" accept=".csv" style="display: none;" onchange="importPayPeriodsConfig(event)">
+                    
+                    <div style="background: #e7f3ff; padding: 12px; border-radius: 6px; border-left: 4px solid #0070ba;">
+                        <strong style="color: #004085;">CSV Format:</strong> 
+                        <span style="color: #004085;">ID, Description, Period Start, Period End, Timesheet Due, Pay Day</span>
+                    </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
@@ -1395,6 +1414,7 @@
             loadAppConfiguration();
             loadPayPeriodsConfig();
             loadPersistedData();
+            loadEmployeeSettings();  // Load saved employee name
             checkAdminAccess();
             updateDisplay();
             updateEmployeeDisplay();
@@ -1409,7 +1429,41 @@
 
             // Setup timer interval
             updateTimerDisplay();
+            
+            // Save employee name on change
+            const employeeNameInput = document.getElementById('employeeName');
+            if (employeeNameInput) {
+                employeeNameInput.addEventListener('blur', saveEmployeeSettings);
+            }
         });
+
+        // Employee settings management
+        function loadEmployeeSettings() {
+            try {
+                const settings = localStorage.getItem('employeeSettings');
+                if (settings) {
+                    const parsed = JSON.parse(settings);
+                    if (parsed.employeeName) {
+                        document.getElementById('employeeName').value = parsed.employeeName;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading employee settings:', error);
+            }
+        }
+
+        function saveEmployeeSettings() {
+            try {
+                const employeeName = document.getElementById('employeeName').value.trim();
+                const settings = {
+                    employeeName: employeeName,
+                    lastUpdated: new Date().toISOString()
+                };
+                localStorage.setItem('employeeSettings', JSON.stringify(settings));
+            } catch (error) {
+                console.error('Error saving employee settings:', error);
+            }
+        }
 
         // Admin Access Management
         function checkAdminAccess() {
@@ -1786,8 +1840,6 @@
                     : (appConfig.companyName || '');
                 
                 document.getElementById('companyNameInput').value = displayName;
-                document.getElementById('allowEditCheckbox').checked = appConfig.allowEdit !== false;
-                document.getElementById('allowDeleteCheckbox').checked = appConfig.allowDelete !== false;
                 document.getElementById('allowEmployeeEdit').checked = appConfig.allowEmployeeEdit !== false;
                 document.getElementById('allowEmployeeDelete').checked = appConfig.allowEmployeeDelete !== false;
                 
@@ -1819,14 +1871,10 @@
 
         function saveConfiguration() {
             const companyName = document.getElementById('companyNameInput').value;
-            const allowEdit = document.getElementById('allowEditCheckbox').checked;
-            const allowDelete = document.getElementById('allowDeleteCheckbox').checked;
             const allowEmployeeEdit = document.getElementById('allowEmployeeEdit').checked;
             const allowEmployeeDelete = document.getElementById('allowEmployeeDelete').checked;
             
             const newConfig = Object.assign({}, appConfig, {
-                allowEdit: allowEdit,
-                allowDelete: allowDelete,
                 allowEmployeeEdit: allowEmployeeEdit,
                 allowEmployeeDelete: allowEmployeeDelete
             });
@@ -1861,8 +1909,6 @@
                 
                 const displayName = appConfig.isLicensed ? appConfig.licensedCompany : appConfig.companyName;
                 document.getElementById('companyNameInput').value = displayName;
-                document.getElementById('allowEditCheckbox').checked = appConfig.allowEdit;
-                document.getElementById('allowDeleteCheckbox').checked = appConfig.allowDelete;
                 document.getElementById('allowEmployeeEdit').checked = appConfig.allowEmployeeEdit;
                 document.getElementById('allowEmployeeDelete').checked = appConfig.allowEmployeeDelete;
                 
@@ -1871,6 +1917,95 @@
                 
                 showStatus('Configuration reset to defaults (license preserved)', 'info');
             }
+        }
+
+        // Pay Period Configuration Functions
+        function exportPayPeriodsConfig() {
+            const configData = {
+                version: '1.1.8',
+                exportDate: new Date().toISOString(),
+                payPeriodsConfig: payPeriodsConfig
+            };
+            
+            const jsonStr = JSON.stringify(configData, null, 2);
+            downloadFile(jsonStr, 'pay_periods_config_' + new Date().toISOString().split('T')[0] + '.json', 'application/json');
+            showStatus('Pay periods configuration exported successfully', 'success');
+        }
+
+        function importPayPeriodsConfig(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let configData;
+                    
+                    if (file.name.endsWith('.csv')) {
+                        // Parse CSV format
+                        const csvContent = e.target.result;
+                        configData = parsePayPeriodsCSV(csvContent);
+                    } else {
+                        // Parse JSON format
+                        configData = JSON.parse(e.target.result);
+                        if (configData.payPeriodsConfig) {
+                            configData = configData.payPeriodsConfig;
+                        }
+                    }
+                    
+                    if (configData && configData.payPeriods && configData.payPeriods.length > 0) {
+                        payPeriodsConfig = configData;
+                        localStorage.setItem('payPeriodsConfig', JSON.stringify(payPeriodsConfig));
+                        populatePayPeriods();
+                        
+                        showStatus('Pay periods configuration imported successfully (' + configData.payPeriods.length + ' periods loaded)', 'success');
+                    } else {
+                        showStatus('Invalid pay periods configuration file', 'error');
+                    }
+                    
+                    event.target.value = '';
+                } catch (error) {
+                    console.error('Error importing pay periods config:', error);
+                    showStatus('Error importing configuration: ' + error.message, 'error');
+                    event.target.value = '';
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function parsePayPeriodsCSV(csvContent) {
+            const lines = csvContent.split('\n').filter(function(line) { return line.trim(); });
+            if (lines.length < 2) {
+                throw new Error('CSV must have header row and at least one data row');
+            }
+            
+            const periods = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length >= 6) {
+                    periods.push({
+                        id: values[0].replace(/"/g, '').trim(),
+                        description: values[1].replace(/"/g, '').trim(),
+                        periodStart: values[2].replace(/"/g, '').trim(),
+                        periodEnd: values[3].replace(/"/g, '').trim(),
+                        timesheetDue: values[4].replace(/"/g, '').trim(),
+                        payDay: values[5].replace(/"/g, '').trim()
+                    });
+                }
+            }
+            
+            return { payPeriods: periods };
+        }
+
+        function downloadPayPeriodTemplate() {
+            const templateCSV = 'ID,Description,Period Start,Period End,Timesheet Due,Pay Day\n' +
+                '2025-01,Pay Period 1 - Jan 1-15 2025,2025-01-01,2025-01-15,2025-01-15,2025-01-22\n' +
+                '2025-02,Pay Period 2 - Jan 16-31 2025,2025-01-16,2025-01-31,2025-01-31,2025-02-07\n' +
+                '2025-03,Pay Period 3 - Feb 1-15 2025,2025-02-01,2025-02-15,2025-02-15,2025-02-22';
+            
+            downloadFile(templateCSV, 'pay_periods_template.csv', 'text/csv');
+            showStatus('Pay periods template downloaded', 'success');
         }
 
         // Pay Periods Management
@@ -2123,25 +2258,144 @@
                 return;
             }
             
-            let html = '<table class="data-table"><thead><tr><th>Date</th><th>Category</th><th>Project</th><th>Start</th><th>End</th><th>Hours</th><th>Description</th></tr></thead><tbody>';
+            const showEmployeeActions = appConfig.allowEmployeeEdit || appConfig.allowEmployeeDelete;
+            
+            let html = '<table class="data-table"><thead><tr><th>Date</th><th>Category</th><th>Project</th><th>Start</th><th>End</th><th>Hours</th><th>Description</th>';
+            
+            if (showEmployeeActions) {
+                html += '<th>Actions</th>';
+            }
+            
+            html += '</tr></thead><tbody>';
             
             relevantEntries.forEach(function(entry) {
-                html += '<tr>' +
+                html += '<tr id="employee-entry-row-' + entry.id + '">' +
                     '<td>' + entry.date + '</td>' +
                     '<td>' + entry.category + '</td>' +
                     '<td>' + entry.project + '</td>' +
                     '<td>' + (entry.startTime || '-') + '</td>' +
                     '<td>' + (entry.endTime || '-') + '</td>' +
                     '<td>' + entry.duration.toFixed(1) + '</td>' +
-                    '<td>' + (entry.description || '-') + '</td>' +
-                    '</tr>';
+                    '<td>' + (entry.description || '-') + '</td>';
+                
+                if (showEmployeeActions) {
+                    html += '<td><div class="action-buttons">';
+                    if (appConfig.allowEmployeeEdit) {
+                        html += '<button class="action-button edit" onclick="editEmployeeEntry(\'' + entry.id + '\')">Edit</button>';
+                    }
+                    if (appConfig.allowEmployeeDelete) {
+                        html += '<button class="action-button delete" onclick="deleteEmployeeEntry(\'' + entry.id + '\')">Delete</button>';
+                    }
+                    html += '</div></td>';
+                }
+                
+                html += '</tr>';
             });
             
             html += '</tbody></table>';
             entriesList.innerHTML = html;
         }
 
-        function setEmployeeView(viewType, event) {
+        function editEmployeeEntry(entryId) {
+            if (!appConfig.allowEmployeeEdit) {
+                showStatus('Editing is currently disabled by administrator.', 'error');
+                return;
+            }
+            
+            const entry = employeeEntries.find(function(e) { return e.id == entryId; });
+            if (!entry) {
+                showStatus('Entry not found', 'error');
+                return;
+            }
+            
+            const row = document.getElementById('employee-entry-row-' + entryId);
+            if (!row) return;
+            
+            const showEmployeeActions = appConfig.allowEmployeeEdit || appConfig.allowEmployeeDelete;
+            
+            row.innerHTML = '<td><input type="date" class="edit-input" id="emp-edit-date-' + entryId + '" value="' + entry.date + '"></td>' +
+                '<td><select class="edit-input" id="emp-edit-category-' + entryId + '">' +
+                '<option value="work"' + (entry.category === 'work' ? ' selected' : '') + '>Work</option>' +
+                '<option value="overhead"' + (entry.category === 'overhead' ? ' selected' : '') + '>Overhead</option>' +
+                '<option value="travel"' + (entry.category === 'travel' ? ' selected' : '') + '>Travel</option>' +
+                '<option value="pto"' + (entry.category === 'pto' ? ' selected' : '') + '>PTO</option>' +
+                '<option value="sick"' + (entry.category === 'sick' ? ' selected' : '') + '>Sick</option>' +
+                '<option value="holiday"' + (entry.category === 'holiday' ? ' selected' : '') + '>Holiday</option>' +
+                '<option value="bereavement"' + (entry.category === 'bereavement' ? ' selected' : '') + '>Bereavement</option>' +
+                '<option value="jury"' + (entry.category === 'jury' ? ' selected' : '') + '>Jury</option>' +
+                '</select></td>' +
+                '<td><input type="text" class="edit-input" id="emp-edit-project-' + entryId + '" value="' + entry.project + '"></td>' +
+                '<td><input type="time" class="edit-input" id="emp-edit-start-' + entryId + '" value="' + (entry.startTime || '') + '"></td>' +
+                '<td><input type="time" class="edit-input" id="emp-edit-end-' + entryId + '" value="' + (entry.endTime || '') + '"></td>' +
+                '<td><input type="number" class="edit-input" id="emp-edit-duration-' + entryId + '" value="' + entry.duration + '" step="0.5"></td>' +
+                '<td><input type="text" class="edit-input" id="emp-edit-description-' + entryId + '" value="' + (entry.description || '') + '"></td>' +
+                (showEmployeeActions ? '<td><div class="action-buttons"><button class="action-button" style="background: #28a745;" onclick="saveEmployeeEntry(\'' + entryId + '\')">Save</button><button class="action-button" style="background: #6c757d;" onclick="cancelEmployeeEdit(\'' + entryId + '\')">Cancel</button></div></td>' : '');
+        }
+
+        function saveEmployeeEntry(entryId) {
+            const entry = employeeEntries.find(function(e) { return e.id == entryId; });
+            const adminEntry = allTimeEntries.find(function(e) { return e.id == entryId; });
+            
+            if (!entry) return;
+            
+            const newData = {
+                date: document.getElementById('emp-edit-date-' + entryId).value,
+                category: document.getElementById('emp-edit-category-' + entryId).value,
+                project: document.getElementById('emp-edit-project-' + entryId).value,
+                startTime: document.getElementById('emp-edit-start-' + entryId).value,
+                endTime: document.getElementById('emp-edit-end-' + entryId).value,
+                duration: parseFloat(document.getElementById('emp-edit-duration-' + entryId).value),
+                description: document.getElementById('emp-edit-description-' + entryId).value
+            };
+            
+            // Update both employee and admin entries
+            Object.assign(entry, newData);
+            if (adminEntry) {
+                Object.assign(adminEntry, newData);
+            }
+            
+            // Update collections
+            projects.add(entry.project);
+            categories.add(entry.category);
+            
+            saveTimeEntries();
+            updateEmployeeDisplay();
+            
+            if (currentMode === 'admin') {
+                refreshAdminData();
+                updateAdminFilters();
+            }
+            
+            showStatus('Entry updated successfully', 'success');
+        }
+
+        function cancelEmployeeEdit(entryId) {
+            updateEmployeeEntries();
+        }
+
+        function deleteEmployeeEntry(entryId) {
+            if (!appConfig.allowEmployeeDelete) {
+                showStatus('Deleting is currently disabled by administrator.', 'error');
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to delete this entry?')) return;
+            
+            // Remove from both arrays
+            employeeEntries = employeeEntries.filter(function(e) { return e.id != entryId; });
+            allTimeEntries = allTimeEntries.filter(function(e) { return e.id != entryId; });
+            filteredEntries = filteredEntries.filter(function(e) { return e.id != entryId; });
+            
+            saveTimeEntries();
+            updateEmployeeDisplay();
+            
+            if (currentMode === 'admin') {
+                refreshAdminData();
+                updateAdminFilters();
+            }
+            
+            showStatus('Entry deleted successfully', 'success');
+        }
             document.querySelectorAll('.view-button').forEach(function(btn) { btn.classList.remove('active'); });
             event.target.classList.add('active');
             
