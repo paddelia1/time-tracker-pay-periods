@@ -53,23 +53,24 @@ body {
 
 /* Employee mode specific styling */
 .header-top-row.employee-mode {
-    justify-content: center;
+    justify-content: space-between;
+    position: relative;
     margin-bottom: 0;
 }
 
 .header-top-row.employee-mode .logo-section {
-    justify-content: center;
-    text-align: center;
+    /* Keep logo and company name left-aligned */
+    flex: 0 0 auto;
 }
 
-.header-top-row.employee-mode .company-info {
-    align-items: center;
-    text-align: center;
-}
-
-.header-top-row.employee-mode .page-title {
+/* Center the employee title */
+.header-top-row.employee-mode .employee-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     font-size: 1.6rem;
-    margin-top: 8px;
+    font-weight: 500;
+    opacity: 0.95;
 }
 
 /* Hide mode indicator and subtitle in employee mode */
@@ -910,8 +911,22 @@ body {
     }
     
     /* Mobile employee mode adjustments */
-    .header-top-row.employee-mode .page-title {
+    .header-top-row.employee-mode .employee-title {
         font-size: 1.3rem;
+        position: static;
+        transform: none;
+        text-align: center;
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .header-top-row.employee-mode {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .header-top-row.employee-mode .logo-section {
+        margin-bottom: 10px;
     }
     
     .header-top-row.employee-mode .company-name {
