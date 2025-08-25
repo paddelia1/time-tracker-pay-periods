@@ -112,6 +112,16 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Time tracker v1.1.10 initializing...');
+    
+    // Force a clean start by removing any existing titles
+    const headerTopRow = document.querySelector('.header-top-row');
+    if (headerTopRow) {
+        const existingEmployee = headerTopRow.querySelector('.employee-title');
+        const existingAdmin = headerTopRow.querySelector('.admin-title');
+        if (existingEmployee) existingEmployee.remove();
+        if (existingAdmin) existingAdmin.remove();
+    }
+    
     loadAppConfiguration();
     loadPayPeriodsConfig();
     loadPersistedData();
@@ -143,6 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     console.log('Time tracker initialization complete');
+    console.log('Current header class:', headerTopRow ? headerTopRow.className : 'not found');
 });
 
 // ============================================================================
@@ -240,7 +251,6 @@ function updateDisplay() {
 
 function updateModeIndicator(mode) {
     const indicator = document.getElementById('modeIndicator');
-    const subtitle = document.getElementById('pageSubtitle');
     const headerSubtitle = document.getElementById('headerSubtitle');
     const employeeControls = document.getElementById('employeeControls');
     const headerTopRow = document.querySelector('.header-top-row');
@@ -253,51 +263,87 @@ function updateModeIndicator(mode) {
             indicator.textContent = 'Admin Mode';
             indicator.className = 'mode-indicator admin';
             indicator.style.display = 'block';
-            if (subtitle) subtitle.textContent = 'Admin Console';
             if (headerSubtitle) {
-                headerSubtitle.textContent = 'Enterprise-grade team time tracking consolidation and analysis';
-                headerSubtitle.style.display = 'block';
+                headerSubtitle.style.display = 'none';
             }
             if (employeeControls) employeeControls.style.display = 'none';
             if (headerTopRow) {
-                headerTopRow.className = 'header-top-row';
+                headerTopRow.className = 'header-top-row admin-mode';
+                
+                // Remove existing titles
+                const existingEmployee = headerTopRow.querySelector('.employee-title');
+                const existingAdmin = headerTopRow.querySelector('.admin-title');
+                if (existingEmployee) existingEmployee.remove();
+                if (existingAdmin) existingAdmin.remove();
+                
+                // Add centered admin title
+                const adminTitle = document.createElement('div');
+                adminTitle.className = 'admin-title';
+                adminTitle.textContent = 'Admin Console';
+                headerTopRow.appendChild(adminTitle);
             }
             if (header) {
                 header.classList.remove('employee-header');
+                header.classList.add('admin-header');
             }
             break;
         case 'enrollment':
             indicator.textContent = 'Admin Setup';
             indicator.className = 'mode-indicator admin';
             indicator.style.display = 'block';
-            if (subtitle) subtitle.textContent = 'Admin Enrollment';
             if (headerSubtitle) {
-                headerSubtitle.textContent = 'Device enrollment for secure admin access';
-                headerSubtitle.style.display = 'block';
+                headerSubtitle.style.display = 'none';
             }
             if (employeeControls) employeeControls.style.display = 'none';
             if (headerTopRow) {
-                headerTopRow.className = 'header-top-row';
+                headerTopRow.className = 'header-top-row admin-mode';
+                
+                // Remove existing titles
+                const existingEmployee = headerTopRow.querySelector('.employee-title');
+                const existingAdmin = headerTopRow.querySelector('.admin-title');
+                if (existingEmployee) existingEmployee.remove();
+                if (existingAdmin) existingAdmin.remove();
+                
+                // Add centered enrollment title
+                const enrollmentTitle = document.createElement('div');
+                enrollmentTitle.className = 'admin-title';
+                enrollmentTitle.textContent = 'Admin Enrollment';
+                headerTopRow.appendChild(enrollmentTitle);
             }
             if (header) {
                 header.classList.remove('employee-header');
+                header.classList.add('admin-header');
             }
             break;
         default:
-            // Employee mode - hide indicator and subtitle, center layout
+            // Employee mode - hide indicator and subtitle, add centered title
             indicator.style.display = 'none';
-            if (subtitle) subtitle.textContent = 'Employee Time Tracker';
             if (headerSubtitle) {
                 headerSubtitle.style.display = 'none';
             }
             if (employeeControls) employeeControls.style.display = 'grid';
             if (headerTopRow) {
                 headerTopRow.className = 'header-top-row employee-mode';
+                
+                // Remove existing titles
+                const existingEmployee = headerTopRow.querySelector('.employee-title');
+                const existingAdmin = headerTopRow.querySelector('.admin-title');
+                if (existingEmployee) existingEmployee.remove();
+                if (existingAdmin) existingAdmin.remove();
+                
+                // Add centered employee title
+                const employeeTitle = document.createElement('div');
+                employeeTitle.className = 'employee-title';
+                employeeTitle.textContent = 'Employee Time Tracker';
+                headerTopRow.appendChild(employeeTitle);
             }
             if (header) {
+                header.classList.remove('admin-header');
                 header.classList.add('employee-header');
             }
     }
+    
+    console.log(`Mode indicator updated to: ${mode}`);
 }
 
 // ============================================================================
