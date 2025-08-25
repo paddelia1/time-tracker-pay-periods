@@ -113,63 +113,20 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Time tracker v1.1.10 initializing...');
     
-    // Set current mode to employee by default
+    // Set mode to employee
     currentMode = 'employee';
+    updateModeIndicator('employee');
     
-    // Ensure employee section is visible by default - FORCE IT
-    const employeeSection = document.getElementById('employeeSection');
-    if (employeeSection) {
-        employeeSection.style.display = 'block';
-        employeeSection.classList.add('active');
-        console.log('Employee section forced visible');
-    } else {
-        console.error('Employee section not found!');
-    }
-    
-    // Hide other sections
-    const adminSection = document.getElementById('adminSection');
-    const webauthnSection = document.getElementById('webauthnEnrollment');
-    if (adminSection) {
-        adminSection.style.display = 'none';
-        adminSection.classList.remove('active');
-    }
-    if (webauthnSection) {
-        webauthnSection.style.display = 'none';
-        webauthnSection.classList.remove('active');
-    }
-    
-    // Force a clean start by removing any existing titles
-    const headerTopRow = document.querySelector('.header-top-row');
-    if (headerTopRow) {
-        const existingEmployee = headerTopRow.querySelector('.employee-title');
-        const existingAdmin = headerTopRow.querySelector('.admin-title');
-        if (existingEmployee) existingEmployee.remove();
-        if (existingAdmin) existingAdmin.remove();
-    }
-    
+    // Simple initialization - just load data and settings
     loadAppConfiguration();
     loadPayPeriodsConfig();
     loadPersistedData();
     loadEmployeeSettings();
-    
-    // Set initial employee mode styling
-    updateModeIndicator('employee');
-    
-    // Check for admin access after everything else is set up
-    checkAdminAccess();
-    
     updateDisplay();
     updateEmployeeDisplay();
     setTodayDate();
     
-    // Add escape key handler for modals
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeAllModals();
-        }
-    });
-    
-    // Setup timer interval
+    // Setup timer
     updateTimerDisplay();
     
     // Save employee name on change
@@ -179,10 +136,18 @@ document.addEventListener('DOMContentLoaded', function() {
         employeeNameInput.addEventListener('input', saveEmployeeSettings);
     }
     
+    // Add escape key handler for modals
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAllModals();
+        }
+    });
+    
+    // Check for admin access only if URL parameters present
+    checkAdminAccess();
+    
     console.log('Time tracker initialization complete');
-    console.log('Current mode:', currentMode);
-    console.log('Employee section classes:', employeeSection ? employeeSection.className : 'not found');
-    console.log('Employee section style:', employeeSection ? employeeSection.style.display : 'not found');
+    console.log('Employee section should be visible');
 });
 
 // ============================================================================
@@ -280,10 +245,9 @@ function updateDisplay() {
 
 function updateModeIndicator(mode) {
     const indicator = document.getElementById('modeIndicator');
+    const pageSubtitle = document.getElementById('pageSubtitle');
     const headerSubtitle = document.getElementById('headerSubtitle');
     const employeeControls = document.getElementById('employeeControls');
-    const headerTopRow = document.querySelector('.header-top-row');
-    const header = document.querySelector('.header');
     
     if (!indicator) return;
     
@@ -292,94 +256,29 @@ function updateModeIndicator(mode) {
             indicator.textContent = 'Admin Mode';
             indicator.className = 'mode-indicator admin';
             indicator.style.display = 'block';
-            if (headerSubtitle) {
-                headerSubtitle.textContent = '';  // Clear any existing text
-                headerSubtitle.style.display = 'none';
-            }
+            if (pageSubtitle) pageSubtitle.textContent = 'Admin Console';
+            if (headerSubtitle) headerSubtitle.style.display = 'none';
             if (employeeControls) employeeControls.style.display = 'none';
-            if (headerTopRow) {
-                headerTopRow.className = 'header-top-row admin-mode';
-                
-                // Remove existing titles
-                const existingEmployee = headerTopRow.querySelector('.employee-title');
-                const existingAdmin = headerTopRow.querySelector('.admin-title');
-                if (existingEmployee) existingEmployee.remove();
-                if (existingAdmin) existingAdmin.remove();
-                
-                // Add centered admin title
-                const adminTitle = document.createElement('div');
-                adminTitle.className = 'admin-title';
-                adminTitle.textContent = 'Admin Console';
-                headerTopRow.appendChild(adminTitle);
-            }
-            if (header) {
-                header.classList.remove('employee-header');
-                header.classList.add('admin-header');
-            }
             break;
         case 'enrollment':
             indicator.textContent = 'Admin Setup';
             indicator.className = 'mode-indicator admin';
             indicator.style.display = 'block';
-            if (headerSubtitle) {
-                headerSubtitle.textContent = '';  // Clear any existing text
-                headerSubtitle.style.display = 'none';
-            }
+            if (pageSubtitle) pageSubtitle.textContent = 'Admin Enrollment';
+            if (headerSubtitle) headerSubtitle.style.display = 'none';
             if (employeeControls) employeeControls.style.display = 'none';
-            if (headerTopRow) {
-                headerTopRow.className = 'header-top-row admin-mode';
-                
-                // Remove existing titles
-                const existingEmployee = headerTopRow.querySelector('.employee-title');
-                const existingAdmin = headerTopRow.querySelector('.admin-title');
-                if (existingEmployee) existingEmployee.remove();
-                if (existingAdmin) existingAdmin.remove();
-                
-                // Add centered enrollment title
-                const enrollmentTitle = document.createElement('div');
-                enrollmentTitle.className = 'admin-title';
-                enrollmentTitle.textContent = 'Admin Enrollment';
-                headerTopRow.appendChild(enrollmentTitle);
-            }
-            if (header) {
-                header.classList.remove('employee-header');
-                header.classList.add('admin-header');
-            }
             break;
         default:
-            // Employee mode - hide indicator and subtitle, add centered title
-            indicator.style.display = 'none';
-            if (headerSubtitle) {
-                headerSubtitle.textContent = '';  // Clear any existing text
-                headerSubtitle.style.display = 'none';
-            }
-            if (employeeControls) {
-                employeeControls.style.display = 'grid';
-                console.log('Employee controls should be visible');
-            }
-            if (headerTopRow) {
-                headerTopRow.className = 'header-top-row employee-mode';
-                
-                // Remove existing titles
-                const existingEmployee = headerTopRow.querySelector('.employee-title');
-                const existingAdmin = headerTopRow.querySelector('.admin-title');
-                if (existingEmployee) existingEmployee.remove();
-                if (existingAdmin) existingAdmin.remove();
-                
-                // Add centered employee title
-                const employeeTitle = document.createElement('div');
-                employeeTitle.className = 'employee-title';
-                employeeTitle.textContent = 'Employee Time Tracker';
-                headerTopRow.appendChild(employeeTitle);
-            }
-            if (header) {
-                header.classList.remove('admin-header');
-                header.classList.add('employee-header');
-            }
+            // Employee mode
+            indicator.textContent = 'Employee Mode';
+            indicator.className = 'mode-indicator';
+            indicator.style.display = 'none'; // Hide in employee mode
+            if (pageSubtitle) pageSubtitle.textContent = 'Employee Time Tracker';
+            if (headerSubtitle) headerSubtitle.style.display = 'none'; // Hide subtitle
+            if (employeeControls) employeeControls.style.display = 'grid';
     }
     
     console.log(`Mode indicator updated to: ${mode}`);
-    console.log('Employee controls display:', employeeControls ? employeeControls.style.display : 'not found');
 }
 
 // ============================================================================
@@ -1228,16 +1127,14 @@ async function handleAdminAccess() {
 }
 
 function showSection(sectionId) {
-    // Hide all sections first
-    document.querySelectorAll('.section').forEach(function(section) {
-        section.classList.remove('active');
-        section.style.display = 'none';
-    });
+    // Hide all sections
+    document.getElementById('employeeSection').style.display = 'none';
+    document.getElementById('adminSection').style.display = 'none';
+    document.getElementById('webauthnEnrollment').style.display = 'none';
     
     // Show the target section
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
-        targetSection.classList.add('active');
         targetSection.style.display = 'block';
         console.log('Showing section:', sectionId);
     } else {
