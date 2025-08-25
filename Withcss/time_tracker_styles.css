@@ -26,6 +26,8 @@ body {
     border-radius: 16px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     overflow: hidden;
+    display: block !important;
+    visibility: visible !important;
 }
 
 .header {
@@ -200,15 +202,31 @@ body {
 
 .main-content {
     padding: 30px;
+    display: block !important;
+    visibility: visible !important;
 }
 
-/* Section Management */
+/* Section Management - EMERGENCY FIX */
 .section {
-    display: none;
+    display: block !important;
 }
 
 .section.active {
-    display: block;
+    display: block !important;
+}
+
+/* Hide admin and webauthn sections by default */
+#adminSection {
+    display: none !important;
+}
+
+#webauthnEnrollment {
+    display: none !important;
+}
+
+/* Force employee section to show */
+#employeeSection {
+    display: block !important;
 }
 
 /* Employee Styles */
