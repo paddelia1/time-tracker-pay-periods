@@ -594,6 +594,11 @@
             display: flex;
         }
 
+        /* License modal should appear above configure modal */
+        #licenseModal {
+            z-index: 1100;
+        }
+
         .modal-content {
             background: white;
             padding: 30px;
@@ -833,8 +838,7 @@
         <div class="header">
             <div class="header-top-row">
                 <div class="logo-section">
-                    <img src="Company_logo.png" alt="Company Logo" class="company-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
-                    <div id="fallback-logo" style="display:none; width:50px; height:50px; background:white; border-radius:8px; align-items:center; justify-content:center; font-weight:bold; color:#667eea;">CL</div>
+                    <img src="Company_logo.png" alt="Company Logo" class="company-logo" onerror="this.style.display='none';">
                     <div class="company-info">
                         <div class="company-name" id="companyNameDisplay">CAND, LLC</div>
                         <div class="page-title" id="pageSubtitle">Employee Time Tracker</div>
@@ -878,19 +882,19 @@
         <!-- Pay Period Info -->
         <div class="pay-period-info" id="payPeriodInfo" style="display: none;">
             <div class="pay-period-detail">
-                <span class="label">Period Range:</span>
+                <span class="label">📅 Period Range:</span>
                 <span class="value" id="periodRange">-</span>
             </div>
             <div class="pay-period-detail">
-                <span class="label">Timesheet Due:</span>
+                <span class="label">📋 Timesheet Due:</span>
                 <span class="value" id="timesheetDue">-</span>
             </div>
             <div class="pay-period-detail">
-                <span class="label">Pay Day:</span>
+                <span class="label">💰 Pay Day:</span>
                 <span class="value" id="payDay">-</span>
             </div>
             <div class="pay-period-detail">
-                <span class="label">Days Remaining:</span>
+                <span class="label">⏰ Days Remaining:</span>
                 <span class="value" id="daysRemaining">-</span>
             </div>
         </div>
@@ -1964,15 +1968,9 @@
 
         function startTimer() {
             const employeeName = document.getElementById('employeeName').value.trim();
-            const project = document.getElementById('projectInput').value.trim();
             
             if (!employeeName) {
                 showStatus('Please enter your name before starting the timer', 'error');
-                return;
-            }
-            
-            if (!project) {
-                showStatus('Please enter a project name before starting the timer', 'error');
                 return;
             }
             
