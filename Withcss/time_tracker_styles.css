@@ -39,8 +39,17 @@ body {
     padding-bottom: 25px;
 }
 
+/* Admin mode header adjustments */
+.header:has(.admin-mode) {
+    padding-bottom: 25px;
+}
+
 /* Fallback for browsers that don't support :has() */
 .header.employee-header {
+    padding-bottom: 25px;
+}
+
+.header.admin-header {
     padding-bottom: 25px;
 }
 
@@ -73,9 +82,41 @@ body {
     opacity: 0.95;
 }
 
+/* Admin mode specific styling */
+.header-top-row.admin-mode {
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 0;
+}
+
+.header-top-row.admin-mode .logo-section {
+    /* Keep logo and company name left-aligned */
+    flex: 0 0 auto;
+}
+
+/* Center the admin title */
+.header-top-row.admin-mode .admin-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.6rem;
+    font-weight: 500;
+    opacity: 0.95;
+}
+
+.header-top-row.admin-mode .mode-indicator {
+    /* Keep admin mode button on the right */
+    flex: 0 0 auto;
+}
+
 /* Hide mode indicator and subtitle in employee mode */
 .employee-mode + .header-subtitle,
 .header-top-row.employee-mode .mode-indicator {
+    display: none;
+}
+
+/* Hide subtitle in admin mode */
+.admin-mode + .header-subtitle {
     display: none;
 }
 
@@ -930,6 +971,36 @@ body {
     }
     
     .header-top-row.employee-mode .company-name {
+        font-size: 1.5rem;
+    }
+
+    /* Mobile admin mode adjustments */
+    .header-top-row.admin-mode .admin-title {
+        font-size: 1.3rem;
+        position: static;
+        transform: none;
+        text-align: center;
+        margin: 10px 0;
+        width: 100%;
+        order: 2;
+    }
+    
+    .header-top-row.admin-mode {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .header-top-row.admin-mode .logo-section {
+        margin-bottom: 10px;
+        order: 1;
+    }
+    
+    .header-top-row.admin-mode .mode-indicator {
+        order: 3;
+        margin-top: 5px;
+    }
+    
+    .header-top-row.admin-mode .company-name {
         font-size: 1.5rem;
     }
 }
