@@ -36,25 +36,6 @@ body {
     color: white;
 }
 
-/* Employee mode header adjustments */
-.header:has(.employee-mode) {
-    padding-bottom: 25px;
-}
-
-/* Admin mode header adjustments */
-.header:has(.admin-mode) {
-    padding-bottom: 25px;
-}
-
-/* Fallback for browsers that don't support :has() */
-.header.employee-header {
-    padding-bottom: 25px;
-}
-
-.header.admin-header {
-    padding-bottom: 25px;
-}
-
 .header-top-row {
     display: flex;
     align-items: center;
@@ -206,27 +187,27 @@ body {
     visibility: visible !important;
 }
 
-/* Section Management - EMERGENCY FIX */
+/* Section Management - SIMPLIFIED */
 .section {
-    display: block !important;
+    display: block;
 }
 
 .section.active {
-    display: block !important;
+    display: block;
 }
 
-/* Hide admin and webauthn sections by default */
+/* Hide admin sections by default */
 #adminSection {
-    display: none !important;
+    display: none;
 }
 
 #webauthnEnrollment {
-    display: none !important;
+    display: none;
 }
 
-/* Force employee section to show */
+/* Show employee section by default */
 #employeeSection {
-    display: block !important;
+    display: block;
 }
 
 /* Employee Styles */
