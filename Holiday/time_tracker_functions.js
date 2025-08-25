@@ -733,15 +733,20 @@ function saveSelectedHolidays() {
 }
 
 function exportHolidaysConfig() {
-    const configData = {
-        version: '1.1.10',
-        exportDate: new Date().toISOString(),
-        holidaysConfig: holidaysConfig
-    };
+    if (!holidaysConfig || !holidaysConfig.holidays) {
+        showStatus('No holidays configuration to export', 'info');
+        return;
+    }
     
-    const jsonStr = JSON.stringify(configData, null, 2);
-    downloadFile(jsonStr, 'company_holidays_config_' + new Date().toISOString().split('T')[0] + '.json', 'application/json');
-    showStatus('Holidays configuration exported successfully', 'success');
+    // Export as CSV format for easy editing
+    let csvContent = 'ID,Date,Name,Type,Description\n';
+    
+    holidaysConfig.holidays.forEach(holiday => {
+        csvContent += `"${holiday.id}","${holiday.date}","${holiday.name}","${holiday.type}","${holiday.description}"\n`;
+    });
+    
+    downloadFile(csvContent, 'company_holidays_' + new Date().toISOString().split('T')[0] + '.csv', 'text/csv');
+    showStatus('Holidays configuration exported as CSV', 'success');
 }
 
 function importHolidaysConfig(event) {
