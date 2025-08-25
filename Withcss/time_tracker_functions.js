@@ -206,9 +206,21 @@ function saveAppConfiguration() {
 function applyConfiguration() {
     updateDisplay();
     updateLicenseWatermark();
+    
+    // Update page title if company name changed
+    const pageTitle = document.getElementById('pageTitle');
+    if (pageTitle) {
+        const currentTitle = pageTitle.textContent;
+        if (currentTitle.includes('Employee')) {
+            pageTitle.textContent = 'Employee Time Tracker v1.1.10';
+        } else if (currentTitle.includes('Admin')) {
+            pageTitle.textContent = 'Time Tracker Admin Console v1.1.10';
+        }
+    }
 }
 
 function updateDisplay() {
+    // Determine display name - licensed company name takes priority
     const displayName = appConfig.isLicensed && appConfig.licensedCompany 
         ? appConfig.licensedCompany 
         : (appConfig.companyName || 'CAND, LLC');
@@ -219,6 +231,7 @@ function updateDisplay() {
     }
     
     updateLicenseWatermark();
+    console.log('Display updated with company name:', displayName);
 }
 
 function updateModeIndicator(mode) {
@@ -1337,7 +1350,7 @@ function activateLicense() {
         appConfig.isLicensed = true;
         appConfig.licensedCompany = companyName;
         appConfig.licenseKey = licenseKey;
-        appConfig.companyName = companyName;
+        appConfig.companyName = companyName; // Also update the general company name setting
         
         saveAppConfiguration();
         updateDisplay();
@@ -1346,6 +1359,7 @@ function activateLicense() {
         closeLicenseModal();
         
         showStatus('License activated successfully! Watermark removed and company name updated.', 'success');
+        console.log('License activated for:', companyName);
     } else {
         showStatus('Invalid license key for the provided company name. Please check your details and try again.', 'error');
     }
@@ -1520,6 +1534,34 @@ function switchView() {
 }
 
 function showConfigureApp() {
+    // Populate current configuration values
+    const companyNameInput = document.getElementById('companyNameInput');
+    const allowEmployeeEdit = document.getElementById('allowEmployeeEdit');
+    const allowEmployeeDelete = document.getElementById('allowEmployeeDelete');
+    const configLicenseStatus = document.getElementById('configLicenseStatus');
+    
+    if (companyNameInput) {
+        companyNameInput.value = appConfig.companyName || 'CAND, LLC';
+    }
+    
+    if (allowEmployeeEdit) {
+        allowEmployeeEdit.checked = appConfig.allowEmployeeEdit;
+    }
+    
+    if (allowEmployeeDelete) {
+        allowEmployeeDelete.checked = appConfig.allowEmployeeDelete;
+    }
+    
+    if (configLicenseStatus) {
+        if (appConfig.isLicensed) {
+            configLicenseStatus.textContent = `Licensed to ${appConfig.licensedCompany}`;
+            configLicenseStatus.style.color = '#28a745';
+        } else {
+            configLicenseStatus.textContent = 'Unlicensed';
+            configLicenseStatus.style.color = '#dc3545';
+        }
+    }
+    
     const modal = document.getElementById('configureModal');
     if (modal) {
         modal.classList.add('active');
@@ -1534,12 +1576,74 @@ function closeConfigureModal() {
 }
 
 function saveConfiguration() {
-    showStatus('Configuration saved', 'success');
+    // Read values from form
+    const companyNameInput = document.getElementById('companyNameInput');
+    const allowEmployeeEdit = document.getElementById('allowEmployeeEdit');
+    const allowEmployeeDelete = document.getElementById('allowEmployeeDelete');
+    
+    // Update configuration
+    if (companyNameInput) {
+        const newCompanyName = companyNameInput.value.trim();
+        if (newCompanyName) {
+            appConfig.companyName = newCompanyName;
+        }
+    }
+    
+    if (allowEmployeeEdit) {
+        appConfig.allowEmployeeEdit = allowEmployeeEdit.checked;
+    }
+    
+    if (allowEmployeeDelete) {
+        appConfig.allowEmployeeDelete = allowEmployeeDelete.checked;
+    }
+    
+    // Save to localStorage
+    saveAppConfiguration();
+    
+    // Apply changes immediately
+    applyConfiguration();
+    
+    // Close modal
     closeConfigureModal();
+    
+    showStatus('Configuration saved successfully', 'success');
 }
 
 function resetToDefaults() {
-    showStatus('Reset to defaults', 'info');
+    if (confirm('Reset all settings to default values? This will clear your company name and reset all permissions.')) {
+        // Reset appConfig to defaults
+        appConfig.companyName = 'CAND, LLC';
+        appConfig.allowEmployeeEdit = true;
+        appConfig.allowEmployeeDelete = true;
+        appConfig.allowEdit = true;
+        appConfig.allowDelete = true;
+        // Don't reset license info
+        
+        // Update form fields
+        const companyNameInput = document.getElementById('companyNameInput');
+        const allowEmployeeEdit = document.getElementById('allowEmployeeEdit');
+        const allowEmployeeDelete = document.getElementById('allowEmployeeDelete');
+        
+        if (companyNameInput) {
+            companyNameInput.value = appConfig.companyName;
+        }
+        
+        if (allowEmployeeEdit) {
+            allowEmployeeEdit.checked = appConfig.allowEmployeeEdit;
+        }
+        
+        if (allowEmployeeDelete) {
+            allowEmployeeDelete.checked = appConfig.allowEmployeeDelete;
+        }
+        
+        // Save to localStorage
+        saveAppConfiguration();
+        
+        // Apply changes immediately
+        applyConfiguration();
+        
+        showStatus('Settings reset to defaults', 'success');
+    }
 }
 
 function showDataCleanup() {

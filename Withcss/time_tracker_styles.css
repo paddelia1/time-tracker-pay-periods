@@ -88,7 +88,8 @@ body {
 }
 
 .mode-indicator.admin {
-    background: rgba(255,193,7,0.3);
+    background: #1e7e34;
+    color: white;
 }
 
 /* License Watermark */
