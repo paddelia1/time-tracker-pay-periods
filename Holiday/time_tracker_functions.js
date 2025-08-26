@@ -205,12 +205,6 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
 // UTILITY FUNCTIONS
 // ============================================================================
 
-// NEW: Format category for display (capitalize first letter)
-function formatCategoryForDisplay(category) {
-    if (!category) return '-';
-    return category.charAt(0).toUpperCase() + category.slice(1);
-}
-
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Time tracker v1.1.10.1 initializing...');
@@ -1314,9 +1308,13 @@ function updateEmployeeEntries() {
     html += '</tr></thead><tbody>';
     
     relevantEntries.forEach(entry => {
+        // Capitalize the category for display
+        const displayCategory = entry.category ? 
+            entry.category.charAt(0).toUpperCase() + entry.category.slice(1) : '-';
+            
         html += `<tr id="employee-entry-row-${entry.id}">
             <td>${entry.date}</td>
-            <td>${formatCategoryForDisplay(entry.category)}</td>
+            <td>${displayCategory}</td>
             <td>${entry.project}</td>
             <td>${entry.startTime || '-'}</td>
             <td>${entry.endTime || '-'}</td>
@@ -2035,7 +2033,8 @@ function updateAdminFilters() {
         Array.from(categories).sort().forEach(cat => {
             const option = document.createElement('option');
             option.value = cat;
-            option.textContent = formatCategoryForDisplay(cat);
+            // Capitalize the category for display
+            option.textContent = cat ? cat.charAt(0).toUpperCase() + cat.slice(1) : cat;
             categoryFilter.appendChild(option);
         });
     }
@@ -2054,10 +2053,14 @@ function displayAdminData() {
     let html = '<table class="data-table"><thead><tr><th>Employee</th><th>Date</th><th>Category</th><th>Project</th><th>Duration</th></tr></thead><tbody>';
     
     filteredEntries.forEach(entry => {
+        // Capitalize the category for display  
+        const displayCategory = entry.category ? 
+            entry.category.charAt(0).toUpperCase() + entry.category.slice(1) : '-';
+            
         html += `<tr>
             <td>${entry.employee}</td>
             <td>${entry.date}</td>
-            <td>${formatCategoryForDisplay(entry.category)}</td>
+            <td>${displayCategory}</td>
             <td>${entry.project}</td>
             <td>${entry.duration.toFixed(1)}h</td>
         </tr>`;

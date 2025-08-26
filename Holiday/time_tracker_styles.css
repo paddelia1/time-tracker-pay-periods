@@ -245,54 +245,62 @@ body {
     background: rgba(255,255,255,0.1);
     padding: 12px;
     border-radius: 8px;
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* Exactly 5 equal columns */
+    gap: 15px;
     margin-bottom: 15px;
     align-items: center;
-    overflow-x: auto; /* Allow horizontal scroll if needed */
 }
 
 .pay-period-detail {
     display: flex;
+    flex-direction: column; /* Stack label and value vertically within each item */
     align-items: center;
-    gap: 5px;
-    white-space: nowrap;
-    flex-shrink: 0; /* Prevent shrinking */
+    text-align: center;
+    min-width: 0;
 }
 
 .pay-period-detail .label {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     opacity: 0.9;
     font-weight: 500;
+    white-space: nowrap;
+    margin-bottom: 2px;
 }
 
 .pay-period-detail .value {
     font-weight: 700;
     font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* FIXED: Holiday Section - Same Level as Other Items */
 .holiday-section {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 5px;
-    white-space: nowrap;
-    flex-shrink: 0;
+    text-align: center;
+    min-width: 0;
 }
 
 .holiday-section .label {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     opacity: 0.9;
     font-weight: 500;
+    white-space: nowrap;
+    margin-bottom: 2px;
 }
 
 .holiday-section .value {
     font-weight: 700;
     font-size: 0.85rem;
-    max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    margin-bottom: 4px;
 }
 
 /* Holiday Button Styling */
