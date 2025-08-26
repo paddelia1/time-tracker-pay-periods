@@ -2632,10 +2632,38 @@ if (typeof window !== 'undefined') {
         return key;
     };
     
+    // For debugging admin access issues
+    window.resetAdminCredential = function() {
+        localStorage.removeItem('webauthnCredential');
+        console.log('Admin credential cleared. Reload page with admin URL to re-enroll.');
+        alert('Admin credential cleared. Reload the page with ?setup or ?config=x7k9m to re-enroll your device.');
+    };
+    
+    window.debugAdminAccess = function() {
+        const stored = localStorage.getItem('webauthnCredential');
+        console.log('=== Admin Access Debug Info ===');
+        console.log('WebAuthn Support:', checkWebAuthnSupport());
+        console.log('Stored Credential Exists:', !!stored);
+        console.log('Current Mode:', currentMode);
+        console.log('Is Authenticated:', isAdminAuthenticated);
+        console.log('Current URL:', window.location.href);
+        
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                console.log('Credential ID Length:', base64ToArrayBuffer(parsed.rawId).byteLength);
+            } catch (e) {
+                console.log('Credential Parse Error:', e);
+            }
+        }
+        console.log('=== End Debug Info ===');
+    };
+    
     console.log('Time Tracker Functions v1.1.10.1 loaded successfully');
     console.log('toggleTimer function available:', typeof window.toggleTimer);
     console.log('Admin access: Add ?setup=maintenance or ?config=x7k9m to URL');
     console.log('Generate license keys: generateKeyForCustomer("Company Name")');
+    console.log('Debug admin issues: debugAdminAccess() or resetAdminCredential()');
 } else {
     console.error('Window object not available');
 }
@@ -2643,3 +2671,4 @@ if (typeof window !== 'undefined') {
 console.log('Time Tracker Functions v1.1.10.1 loaded successfully');
 console.log('Admin access: Add ?setup=maintenance or ?config=x7k9m to URL');
 console.log('Generate license keys: generateKeyForCustomer("Company Name")');
+console.log('Debug admin issues: debugAdminAccess() or resetAdminCredential()');
