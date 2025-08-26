@@ -1,9 +1,9 @@
 /*
-Time Tracker Functions v1.1.10
+Time Tracker Functions v1.1.10.1
 Author: Philippe Addelia
 Company: CAND, LLC
 Created: August 17, 2025 PST
-Modified: August 24, 2025 PST
+Modified: August 26, 2025 PST
 Preferred location: Modules\Time Tracker\time_tracker_functions.js
 Purpose: JavaScript functionality for Employee Time Tracker - Complete Unified Version
 */
@@ -201,9 +201,19 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
     ]
 };
 
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+// NEW: Format category for display (capitalize first letter)
+function formatCategoryForDisplay(category) {
+    if (!category) return '-';
+    return category.charAt(0).toUpperCase() + category.slice(1);
+}
+
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Time tracker v1.1.10 initializing...');
+    console.log('Time tracker v1.1.10.1 initializing...');
     
     // Set mode to employee
     currentMode = 'employee';
@@ -316,9 +326,9 @@ function applyConfiguration() {
     if (pageTitle) {
         const currentTitle = pageTitle.textContent;
         if (currentTitle.includes('Employee')) {
-            pageTitle.textContent = 'Employee Time Tracker v1.1.10';
+            pageTitle.textContent = 'Employee Time Tracker v1.1.10.1';
         } else if (currentTitle.includes('Admin')) {
-            pageTitle.textContent = 'Time Tracker Admin Console v1.1.10';
+            pageTitle.textContent = 'Time Tracker Admin Console v1.1.10.1';
         }
     }
 }
@@ -445,7 +455,7 @@ function previewLogo() {
     
     if (!validateLogoUrl(url)) {
         previewImg.style.display = 'none';
-        previewStatus.textContent = '❌ Invalid URL format or unsupported host';
+        previewStatus.textContent = '⚠ Invalid URL format or unsupported host';
         previewStatus.className = 'logo-preview-status error';
         return;
     }
@@ -462,7 +472,7 @@ function previewLogo() {
     };
     testImg.onerror = function() {
         previewImg.style.display = 'none';
-        previewStatus.textContent = '❌ Could not load image from this URL';
+        previewStatus.textContent = '⚠ Could not load image from this URL';
         previewStatus.className = 'logo-preview-status error';
     };
     testImg.src = url;
@@ -924,7 +934,7 @@ function setSelectedPayPeriod() {
                 daysRemaining.textContent = diffDays > 0 ? diffDays : 0;
             }
             
-            info.style.display = 'grid';
+            info.style.display = 'flex';
         }
         
         // Update holiday display
@@ -1021,7 +1031,7 @@ function parsePayPeriodsCSV(csvContent, configName = 'Custom Configuration') {
 
 function exportPayPeriodsConfig() {
     const configData = {
-        version: '1.1.10',
+        version: '1.1.10.1',
         exportDate: new Date().toISOString(),
         payPeriodsConfig: payPeriodsConfig
     };
@@ -1306,7 +1316,7 @@ function updateEmployeeEntries() {
     relevantEntries.forEach(entry => {
         html += `<tr id="employee-entry-row-${entry.id}">
             <td>${entry.date}</td>
-            <td>${entry.category}</td>
+            <td>${formatCategoryForDisplay(entry.category)}</td>
             <td>${entry.project}</td>
             <td>${entry.startTime || '-'}</td>
             <td>${entry.endTime || '-'}</td>
@@ -1796,7 +1806,7 @@ function enterAdminMode() {
     currentMode = 'admin';
     showSection('adminSection');
     updateModeIndicator('admin');
-    document.getElementById('pageTitle').textContent = 'Time Tracker Admin Console v1.1.10';
+    document.getElementById('pageTitle').textContent = 'Time Tracker Admin Console v1.1.10.1';
     refreshAdminData();
     showStatus('Admin access granted', 'success');
 }
@@ -1806,7 +1816,7 @@ function exitAdminMode() {
     isAdminAuthenticated = false;
     showSection('employeeSection');
     updateModeIndicator('employee');
-    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10';
+    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.1';
     
     // Clear URL parameters
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -1816,7 +1826,7 @@ function exitToEmployee() {
     currentMode = 'employee';
     showSection('employeeSection');
     updateModeIndicator('employee');
-    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10';
+    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.1';
     
     // Clear URL parameters
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -2025,7 +2035,7 @@ function updateAdminFilters() {
         Array.from(categories).sort().forEach(cat => {
             const option = document.createElement('option');
             option.value = cat;
-            option.textContent = cat;
+            option.textContent = formatCategoryForDisplay(cat);
             categoryFilter.appendChild(option);
         });
     }
@@ -2047,7 +2057,7 @@ function displayAdminData() {
         html += `<tr>
             <td>${entry.employee}</td>
             <td>${entry.date}</td>
-            <td>${entry.category}</td>
+            <td>${formatCategoryForDisplay(entry.category)}</td>
             <td>${entry.project}</td>
             <td>${entry.duration.toFixed(1)}h</td>
         </tr>`;
@@ -2310,10 +2320,6 @@ function exportAccess() {
     showStatus('Access export coming soon', 'info');
 }
 
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
-
 function parseCSVLine(line) {
     const result = [];
     let current = '';
@@ -2405,7 +2411,7 @@ function saveTimeEntries() {
             allEntries: allTimeEntries,
             employeeEntries: employeeEntries,
             lastUpdate: new Date().toISOString(),
-            version: '1.1.10'
+            version: '1.1.10.1'
         };
         localStorage.setItem('unifiedTimeEntries', JSON.stringify(dataToSave));
     } catch (e) {
@@ -2511,7 +2517,7 @@ if (typeof window !== 'undefined') {
         return key;
     };
     
-    console.log('Time Tracker Functions v1.1.10 loaded successfully');
+    console.log('Time Tracker Functions v1.1.10.1 loaded successfully');
     console.log('toggleTimer function available:', typeof window.toggleTimer);
     console.log('Admin access: Add ?setup=maintenance or ?config=x7k9m to URL');
     console.log('Generate license keys: generateKeyForCustomer("Company Name")');
@@ -2519,6 +2525,6 @@ if (typeof window !== 'undefined') {
     console.error('Window object not available');
 }
 
-console.log('Time Tracker Functions v1.1.10 loaded successfully');
+console.log('Time Tracker Functions v1.1.10.1 loaded successfully');
 console.log('Admin access: Add ?setup=maintenance or ?config=x7k9m to URL');
 console.log('Generate license keys: generateKeyForCustomer("Company Name")');
