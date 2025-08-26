@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Employee Time Tracker v1.1.10</title>
+    <title id="pageTitle">Employee Time Tracker v1.1.10.1</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234facfe'><circle cx='12' cy='12' r='10' stroke='%23667eea' stroke-width='2' fill='%234facfe'/><path d='M12 6v6l4 2' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>">
     <link rel="stylesheet" href="time_tracker_styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -337,7 +337,7 @@
         </div>
 
         <div class="footer">
-            <p class="credits">Unified Time Tracker v1.1.10 | Created: August 24, 2025 PST | Philippe Addelia</p>
+            <p class="credits">Unified Time Tracker v1.1.10.1 | Created: August 24, 2025 PST | Philippe Addelia</p>
         </div>
     </div>
 
@@ -378,7 +378,7 @@
                 </div>
 
                 <div class="license-section" style="background: #f8f9fa; border-color: #dee2e6;">
-                    <h3><span style="margin-right: 10px;">🔐</span>Activate License</h3>
+                    <h3><span style="margin-right: 10px;">🔑</span>Activate License</h3>
                     <p style="margin-bottom: 15px;">Enter your license details to activate:</p>
                     
                     <div class="license-form">
@@ -411,31 +411,8 @@
                     <span style="color: #0c5460;">These settings affect both the Admin Console AND the Employee Time Tracker in this unified application. Changes here will be reflected immediately.</span>
                 </div>
 
+                <!-- 1. Company Settings (First) -->
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #495057; margin-bottom: 15px;">Holiday Configuration</h3>
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                        <p style="margin-bottom: 10px;"><strong>Current Configuration:</strong> <span id="currentHolidayConfigName">Default 2025 Holidays</span></p>
-                        <p style="color: #6c757d; font-size: 0.9rem;">The system uses company holidays that employees can select for their timesheets. Custom holiday configurations can be loaded via CSV files.</p>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <button class="btn btn-secondary" onclick="exportHolidaysConfig()" style="padding: 8px 16px; font-size: 14px;">
-                            Export Holidays
-                        </button>
-                        <button class="btn btn-secondary" onclick="document.getElementById('holidaysImportFile').click()" style="padding: 8px 16px; font-size: 14px;">
-                            Import Holidays
-                        </button>
-                        <button class="btn btn-secondary" onclick="downloadHolidayTemplate()" style="padding: 8px 16px; font-size: 14px;">
-                            Download Template
-                        </button>
-                    </div>
-                    <input type="file" id="holidaysImportFile" accept=".csv" style="display: none;" onchange="importHolidaysConfig(event)">
-                    
-                    <div style="background: #e7f3ff; padding: 12px; border-radius: 6px; border-left: 4px solid #0070ba;">
-                        <strong style="color: #004085;">CSV Format:</strong> 
-                        <span style="color: #004085;">ID, Date, Name, Type, Description</span>
-                    </div>
-                </div>
                     <h3 style="color: #495057; margin-bottom: 15px;">Company Settings</h3>
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600;">
@@ -446,19 +423,7 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #495057; margin-bottom: 15px;">Employee Permissions</h3>
-                    <p style="margin-bottom: 15px; color: #6c757d;">Control what employees can do with their time entries in the employee interface:</p>
-                    <label style="display: block; margin: 10px 0;">
-                        <input type="checkbox" id="allowEmployeeEdit" checked>
-                        <span style="margin-left: 8px;">Allow employees to edit their own entries</span>
-                    </label>
-                    <label style="display: block; margin: 10px 0;">
-                        <input type="checkbox" id="allowEmployeeDelete" checked>
-                        <span style="margin-left: 8px;">Allow employees to delete their own entries</span>
-                    </label>
-                </div>
-
+                <!-- 2. Pay Period Configuration (Second) -->
                 <div style="margin-bottom: 30px;">
                     <h3 style="color: #495057; margin-bottom: 15px;">Pay Period Configuration</h3>
                     <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
@@ -466,7 +431,7 @@
                         <p style="color: #6c757d; font-size: 0.9rem;">The system uses predefined bi-weekly pay periods. Custom pay period configurations can be loaded via CSV files.</p>
                     </div>
                     
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
                         <button class="btn btn-secondary" onclick="exportPayPeriodsConfig()" style="padding: 8px 16px; font-size: 14px;">
                             Export Config
                         </button>
@@ -485,6 +450,48 @@
                     </div>
                 </div>
 
+                <!-- 3. Holiday Configuration (Third - After Pay Periods) -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #495057; margin-bottom: 15px;">Holiday Configuration</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <p style="margin-bottom: 10px;"><strong>Current Configuration:</strong> <span id="currentHolidayConfigName">Default 2025 Holidays</span></p>
+                        <p style="color: #6c757d; font-size: 0.9rem;">The system uses company holidays that employees can select for their timesheets. Custom holiday configurations can be loaded via CSV files.</p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="exportHolidaysConfig()" style="padding: 8px 16px; font-size: 14px;">
+                            Export Holidays
+                        </button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('holidaysImportFile').click()" style="padding: 8px 16px; font-size: 14px;">
+                            Import Holidays
+                        </button>
+                        <button class="btn btn-secondary" onclick="downloadHolidayTemplate()" style="padding: 8px 16px; font-size: 14px;">
+                            Download Template
+                        </button>
+                    </div>
+                    <input type="file" id="holidaysImportFile" accept=".csv" style="display: none;" onchange="importHolidaysConfig(event)">
+                    
+                    <div style="background: #e7f3ff; padding: 12px; border-radius: 6px; border-left: 4px solid #0070ba;">
+                        <strong style="color: #004085;">CSV Format:</strong> 
+                        <span style="color: #004085;">ID, Date, Name, Type, Description</span>
+                    </div>
+                </div>
+
+                <!-- 4. Employee Permissions (Fourth) -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #495057; margin-bottom: 15px;">Employee Permissions</h3>
+                    <p style="margin-bottom: 15px; color: #6c757d;">Control what employees can do with their time entries in the employee interface:</p>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="allowEmployeeEdit" checked>
+                        <span style="margin-left: 8px;">Allow employees to edit their own entries</span>
+                    </label>
+                    <label style="display: block; margin: 10px 0;">
+                        <input type="checkbox" id="allowEmployeeDelete" checked>
+                        <span style="margin-left: 8px;">Allow employees to delete their own entries</span>
+                    </label>
+                </div>
+
+                <!-- 5. License Status (Last) -->
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: #495057; margin-bottom: 15px;">License Status</h3>
                     <div style="padding: 10px; background: #f8f9fa; border-radius: 6px;">
@@ -505,7 +512,9 @@
                     <span style="color: #856404;">These settings are saved locally and will persist across sessions.</span>
                 </div>
             </div>
-            <div class="modal-buttons">
+            
+            <!-- Fixed Modal Buttons - Always at bottom within the modal -->
+            <div class="modal-buttons" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
                 <button class="btn btn-success" onclick="saveConfiguration()">Save Configuration</button>
                 <button class="btn btn-danger" onclick="resetToDefaults()">Reset to Defaults</button>
                 <button class="btn btn-secondary" onclick="closeConfigureModal()">Cancel</button>
