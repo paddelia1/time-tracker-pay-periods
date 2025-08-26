@@ -358,6 +358,9 @@ function updateModeIndicator(mode) {
             if (pageSubtitle) pageSubtitle.textContent = 'Admin Console';
             if (headerSubtitle) headerSubtitle.style.display = 'none';
             if (employeeControls) employeeControls.style.display = 'none';
+            // Hide pay period info initially in admin mode
+            const payPeriodInfo = document.getElementById('payPeriodInfo');
+            if (payPeriodInfo) payPeriodInfo.style.display = 'none';
             break;
         case 'enrollment':
             indicator.textContent = 'Admin Setup';
@@ -375,6 +378,11 @@ function updateModeIndicator(mode) {
             if (pageSubtitle) pageSubtitle.textContent = 'Employee Time Tracker';
             if (headerSubtitle) headerSubtitle.style.display = 'none'; // Hide subtitle
             if (employeeControls) employeeControls.style.display = 'grid';
+            // Refresh pay period display for employee mode (with button if needed)
+            if (selectedPayPeriod) {
+                updatePayPeriodHolidaysDisplay();
+            }
+            break;
     }
     
     console.log(`Mode indicator updated to: ${mode}`);
@@ -568,9 +576,12 @@ function updatePayPeriodHolidaysDisplay() {
             const holidayNames = holidays.map(h => h.name).join(', ');
             holidaysDisplay.textContent = holidayNames;
             
-            if (holidayButton) {
+            // Show button only in employee mode
+            if (holidayButton && currentMode === 'employee') {
                 holidayButton.style.display = 'inline-block';
                 holidayButton.textContent = `Select Holidays (${holidays.length})`;
+            } else if (holidayButton) {
+                holidayButton.style.display = 'none';
             }
         } else {
             holidaysDisplay.textContent = 'No holidays in this period';
@@ -578,6 +589,57 @@ function updatePayPeriodHolidaysDisplay() {
                 holidayButton.style.display = 'none';
             }
         }
+    }
+}
+
+// NEW: Show pay period info for admin mode (informational only)
+function showPayPeriodInfoForAdmin(payPeriod) {
+    if (!payPeriod) return;
+    
+    const info = document.getElementById('payPeriodInfo');
+    if (info) {
+        const periodRange = document.getElementById('periodRange');
+        const timesheetDue = document.getElementById('timesheetDue');
+        const payDay = document.getElementById('payDay');
+        const daysRemaining = document.getElementById('daysRemaining');
+        const holidaysDisplay = document.getElementById('periodHolidays');
+        const holidayButton = document.getElementById('holidayButton');
+        
+        if (periodRange) {
+            periodRange.textContent = `${payPeriod.periodStart} to ${payPeriod.periodEnd}`;
+        }
+        if (timesheetDue) {
+            timesheetDue.textContent = payPeriod.timesheetDue;
+        }
+        if (payDay) {
+            payDay.textContent = payPeriod.payDay;
+        }
+        if (daysRemaining) {
+            // Calculate days remaining
+            const dueDate = new Date(payPeriod.timesheetDue);
+            const today = new Date();
+            const diffTime = dueDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            daysRemaining.textContent = diffDays > 0 ? diffDays : 0;
+        }
+        
+        // Show holidays info (admin mode - informational only, no button)
+        if (holidaysDisplay) {
+            const holidays = getHolidaysForPayPeriod(payPeriod);
+            if (holidays.length > 0) {
+                const holidayNames = holidays.map(h => h.name).join(', ');
+                holidaysDisplay.textContent = holidayNames;
+            } else {
+                holidaysDisplay.textContent = 'No holidays in this period';
+            }
+        }
+        
+        // Hide holiday button in admin mode
+        if (holidayButton) {
+            holidayButton.style.display = 'none';
+        }
+        
+        info.style.display = 'grid';
     }
 }
 
@@ -928,7 +990,7 @@ function setSelectedPayPeriod() {
                 daysRemaining.textContent = diffDays > 0 ? diffDays : 0;
             }
             
-            info.style.display = 'flex';
+            info.style.display = 'grid';
         }
         
         // Update holiday display
@@ -2087,6 +2149,24 @@ function handleFileImport(event) {
 
 function applyFilters() {
     filteredEntries = allTimeEntries.slice();
+    
+    // Check if a pay period is selected and update the pay period info display
+    const payPeriodFilter = document.getElementById('payPeriodFilter');
+    if (payPeriodFilter && payPeriodFilter.value && currentMode === 'admin') {
+        // Find the selected pay period and show its info
+        const selectedPeriodId = payPeriodFilter.value;
+        const selectedPeriod = payPeriodsConfig?.payPeriods?.find(p => p.id === selectedPeriodId);
+        if (selectedPeriod) {
+            showPayPeriodInfoForAdmin(selectedPeriod);
+        }
+    } else if (currentMode === 'admin') {
+        // Hide pay period info if no period selected
+        const info = document.getElementById('payPeriodInfo');
+        if (info) {
+            info.style.display = 'none';
+        }
+    }
+    
     updateAdminStats();
     displayAdminData();
 }
@@ -2099,6 +2179,15 @@ function resetFilters() {
             element.value = '';
         }
     });
+    
+    // Hide pay period info when filters are reset in admin mode
+    if (currentMode === 'admin') {
+        const info = document.getElementById('payPeriodInfo');
+        if (info) {
+            info.style.display = 'none';
+        }
+    }
+    
     applyFilters();
 }
 
@@ -2308,7 +2397,30 @@ function clearAllData() {
 }
 
 function setCurrentPayPeriod() {
-    showStatus('Current pay period filter applied', 'info');
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+        // Find current pay period
+        const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
+            return today >= period.periodStart && today <= period.periodEnd;
+        });
+        
+        if (currentPeriod) {
+            // In admin mode, set the filter and show pay period info
+            if (currentMode === 'admin') {
+                const payPeriodFilter = document.getElementById('payPeriodFilter');
+                if (payPeriodFilter) {
+                    payPeriodFilter.value = currentPeriod.id;
+                    showPayPeriodInfoForAdmin(currentPeriod);
+                    applyFilters();
+                }
+            }
+            
+            showStatus(`Current pay period selected: ${currentPeriod.description}`, 'info');
+        } else {
+            showStatus('No current pay period found', 'info');
+        }
+    }
 }
 
 function exportExcel() {

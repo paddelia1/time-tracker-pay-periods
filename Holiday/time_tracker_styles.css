@@ -316,6 +316,7 @@ body {
     transition: all 0.3s ease;
     white-space: nowrap;
     flex-shrink: 0; /* Don't shrink button */
+    margin-top: 2px;
 }
 
 .holiday-button:hover {
@@ -1078,13 +1079,19 @@ body {
     
     /* Mobile Pay Period Info - Stack Vertically */
     .pay-period-info {
-        flex-direction: column;
-        gap: 8px;
-        align-items: stretch;
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
     
     .pay-period-detail {
+        flex-direction: row;
         justify-content: space-between;
+        text-align: left;
+    }
+    
+    .pay-period-detail .label {
+        margin-bottom: 0;
+        margin-right: 10px;
     }
     
     .pay-period-detail .value {
@@ -1092,17 +1099,25 @@ body {
     }
     
     .holiday-section {
+        flex-direction: row;
         justify-content: space-between;
+        text-align: left;
+    }
+    
+    .holiday-section .label {
+        margin-bottom: 0;
+        margin-right: 10px;
     }
     
     .holiday-section .value {
-        max-width: none; /* Remove width limit on mobile */
+        max-width: none;
+        margin-bottom: 0;
     }
     
     .holiday-button {
         font-size: 0.7rem;
         padding: 3px 6px;
-        margin-left: auto;
+        margin-left: 8px;
     }
     
     /* Mobile employee mode adjustments */
