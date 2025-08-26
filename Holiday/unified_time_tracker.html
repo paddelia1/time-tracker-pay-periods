@@ -315,6 +315,16 @@
                         <h3>Admin Device Enrollment</h3>
                         <p>This one-time setup will register your device for admin access. You'll be prompted to set up a PIN or use biometric authentication.</p>
                         
+                        <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <strong>Troubleshooting:</strong>
+                            <ul style="margin: 10px 0 0 20px;">
+                                <li>If you previously enrolled and it's not working, your credential may be corrupted</li>
+                                <li>Clear your browser data or use the reset function in console</li>
+                                <li>Make sure you're using the same browser and device as before</li>
+                                <li>Check browser console (F12) for detailed error messages</li>
+                            </ul>
+                        </div>
+                        
                         <div id="enrollmentStatus" class="status-message"></div>
                         
                         <button id="enrollBtn" class="btn btn-primary" onclick="enrollAdminDevice()" style="margin: 20px 0;">
@@ -330,6 +340,12 @@
 
                         <div style="margin-top: 30px;">
                             <button class="btn btn-secondary" onclick="exitToEmployee()">Return to Employee Mode</button>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9rem; color: #6c757d;">
+                            <strong>Console Commands:</strong><br>
+                            <code>debugAdminAccess()</code> - Show debug information<br>
+                            <code>resetAdminCredential()</code> - Clear stored credential to start over
                         </div>
                     </div>
                 </div>
