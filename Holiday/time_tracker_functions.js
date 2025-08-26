@@ -358,9 +358,23 @@ function updateModeIndicator(mode) {
             if (pageSubtitle) pageSubtitle.textContent = 'Admin Console';
             if (headerSubtitle) headerSubtitle.style.display = 'none';
             if (employeeControls) employeeControls.style.display = 'none';
-            // Hide pay period info initially in admin mode
-            const payPeriodInfo = document.getElementById('payPeriodInfo');
-            if (payPeriodInfo) payPeriodInfo.style.display = 'none';
+            
+            // Show current pay period info if available (for visual consistency)
+            setTimeout(() => {
+                const today = new Date().toISOString().split('T')[0];
+                if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+                    const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
+                        return today >= period.periodStart && today <= period.periodEnd;
+                    });
+                    if (currentPeriod) {
+                        const payPeriodFilter = document.getElementById('payPeriodFilter');
+                        if (payPeriodFilter) {
+                            payPeriodFilter.value = currentPeriod.id;
+                            showPayPeriodInfoForAdmin(currentPeriod);
+                        }
+                    }
+                }
+            }, 100);
             break;
         case 'enrollment':
             indicator.textContent = 'Admin Setup';
@@ -381,6 +395,10 @@ function updateModeIndicator(mode) {
             // Refresh pay period display for employee mode (with button if needed)
             if (selectedPayPeriod) {
                 updatePayPeriodHolidaysDisplay();
+                const info = document.getElementById('payPeriodInfo');
+                if (info) {
+                    info.style.display = 'grid';
+                }
             }
             break;
     }
@@ -1867,7 +1885,26 @@ function enterAdminMode() {
     showSection('adminSection');
     updateModeIndicator('admin');
     document.getElementById('pageTitle').textContent = 'Time Tracker Admin Console v1.1.10.1';
+    
+    // Initialize admin data and try to show current pay period info
     refreshAdminData();
+    
+    // Try to auto-select current pay period for better UX
+    const today = new Date().toISOString().split('T')[0];
+    if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+        const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
+            return today >= period.periodStart && today <= period.periodEnd;
+        });
+        
+        if (currentPeriod) {
+            const payPeriodFilter = document.getElementById('payPeriodFilter');
+            if (payPeriodFilter) {
+                payPeriodFilter.value = currentPeriod.id;
+                showPayPeriodInfoForAdmin(currentPeriod);
+            }
+        }
+    }
+    
     showStatus('Admin access granted', 'success');
 }
 
@@ -2153,13 +2190,18 @@ function applyFilters() {
     // Check if a pay period is selected and update the pay period info display
     const payPeriodFilter = document.getElementById('payPeriodFilter');
     if (payPeriodFilter && payPeriodFilter.value && currentMode === 'admin') {
+        console.log('Admin mode: Pay period filter has value:', payPeriodFilter.value);
         // Find the selected pay period and show its info
         const selectedPeriodId = payPeriodFilter.value;
         const selectedPeriod = payPeriodsConfig?.payPeriods?.find(p => p.id === selectedPeriodId);
         if (selectedPeriod) {
+            console.log('Found selected period, showing info for:', selectedPeriod.description);
             showPayPeriodInfoForAdmin(selectedPeriod);
+        } else {
+            console.log('Selected period not found in config');
         }
     } else if (currentMode === 'admin') {
+        console.log('Admin mode: No pay period selected, hiding pay period info');
         // Hide pay period info if no period selected
         const info = document.getElementById('payPeriodInfo');
         if (info) {
@@ -2412,14 +2454,26 @@ function setCurrentPayPeriod() {
                 if (payPeriodFilter) {
                     payPeriodFilter.value = currentPeriod.id;
                     showPayPeriodInfoForAdmin(currentPeriod);
-                    applyFilters();
+                    // Apply filters to refresh the data display
+                    filteredEntries = allTimeEntries.slice();
+                    updateAdminStats();
+                    displayAdminData();
                 }
             }
             
             showStatus(`Current pay period selected: ${currentPeriod.description}`, 'info');
         } else {
             showStatus('No current pay period found', 'info');
+            // Hide pay period info if no current period
+            if (currentMode === 'admin') {
+                const info = document.getElementById('payPeriodInfo');
+                if (info) {
+                    info.style.display = 'none';
+                }
+            }
         }
+    } else {
+        showStatus('No pay period configuration available', 'error');
     }
 }
 
@@ -2659,11 +2713,46 @@ if (typeof window !== 'undefined') {
         console.log('=== End Debug Info ===');
     };
     
+    window.debugPayPeriodInfo = function() {
+        const info = document.getElementById('payPeriodInfo');
+        const payPeriodFilter = document.getElementById('payPeriodFilter');
+        
+        console.log('=== Pay Period Info Debug ===');
+        console.log('Pay period info element exists:', !!info);
+        console.log('Pay period info display style:', info ? info.style.display : 'N/A');
+        console.log('Pay period filter exists:', !!payPeriodFilter);
+        console.log('Pay period filter value:', payPeriodFilter ? payPeriodFilter.value : 'N/A');
+        console.log('Current mode:', currentMode);
+        console.log('Pay periods config loaded:', !!payPeriodsConfig);
+        if (payPeriodsConfig) {
+            console.log('Number of pay periods:', payPeriodsConfig.payPeriods ? payPeriodsConfig.payPeriods.length : 0);
+        }
+        
+        // Try to manually show current period
+        const today = new Date().toISOString().split('T')[0];
+        if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+            const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
+                return today >= period.periodStart && today <= period.periodEnd;
+            });
+            console.log('Current period found:', currentPeriod ? currentPeriod.description : 'None');
+            
+            if (currentPeriod && currentMode === 'admin') {
+                console.log('Attempting to show pay period info for admin...');
+                if (payPeriodFilter) {
+                    payPeriodFilter.value = currentPeriod.id;
+                }
+                showPayPeriodInfoForAdmin(currentPeriod);
+            }
+        }
+        console.log('=== End Debug ===');
+    };
+    
     console.log('Time Tracker Functions v1.1.10.1 loaded successfully');
     console.log('toggleTimer function available:', typeof window.toggleTimer);
     console.log('Admin access: Add ?setup=maintenance or ?config=x7k9m to URL');
     console.log('Generate license keys: generateKeyForCustomer("Company Name")');
     console.log('Debug admin issues: debugAdminAccess() or resetAdminCredential()');
+    console.log('Debug pay period display: debugPayPeriodInfo()');
 } else {
     console.error('Window object not available');
 }
@@ -2672,3 +2761,4 @@ console.log('Time Tracker Functions v1.1.10.1 loaded successfully');
 console.log('Admin access: Add ?setup=maintenance or ?config=x7k9m to URL');
 console.log('Generate license keys: generateKeyForCustomer("Company Name")');
 console.log('Debug admin issues: debugAdminAccess() or resetAdminCredential()');
+console.log('Debug pay period display: debugPayPeriodInfo()');
