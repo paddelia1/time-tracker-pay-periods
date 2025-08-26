@@ -1,8 +1,9 @@
 /*
-Time Tracker Styles v1.1.10
+Time Tracker Styles v1.1.10.1
 Author: Philippe Addelia
 Company: CAND, LLC
 Created: August 25, 2025 PST
+Modified: August 26, 2025 PST
 Purpose: Styling for Employee Time Tracker - Unified Version
 */
 
@@ -239,50 +240,74 @@ body {
     background: rgba(255,255,255,0.9);
 }
 
+/* FIXED: Pay Period Info - Single Row Layout */
 .pay-period-info {
     background: rgba(255,255,255,0.1);
     padding: 15px;
     border-radius: 8px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(5, 1fr); /* Fixed 5 columns for 5 items */
     gap: 15px;
     margin-bottom: 15px;
+    align-items: center;
 }
 
 .pay-period-detail {
     display: flex;
     align-items: center;
     gap: 10px;
+    min-width: 0; /* Allow shrinking */
 }
 
 .pay-period-detail .label {
     font-size: 0.9rem;
     opacity: 0.9;
+    white-space: nowrap; /* Prevent label wrapping */
 }
 
 .pay-period-detail .value {
     font-weight: 600;
+    font-size: 0.9rem; /* Slightly smaller to fit better */
 }
 
-/* Holiday Section Styles */
+/* FIXED: Holiday Section - Same Level as Other Items */
 .holiday-section {
-    grid-column: 1 / -1;
+    /* Remove grid-column: 1 / -1 to NOT span full width */
     display: flex;
     align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
+    gap: 8px; /* Reduced gap */
+    flex-wrap: nowrap; /* Prevent wrapping */
+    min-width: 0; /* Allow shrinking */
 }
 
+.holiday-section .label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    white-space: nowrap;
+}
+
+.holiday-section .value {
+    font-weight: 600;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 120px; /* Limit width to prevent overflow */
+}
+
+/* Holiday Button Styling */
 .holiday-button {
     background: rgba(255,193,7,0.8);
     color: #856404;
     border: none;
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 0.85rem;
+    padding: 4px 8px; /* Smaller padding */
+    border-radius: 12px; /* Smaller radius */
+    font-size: 0.75rem; /* Smaller font */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0; /* Don't shrink button */
 }
 
 .holiday-button:hover {
@@ -1041,6 +1066,25 @@ body {
 
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+    
+    /* Mobile Pay Period Info - Stack Vertically */
+    .pay-period-info {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .pay-period-detail .value {
+        font-size: 0.85rem;
+    }
+    
+    .holiday-section .value {
+        max-width: none; /* Remove width limit on mobile */
+    }
+    
+    .holiday-button {
+        font-size: 0.7rem;
+        padding: 3px 6px;
     }
     
     /* Mobile employee mode adjustments */
