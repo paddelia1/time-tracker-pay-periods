@@ -243,56 +243,56 @@ body {
 /* FIXED: Pay Period Info - Single Row Layout */
 .pay-period-info {
     background: rgba(255,255,255,0.1);
-    padding: 15px;
+    padding: 12px;
     border-radius: 8px;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); /* Fixed 5 columns for 5 items */
-    gap: 15px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
     margin-bottom: 15px;
     align-items: center;
+    overflow-x: auto; /* Allow horizontal scroll if needed */
 }
 
 .pay-period-detail {
     display: flex;
     align-items: center;
-    gap: 10px;
-    min-width: 0; /* Allow shrinking */
+    gap: 5px;
+    white-space: nowrap;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .pay-period-detail .label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     opacity: 0.9;
-    white-space: nowrap; /* Prevent label wrapping */
+    font-weight: 500;
 }
 
 .pay-period-detail .value {
-    font-weight: 600;
-    font-size: 0.9rem; /* Slightly smaller to fit better */
+    font-weight: 700;
+    font-size: 0.85rem;
 }
 
 /* FIXED: Holiday Section - Same Level as Other Items */
 .holiday-section {
-    /* Remove grid-column: 1 / -1 to NOT span full width */
     display: flex;
     align-items: center;
-    gap: 8px; /* Reduced gap */
-    flex-wrap: nowrap; /* Prevent wrapping */
-    min-width: 0; /* Allow shrinking */
+    gap: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .holiday-section .label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     opacity: 0.9;
-    white-space: nowrap;
+    font-weight: 500;
 }
 
 .holiday-section .value {
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 120px; /* Limit width to prevent overflow */
 }
 
 /* Holiday Button Styling */
@@ -1070,12 +1070,21 @@ body {
     
     /* Mobile Pay Period Info - Stack Vertically */
     .pay-period-info {
-        grid-template-columns: 1fr;
-        gap: 10px;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    
+    .pay-period-detail {
+        justify-content: space-between;
     }
     
     .pay-period-detail .value {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+    }
+    
+    .holiday-section {
+        justify-content: space-between;
     }
     
     .holiday-section .value {
@@ -1085,6 +1094,7 @@ body {
     .holiday-button {
         font-size: 0.7rem;
         padding: 3px 6px;
+        margin-left: auto;
     }
     
     /* Mobile employee mode adjustments */
