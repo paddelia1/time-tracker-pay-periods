@@ -52,6 +52,57 @@
                     <input type="date" id="periodEnd">
                 </div>
             </div>
+
+            <!-- Admin Header Controls -->
+            <div class="header-controls" id="adminControls" style="display: none;">
+                <div class="form-group">
+                    <label for="payPeriodFilter">Pay Period:</label>
+                    <select id="payPeriodFilter" onchange="applyFilters()">
+                        <option value="">All Pay Periods</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="employeeFilter">Employee:</label>
+                    <select id="employeeFilter" onchange="applyFilters()">
+                        <option value="">All Employees</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectFilter">Project:</label>
+                    <select id="projectFilter" onchange="applyFilters()">
+                        <option value="">All Projects</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="categoryFilter">Category:</label>
+                    <select id="categoryFilter" onchange="applyFilters()">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate" onchange="applyFilters()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate" onchange="applyFilters()">
+                </div>
+                
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="header-button reset" onclick="resetFilters()">Reset Filters</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="header-button current" onclick="setCurrentPayPeriod()">Current Period</button>
+                </div>
+            </div>
         </div>
 
         <!-- Pay Period Info - Shared between Employee and Admin -->
@@ -206,45 +257,6 @@
                             </button>
                         </div>
                         <div id="analysisStatus" class="status-message"></div>
-                    </div>
-                </div>
-
-                <div class="filter-controls">
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label for="payPeriodFilter">Pay Period</label>
-                            <select id="payPeriodFilter" onchange="applyFilters()">
-                                <option value="">All Pay Periods</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="employeeFilter">Employee</label>
-                            <select id="employeeFilter" onchange="applyFilters()">
-                                <option value="">All Employees</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="projectFilter">Project</label>
-                            <select id="projectFilter" onchange="applyFilters()">
-                                <option value="">All Projects</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="categoryFilter">Category</label>
-                            <select id="categoryFilter" onchange="applyFilters()">
-                                <option value="">All Categories</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="startDate">Start Date</label>
-                            <input type="date" id="startDate" onchange="applyFilters()">
-                        </div>
-                        <div class="filter-group">
-                            <label for="endDate">End Date</label>
-                            <input type="date" id="endDate" onchange="applyFilters()">
-                        </div>
-                        <button class="primary-button" onclick="resetFilters()">Reset Filters</button>
-                        <button class="primary-button" onclick="setCurrentPayPeriod()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">Current Period</button>
                     </div>
                 </div>
 

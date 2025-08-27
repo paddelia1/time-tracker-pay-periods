@@ -347,6 +347,7 @@ function updateModeIndicator(mode) {
     const pageSubtitle = document.getElementById('pageSubtitle');
     const headerSubtitle = document.getElementById('headerSubtitle');
     const employeeControls = document.getElementById('employeeControls');
+    const adminControls = document.getElementById('adminControls');
     
     if (!indicator) return;
     
@@ -358,6 +359,7 @@ function updateModeIndicator(mode) {
             if (pageSubtitle) pageSubtitle.textContent = 'Admin Console';
             if (headerSubtitle) headerSubtitle.style.display = 'none';
             if (employeeControls) employeeControls.style.display = 'none';
+            if (adminControls) adminControls.style.display = 'grid';
             
             // Show current pay period info if available (for visual consistency)
             setTimeout(() => {
@@ -383,6 +385,7 @@ function updateModeIndicator(mode) {
             if (pageSubtitle) pageSubtitle.textContent = 'Admin Enrollment';
             if (headerSubtitle) headerSubtitle.style.display = 'none';
             if (employeeControls) employeeControls.style.display = 'none';
+            if (adminControls) adminControls.style.display = 'none';
             break;
         default:
             // Employee mode
@@ -392,6 +395,7 @@ function updateModeIndicator(mode) {
             if (pageSubtitle) pageSubtitle.textContent = 'Employee Time Tracker';
             if (headerSubtitle) headerSubtitle.style.display = 'none'; // Hide subtitle
             if (employeeControls) employeeControls.style.display = 'grid';
+            if (adminControls) adminControls.style.display = 'none';
             // Refresh pay period display for employee mode (with button if needed)
             if (selectedPayPeriod) {
                 updatePayPeriodHolidaysDisplay();
@@ -1886,10 +1890,10 @@ function enterAdminMode() {
     updateModeIndicator('admin');
     document.getElementById('pageTitle').textContent = 'Time Tracker Admin Console v1.1.10.1';
     
-    // Initialize admin data and try to show current pay period info
+    // Initialize admin data and populate admin filters
     refreshAdminData();
     
-    // Try to auto-select current pay period for better UX
+    // Auto-select current pay period for better UX
     const today = new Date().toISOString().split('T')[0];
     if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
         const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
@@ -1899,8 +1903,12 @@ function enterAdminMode() {
         if (currentPeriod) {
             const payPeriodFilter = document.getElementById('payPeriodFilter');
             if (payPeriodFilter) {
-                payPeriodFilter.value = currentPeriod.id;
-                showPayPeriodInfoForAdmin(currentPeriod);
+                // Add a small delay to ensure the dropdown is populated
+                setTimeout(() => {
+                    payPeriodFilter.value = currentPeriod.id;
+                    showPayPeriodInfoForAdmin(currentPeriod);
+                    applyFilters();
+                }, 200);
             }
         }
     }

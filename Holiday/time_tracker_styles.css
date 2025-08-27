@@ -35,6 +35,7 @@ body {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     padding: 20px 30px;
     color: white;
+    min-height: auto;
 }
 
 .header-top-row {
@@ -214,8 +215,8 @@ body {
 /* Employee Styles */
 .header-controls {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
     margin-bottom: 15px;
 }
 
@@ -226,18 +227,46 @@ body {
 }
 
 .form-group label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: rgba(255,255,255,0.9);
     font-weight: 600;
 }
 
 .form-group input,
 .form-group select {
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: none;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 13px;
     background: rgba(255,255,255,0.9);
+}
+
+/* Header Buttons for Admin Mode */
+.header-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255,255,255,0.9);
+    color: #667eea;
+}
+
+.header-button:hover {
+    background: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.header-button.current {
+    background: rgba(40, 167, 69, 0.9);
+    color: white;
+}
+
+.header-button.current:hover {
+    background: rgba(40, 167, 69, 1);
 }
 
 /* FIXED: Pay Period Info - Single Row Layout */
@@ -1060,13 +1089,22 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .filter-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
     .header-controls {
         grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    .header-button {
+        width: 100%;
+        margin-top: 5px;
+        padding: 8px 16px;
+        font-size: 14px;
     }
 
     .timer-display {
