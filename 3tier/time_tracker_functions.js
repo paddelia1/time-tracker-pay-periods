@@ -1,5 +1,5 @@
 /*
-Time Tracker Functions v1.1.10.2
+Time Tracker Functions v1.1.10.3
 Author: Philippe Addelia
 Company: CAND, LLC
 Created: August 17, 2025 PST
@@ -208,7 +208,7 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
 
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Time tracker v1.1.10.2 initializing...');
+    console.log('Time tracker v1.1.10.3 initializing...');
     
     // Set mode to employee
     currentMode = 'employee';
@@ -321,9 +321,9 @@ function applyConfiguration() {
     if (pageTitle) {
         const currentTitle = pageTitle.textContent;
         if (currentTitle.includes('Employee')) {
-            pageTitle.textContent = 'Employee Time Tracker v1.1.10.2';
+            pageTitle.textContent = 'Employee Time Tracker v1.1.10.3';
         } else if (currentTitle.includes('Admin')) {
-            pageTitle.textContent = 'Time Tracker Admin Console v1.1.10.2';
+            pageTitle.textContent = 'Time Tracker Admin Console v1.1.10.3';
         }
     }
 }
@@ -655,6 +655,14 @@ function getHolidaysForPayPeriod(payPeriod) {
     });
 }
 
+// FIXED: Format holiday display with date concatenated
+function formatHolidayForDisplay(holiday) {
+    // Format date as MM/DD
+    const dateParts = holiday.date.split('-');
+    const formattedDate = `${dateParts[1]}/${dateParts[2]}`;
+    return `${formattedDate} - ${holiday.name}`;
+}
+
 function updatePayPeriodHolidaysDisplay() {
     if (!selectedPayPeriod) return;
     
@@ -664,8 +672,9 @@ function updatePayPeriodHolidaysDisplay() {
     
     if (holidaysDisplay) {
         if (holidays.length > 0) {
-            const holidayNames = holidays.map(h => h.name).join(', ');
-            holidaysDisplay.textContent = holidayNames;
+            // FIXED: Concatenate date with holiday name
+            const holidayDisplayText = holidays.map(h => formatHolidayForDisplay(h)).join(', ');
+            holidaysDisplay.textContent = holidayDisplayText;
             
             // Show button only in employee mode
             if (holidayButton && currentMode === 'employee') {
@@ -683,7 +692,7 @@ function updatePayPeriodHolidaysDisplay() {
     }
 }
 
-// NEW: Show pay period info for admin mode (informational only)
+// FIXED: Show pay period info for admin mode with date updates
 function showPayPeriodInfoForAdmin(payPeriod) {
     if (!payPeriod) return;
     
@@ -718,8 +727,9 @@ function showPayPeriodInfoForAdmin(payPeriod) {
         if (holidaysDisplay) {
             const holidays = getHolidaysForPayPeriod(payPeriod);
             if (holidays.length > 0) {
-                const holidayNames = holidays.map(h => h.name).join(', ');
-                holidaysDisplay.textContent = holidayNames;
+                // FIXED: Concatenate date with holiday name for admin view too
+                const holidayDisplayText = holidays.map(h => formatHolidayForDisplay(h)).join(', ');
+                holidaysDisplay.textContent = holidayDisplayText;
             } else {
                 holidaysDisplay.textContent = 'No holidays in this period';
             }
@@ -728,6 +738,17 @@ function showPayPeriodInfoForAdmin(payPeriod) {
         // Hide holiday button in admin mode
         if (holidayButton) {
             holidayButton.style.display = 'none';
+        }
+        
+        // FIXED: Update admin date inputs when pay period is selected
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        
+        if (startDateInput) {
+            startDateInput.value = payPeriod.periodStart;
+        }
+        if (endDateInput) {
+            endDateInput.value = payPeriod.periodEnd;
         }
         
         info.style.display = 'grid';
@@ -1178,7 +1199,7 @@ function parsePayPeriodsCSV(csvContent, configName = 'Custom Configuration') {
 
 function exportPayPeriodsConfig() {
     const configData = {
-        version: '1.1.10.2',
+        version: '1.1.10.3',
         exportDate: new Date().toISOString(),
         payPeriodsConfig: payPeriodsConfig
     };
@@ -1770,19 +1791,27 @@ function clearAllEmployeeData() {
 }
 
 // ============================================================================
-// ADMIN ACCESS MANAGEMENT
+// ADMIN ACCESS MANAGEMENT - FIXED
 // ============================================================================
 
 function checkAdminAccess() {
     const urlParams = new URLSearchParams(window.location.search);
     const hash = window.location.hash;
     
+    // FIXED: Check for the specific dev parameter
+    const devParam = urlParams.get('dev');
     const isAdminRequested = urlParams.has('setup') || 
                            hash === '#admin-setup' || 
-                           urlParams.get('config') === 'x7k9m';
+                           urlParams.get('config') === 'x7k9m' ||
+                           devParam === 'ph1l1pp3_c4nd_d3v_2025_x7k9m'; // Added dev key check
     
     if (isAdminRequested) {
-        if (checkWebAuthnSupport()) {
+        // Special handling for dev access - bypass WebAuthn
+        if (devParam === 'ph1l1pp3_c4nd_d3v_2025_x7k9m') {
+            console.log('Dev access granted');
+            isAdminAuthenticated = true;
+            enterAdminMode();
+        } else if (checkWebAuthnSupport()) {
             handleAdminAccess();
         } else {
             showStatus('WebAuthn not supported in this browser', 'error');
@@ -1957,7 +1986,7 @@ function enterAdminMode() {
     currentMode = 'admin';
     showSection('adminSection');
     updateModeIndicator('admin');
-    document.getElementById('pageTitle').textContent = 'Time Tracker Admin Console v1.1.10.2';
+    document.getElementById('pageTitle').textContent = 'Time Tracker Admin Console v1.1.10.3';
     
     // Initialize admin data and populate admin filters
     refreshAdminData();
@@ -1990,7 +2019,7 @@ function exitAdminMode() {
     isAdminAuthenticated = false;
     showSection('employeeSection');
     updateModeIndicator('employee');
-    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.2';
+    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.3';
     
     // Clear URL parameters
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -2000,7 +2029,7 @@ function exitToEmployee() {
     currentMode = 'employee';
     showSection('employeeSection');
     updateModeIndicator('employee');
-    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.2';
+    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.3';
     
     // Clear URL parameters
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -2710,7 +2739,7 @@ function saveTimeEntries() {
             allEntries: allTimeEntries,
             employeeEntries: employeeEntries,
             lastUpdate: new Date().toISOString(),
-            version: '1.1.10.2'
+            version: '1.1.10.3'
         };
         localStorage.setItem('unifiedTimeEntries', JSON.stringify(dataToSave));
     } catch (e) {
@@ -2809,7 +2838,7 @@ if (typeof window !== 'undefined') {
     window.clearLogoUrl = clearLogoUrl;
     window.updateCompanyLogo = updateCompanyLogo;
 
-    // For admin key generation
+    // For admin key generation - used for generating licenses
     window.generateKeyForCustomer = function(customerCompanyName) {
         const key = generateLicenseKey(customerCompanyName);
         console.log(`License Key for "${customerCompanyName}": ${key}`);
@@ -2817,79 +2846,13 @@ if (typeof window !== 'undefined') {
         return key;
     };
     
-    // For debugging admin access issues
-    window.resetAdminCredential = function() {
-        localStorage.removeItem('webauthnCredential');
-        console.log('Admin credential cleared. Reload page with admin URL to re-enroll.');
-        alert('Admin credential cleared. Reload the page with ?setup or ?config=x7k9m to re-enroll your device.');
-    };
-    
-    window.debugAdminAccess = function() {
-        const stored = localStorage.getItem('webauthnCredential');
-        console.log('=== Admin Access Debug Info ===');
-        console.log('WebAuthn Support:', checkWebAuthnSupport());
-        console.log('Stored Credential Exists:', !!stored);
-        console.log('Current Mode:', currentMode);
-        console.log('Is Authenticated:', isAdminAuthenticated);
-        console.log('Current URL:', window.location.href);
-        
-        if (stored) {
-            try {
-                const parsed = JSON.parse(stored);
-                console.log('Credential ID Length:', base64ToArrayBuffer(parsed.rawId).byteLength);
-            } catch (e) {
-                console.log('Credential Parse Error:', e);
-            }
-        }
-        console.log('=== End Debug Info ===');
-    };
-    
-    window.debugPayPeriodInfo = function() {
-        const info = document.getElementById('payPeriodInfo');
-        const payPeriodFilter = document.getElementById('payPeriodFilter');
-        
-        console.log('=== Pay Period Info Debug ===');
-        console.log('Pay period info element exists:', !!info);
-        console.log('Pay period info display style:', info ? info.style.display : 'N/A');
-        console.log('Pay period filter exists:', !!payPeriodFilter);
-        console.log('Pay period filter value:', payPeriodFilter ? payPeriodFilter.value : 'N/A');
-        console.log('Current mode:', currentMode);
-        console.log('Pay periods config loaded:', !!payPeriodsConfig);
-        if (payPeriodsConfig) {
-            console.log('Number of pay periods:', payPeriodsConfig.payPeriods ? payPeriodsConfig.payPeriods.length : 0);
-        }
-        
-        // Try to manually show current period
-        const today = new Date().toISOString().split('T')[0];
-        if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
-            const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
-                return today >= period.periodStart && today <= period.periodEnd;
-            });
-            console.log('Current period found:', currentPeriod ? currentPeriod.description : 'None');
-            
-            if (currentPeriod && currentMode === 'admin') {
-                console.log('Attempting to show pay period info for admin...');
-                if (payPeriodFilter) {
-                    payPeriodFilter.value = currentPeriod.id;
-                }
-                showPayPeriodInfoForAdmin(currentPeriod);
-            }
-        }
-        console.log('=== End Debug ===');
-    };
-    
-    console.log('Time Tracker Functions v1.1.10.2 loaded successfully');
-    console.log('toggleTimer function available:', typeof window.toggleTimer);
-    console.log('Admin access: Add ?setup=maintenance or ?config=x7k9m to URL');
+    console.log('Time Tracker Functions v1.1.10.3 loaded successfully');
+    console.log('Admin access: Add ?dev=ph1l1pp3_c4nd_d3v_2025_x7k9m to URL');
     console.log('Generate license keys: generateKeyForCustomer("Company Name")');
-    console.log('Debug admin issues: debugAdminAccess() or resetAdminCredential()');
-    console.log('Debug pay period display: debugPayPeriodInfo()');
 } else {
     console.error('Window object not available');
 }
 
-console.log('Time Tracker Functions v1.1.10.2 loaded successfully');
-console.log('Admin access: Add ?setup=maintenance or ?config=x7k9m to URL');
+console.log('Time Tracker Functions v1.1.10.3 loaded successfully');
+console.log('Admin access: Add ?dev=ph1l1pp3_c4nd_d3v_2025_x7k9m to URL');
 console.log('Generate license keys: generateKeyForCustomer("Company Name")');
-console.log('Debug admin issues: debugAdminAccess() or resetAdminCredential()');
-console.log('Debug pay period display: debugPayPeriodInfo()');
