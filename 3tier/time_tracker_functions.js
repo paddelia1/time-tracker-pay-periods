@@ -5,7 +5,7 @@ Company: CAND, LLC
 Created: August 17, 2025 PST
 Modified: August 29, 2025 PST
 Preferred location: Modules\Time Tracker\time_tracker_functions.js
-Purpose: JavaScript functionality for Employee Time Tracker - Complete Unified Version with 3-Tier Security
+Purpose: JavaScript functionality for Employee Time Tracker - Complete Unified Version
 */
 
 // Company Configuration
@@ -41,16 +41,6 @@ let invalidCount = 0;
 let storedCredential = null;
 let isAdminAuthenticated = false;
 
-// Developer variables (NEW for v1.1.10.2)
-let isDeveloperAuthenticated = false;
-let developerAccessCount = 0;
-let generatedLicenses = [];
-let developerStats = {
-    totalLicensesGenerated: 0,
-    activeLicenses: 0,
-    lastAccess: null
-};
-
 // Timer variables
 let timerRunning = false;
 let timerStart = null;
@@ -67,13 +57,6 @@ let appConfig = {
     licenseKey: '',
     holidaysConfig: null,
     logoUrl: '' // External logo URL (Imgur, etc.)
-};
-
-// Developer access credentials (VERY SECRET)
-const DEVELOPER_SECRETS = {
-    accessParam: 'ph1l1pp3_c4nd_d3v_2025_x7k9m',
-    password: 'CAND2025DEV!Philippe',
-    confirmationToken: 'timetracker_dev_access_confirmed'
 };
 
 // Default Holidays Configuration
@@ -225,21 +208,20 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
 
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Time tracker v1.1.10.2 initializing...');
+    console.log('Time tracker v1.1.10.2 initializing...');
     
-    // Set mode to employee by default
+    // Set mode to employee
     currentMode = 'employee';
     updateModeIndicator('employee');
     
-    // Load configurations and data
+    // Simple initialization - just load data and settings
     loadAppConfiguration();
     loadPayPeriodsConfig();
-    loadHolidaysConfig();
+    loadHolidaysConfig(); // Load holidays configuration
     loadPersistedData();
     loadEmployeeSettings();
-    loadDeveloperStats(); // NEW: Load developer statistics
     updateDisplay();
-    updateCompanyLogo();
+    updateCompanyLogo(); // Load external logo if configured
     updateEmployeeDisplay();
     setTodayDate();
     
@@ -260,431 +242,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Ensure employee section is visible by default
-    showSection('employeeSection');
+    // Check for admin access only if URL parameters present
+    checkAdminAccess();
     
-    console.log('📋 Basic initialization complete');
-    
-    // Check for access modes (admin or developer) - delayed to ensure DOM is ready
-    setTimeout(() => {
-        console.log('🔍 Checking for special access modes...');
-        checkAccessModes();
-        
-        // Final status check
-        setTimeout(() => {
-            console.log('=== FINAL INITIALIZATION STATUS ===');
-            console.log('Current Mode:', currentMode);
-            console.log('Page Title:', document.getElementById('pageTitle')?.textContent);
-            console.log('Visible Section Check:');
-            ['employeeSection', 'adminSection', 'webauthnEnrollment', 'developerSection', 'developerAuthentication'].forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    const style = window.getComputedStyle(element);
-                    const isVisible = style.display !== 'none' && style.visibility !== 'hidden';
-                    console.log(`  ${id}: ${isVisible ? 'VISIBLE' : 'HIDDEN'}`);
-                }
-            });
-            console.log('=== END INITIALIZATION STATUS ===');
-        }, 200);
-    }, 150);
-    
-    console.log('✅ Time tracker initialization complete');
+    console.log('Time tracker initialization complete');
+    console.log('Employee section should be visible');
 });
-
-// ============================================================================
-// NEW: 3-TIER ACCESS CONTROL SYSTEM
-// ============================================================================
-
-function checkAccessModes() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const hash = window.location.hash;
-    
-    console.log('=== ACCESS MODE CHECK ===');
-    console.log('URL:', window.location.href);
-    console.log('URL Params:', urlParams.toString());
-    console.log('Hash:', hash);
-    console.log('Dev param value:', urlParams.get('dev'));
-    console.log('Config param value:', urlParams.get('config'));
-    console.log('Setup param exists:', urlParams.has('setup'));
-    
-    // Check for developer access first (highest priority)
-    const isDeveloperRequested = urlParams.get('dev') === DEVELOPER_SECRETS.accessParam ||
-                                 hash === '#dev-mode-2025';
-    
-    // Check for admin access
-    const isAdminRequested = urlParams.has('setup') || 
-                           hash === '#admin-setup' || 
-                           urlParams.get('config') === 'x7k9m';
-    
-    console.log('Developer requested:', isDeveloperRequested);
-    console.log('Admin requested:', isAdminRequested);
-    
-    if (isDeveloperRequested) {
-        console.log('🔴 Developer access requested - switching to developer mode');
-        setTimeout(() => handleDeveloperAccess(), 100);
-    } else if (isAdminRequested) {
-        console.log('🔵 Admin access requested - switching to admin mode');
-        if (checkWebAuthnSupport()) {
-            setTimeout(() => handleAdminAccess(), 100);
-        } else {
-            showStatus('WebAuthn not supported in this browser', 'error');
-        }
-    } else {
-        // No special access requested, stay in employee mode
-        console.log('🟢 No special access requested, staying in employee mode');
-    }
-    console.log('=== END ACCESS MODE CHECK ===');
-}
-
-async function handleDeveloperAccess() {
-    console.log('Handling developer access request');
-    currentMode = 'developer-auth';
-    showSection('developerAuthentication');
-    updateModeIndicator('developer');
-    document.getElementById('pageTitle').textContent = 'Time Tracker Developer Console v1.1.10.2';
-    
-    // Increment access attempt counter
-    developerAccessCount++;
-    saveDeveloperStats();
-    
-    showStatus('Developer access detected. Please authenticate to continue.', 'info');
-}
-
-function authenticateDeveloper() {
-    const passwordInput = document.getElementById('devPassword');
-    const confirmationInput = document.getElementById('devConfirmation');
-    const statusEl = document.getElementById('devAuthStatus');
-    
-    if (!passwordInput || !confirmationInput || !statusEl) {
-        console.error('Developer authentication elements not found');
-        return;
-    }
-    
-    const enteredPassword = passwordInput.value.trim();
-    const enteredConfirmation = confirmationInput.value.trim();
-    
-    // Validate credentials
-    if (enteredPassword !== DEVELOPER_SECRETS.password) {
-        statusEl.textContent = 'Invalid developer access code';
-        statusEl.className = 'status-message error';
-        statusEl.style.display = 'block';
-        
-        // Clear form
-        passwordInput.value = '';
-        confirmationInput.value = '';
-        
-        console.warn('Failed developer authentication attempt');
-        return;
-    }
-    
-    if (enteredConfirmation !== DEVELOPER_SECRETS.confirmationToken) {
-        statusEl.textContent = 'Invalid confirmation token';
-        statusEl.className = 'status-message error';
-        statusEl.style.display = 'block';
-        
-        // Clear confirmation only
-        confirmationInput.value = '';
-        
-        console.warn('Failed developer confirmation');
-        return;
-    }
-    
-    // Authentication successful
-    isDeveloperAuthenticated = true;
-    currentMode = 'developer';
-    
-    // Update statistics
-    developerStats.lastAccess = new Date().toISOString();
-    saveDeveloperStats();
-    
-    // Enter developer mode
-    enterDeveloperMode();
-    
-    console.log('Developer authentication successful');
-}
-
-function enterDeveloperMode() {
-    currentMode = 'developer';
-    showSection('developerSection');
-    updateModeIndicator('developer');
-    document.getElementById('pageTitle').textContent = 'Time Tracker Developer Console v1.1.10.2';
-    
-    // Update developer statistics display
-    updateDeveloperStats();
-    
-    // Clear URL parameters for security
-    window.history.replaceState({}, document.title, window.location.pathname);
-    
-    showStatus('Developer mode activated. Welcome, Philippe!', 'success');
-}
-
-function exitDeveloperMode() {
-    isDeveloperAuthenticated = false;
-    currentMode = 'employee';
-    showSection('employeeSection');
-    updateModeIndicator('employee');
-    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.2';
-    
-    // Clear URL parameters
-    window.history.replaceState({}, document.title, window.location.pathname);
-    
-    showStatus('Exited developer mode', 'info');
-}
-
-// ============================================================================
-// DEVELOPER MODE FUNCTIONS
-// ============================================================================
-
-function generateCustomerLicense() {
-    const companyInput = document.getElementById('customerCompanyName');
-    const keyOutput = document.getElementById('customerLicenseKey');
-    const statusEl = document.getElementById('licenseGenStatus');
-    const copyBtn = document.getElementById('copyCustomerBtn');
-    
-    if (!companyInput || !keyOutput) {
-        console.error('Customer license generation elements not found');
-        return;
-    }
-    
-    const companyName = companyInput.value.trim();
-    
-    if (!companyName) {
-        if (statusEl) {
-            statusEl.textContent = 'Please enter a company name';
-            statusEl.className = 'status-message error';
-            statusEl.style.display = 'block';
-        }
-        return;
-    }
-    
-    // Generate license key
-    const licenseKey = generateLicenseKey(companyName);
-    
-    if (licenseKey) {
-        keyOutput.value = licenseKey;
-        
-        // Store generated license for statistics
-        const licenseRecord = {
-            companyName: companyName,
-            licenseKey: licenseKey,
-            generatedDate: new Date().toISOString(),
-            generatedBy: 'Philippe Addelia'
-        };
-        
-        generatedLicenses.push(licenseRecord);
-        developerStats.totalLicensesGenerated++;
-        saveDeveloperStats();
-        
-        if (copyBtn) {
-            copyBtn.style.display = 'inline-block';
-        }
-        
-        if (statusEl) {
-            statusEl.textContent = `License key generated successfully for "${companyName}"`;
-            statusEl.className = 'status-message success';
-            statusEl.style.display = 'block';
-        }
-        
-        // Update developer statistics display
-        updateDeveloperStats();
-        
-        console.log(`License generated: ${companyName} -> ${licenseKey}`);
-    } else {
-        if (statusEl) {
-            statusEl.textContent = 'Error generating license key';
-            statusEl.className = 'status-message error';
-            statusEl.style.display = 'block';
-        }
-    }
-}
-
-function copyCustomerLicense() {
-    const keyOutput = document.getElementById('customerLicenseKey');
-    const statusEl = document.getElementById('licenseGenStatus');
-    
-    if (!keyOutput || !keyOutput.value) {
-        if (statusEl) {
-            statusEl.textContent = 'No license key to copy';
-            statusEl.className = 'status-message error';
-            statusEl.style.display = 'block';
-        }
-        return;
-    }
-    
-    // Copy to clipboard
-    navigator.clipboard.writeText(keyOutput.value).then(() => {
-        if (statusEl) {
-            statusEl.textContent = 'License key copied to clipboard';
-            statusEl.className = 'status-message success';
-            statusEl.style.display = 'block';
-        }
-    }).catch(err => {
-        console.error('Failed to copy license key:', err);
-        if (statusEl) {
-            statusEl.textContent = 'Failed to copy to clipboard';
-            statusEl.className = 'status-message error';
-            statusEl.style.display = 'block';
-        }
-    });
-}
-
-function clearCustomerForm() {
-    const companyInput = document.getElementById('customerCompanyName');
-    const keyOutput = document.getElementById('customerLicenseKey');
-    const copyBtn = document.getElementById('copyCustomerBtn');
-    const statusEl = document.getElementById('licenseGenStatus');
-    
-    if (companyInput) companyInput.value = '';
-    if (keyOutput) keyOutput.value = '';
-    if (copyBtn) copyBtn.style.display = 'none';
-    if (statusEl) statusEl.style.display = 'none';
-}
-
-function updateDeveloperStats() {
-    const elements = {
-        'devTotalLicenses': developerStats.totalLicensesGenerated,
-        'devActiveLicenses': developerStats.activeLicenses,
-        'devAccessCount': developerAccessCount
-    };
-    
-    Object.entries(elements).forEach(([id, value]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value;
-        }
-    });
-}
-
-function loadDeveloperStats() {
-    try {
-        const saved = localStorage.getItem('developerStats');
-        if (saved) {
-            const loaded = JSON.parse(saved);
-            developerStats = Object.assign({}, developerStats, loaded);
-        }
-        
-        const savedLicenses = localStorage.getItem('generatedLicenses');
-        if (savedLicenses) {
-            generatedLicenses = JSON.parse(savedLicenses);
-        }
-        
-        const savedAccessCount = localStorage.getItem('developerAccessCount');
-        if (savedAccessCount) {
-            developerAccessCount = parseInt(savedAccessCount, 10) || 0;
-        }
-    } catch (error) {
-        console.error('Error loading developer stats:', error);
-    }
-}
-
-function saveDeveloperStats() {
-    try {
-        localStorage.setItem('developerStats', JSON.stringify(developerStats));
-        localStorage.setItem('generatedLicenses', JSON.stringify(generatedLicenses));
-        localStorage.setItem('developerAccessCount', developerAccessCount.toString());
-    } catch (error) {
-        console.error('Error saving developer stats:', error);
-    }
-}
-
-// Developer utility functions
-function showSystemLogs() {
-    const logs = {
-        currentMode: currentMode,
-        isAdminAuthenticated: isAdminAuthenticated,
-        isDeveloperAuthenticated: isDeveloperAuthenticated,
-        totalEntries: allTimeEntries.length,
-        employeeEntries: employeeEntries.length,
-        lastAccess: developerStats.lastAccess,
-        licensesGenerated: generatedLicenses.length
-    };
-    
-    console.log('=== SYSTEM LOGS ===', logs);
-    alert('System logs have been written to browser console (F12)');
-}
-
-function exportLicenseData() {
-    const data = {
-        statistics: developerStats,
-        generatedLicenses: generatedLicenses,
-        accessCount: developerAccessCount,
-        exportDate: new Date().toISOString()
-    };
-    
-    const jsonStr = JSON.stringify(data, null, 2);
-    downloadFile(jsonStr, 'license_data_' + new Date().toISOString().split('T')[0] + '.json', 'application/json');
-    showStatus('License data exported successfully', 'success');
-}
-
-function resetDeveloperStats() {
-    if (confirm('Reset all developer statistics? This cannot be undone.')) {
-        developerStats = {
-            totalLicensesGenerated: 0,
-            activeLicenses: 0,
-            lastAccess: null
-        };
-        generatedLicenses = [];
-        developerAccessCount = 0;
-        
-        saveDeveloperStats();
-        updateDeveloperStats();
-        
-        showStatus('Developer statistics reset successfully', 'success');
-    }
-}
-
-function testLicenseValidation() {
-    const testCompany = "TEST COMPANY";
-    const testKey = generateLicenseKey(testCompany);
-    const isValid = validateLicenseKey(testCompany, testKey);
-    
-    console.log('=== LICENSE VALIDATION TEST ===');
-    console.log('Test Company:', testCompany);
-    console.log('Generated Key:', testKey);
-    console.log('Validation Result:', isValid);
-    
-    showStatus(`License validation test: ${isValid ? 'PASSED' : 'FAILED'}`, isValid ? 'success' : 'error');
-}
-
-function viewApplicationLogs() {
-    console.log('=== APPLICATION LOGS ===');
-    console.log('Current Mode:', currentMode);
-    console.log('Time Entries:', allTimeEntries.length);
-    console.log('Employee Entries:', employeeEntries.length);
-    console.log('Pay Periods Config:', payPeriodsConfig);
-    console.log('Holidays Config:', holidaysConfig);
-    console.log('App Config:', appConfig);
-    
-    alert('Application logs have been written to browser console (F12)');
-}
-
-function exportDeveloperReport() {
-    const report = {
-        applicationVersion: 'v1.1.10.2',
-        currentMode: currentMode,
-        statistics: {
-            totalTimeEntries: allTimeEntries.length,
-            employeeEntries: employeeEntries.length,
-            uniqueEmployees: employees.size,
-            uniqueProjects: projects.size,
-            licensesGenerated: developerStats.totalLicensesGenerated,
-            developerAccess: developerAccessCount
-        },
-        configuration: {
-            payPeriodsLoaded: payPeriodsConfig ? payPeriodsConfig.payPeriods.length : 0,
-            holidaysLoaded: holidaysConfig ? holidaysConfig.holidays.length : 0,
-            isLicensed: appConfig.isLicensed,
-            licensedCompany: appConfig.licensedCompany
-        },
-        generatedLicenses: generatedLicenses,
-        exportTimestamp: new Date().toISOString(),
-        exportedBy: 'Philippe Addelia - Developer Console'
-    };
-    
-    const jsonStr = JSON.stringify(report, null, 2);
-    downloadFile(jsonStr, 'developer_report_' + new Date().toISOString().split('T')[0] + '.json', 'application/json');
-    showStatus('Developer report exported successfully', 'success');
-}
 
 // ============================================================================
 // EMPLOYEE SETTINGS MANAGEMENT
@@ -751,7 +314,7 @@ function saveAppConfiguration() {
 function applyConfiguration() {
     updateDisplay();
     updateLicenseWatermark();
-    updateCompanyLogo();
+    updateCompanyLogo(); // Update logo when configuration changes
     
     // Update page title if company name changed
     const pageTitle = document.getElementById('pageTitle');
@@ -761,8 +324,6 @@ function applyConfiguration() {
             pageTitle.textContent = 'Employee Time Tracker v1.1.10.2';
         } else if (currentTitle.includes('Admin')) {
             pageTitle.textContent = 'Time Tracker Admin Console v1.1.10.2';
-        } else if (currentTitle.includes('Developer')) {
-            pageTitle.textContent = 'Time Tracker Developer Console v1.1.10.2';
         }
     }
 }
@@ -788,21 +349,10 @@ function updateModeIndicator(mode) {
     const headerSubtitle = document.getElementById('headerSubtitle');
     const employeeControls = document.getElementById('employeeControls');
     const adminControls = document.getElementById('adminControls');
-    const developerControls = document.getElementById('developerControls'); // NEW
     
     if (!indicator) return;
     
     switch(mode) {
-        case 'developer':
-            indicator.textContent = 'Developer Mode';
-            indicator.className = 'mode-indicator developer';
-            indicator.style.display = 'block';
-            if (pageSubtitle) pageSubtitle.textContent = 'Developer Console';
-            if (headerSubtitle) headerSubtitle.style.display = 'none';
-            if (employeeControls) employeeControls.style.display = 'none';
-            if (adminControls) adminControls.style.display = 'none';
-            if (developerControls) developerControls.style.display = 'grid';
-            break;
         case 'admin':
             indicator.textContent = 'Admin Mode';
             indicator.className = 'mode-indicator admin';
@@ -811,9 +361,8 @@ function updateModeIndicator(mode) {
             if (headerSubtitle) headerSubtitle.style.display = 'none';
             if (employeeControls) employeeControls.style.display = 'none';
             if (adminControls) adminControls.style.display = 'grid';
-            if (developerControls) developerControls.style.display = 'none';
             
-            // Auto-select current pay period for better UX
+            // Show current pay period info if available (for visual consistency)
             setTimeout(() => {
                 const today = new Date().toISOString().split('T')[0];
                 if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
@@ -824,7 +373,6 @@ function updateModeIndicator(mode) {
                         const payPeriodFilter = document.getElementById('payPeriodFilter');
                         if (payPeriodFilter) {
                             payPeriodFilter.value = currentPeriod.id;
-                            updateAdminDateFieldsFromPayPeriod(currentPeriod); // FIXED: Update date fields
                             showPayPeriodInfoForAdmin(currentPeriod);
                         }
                     }
@@ -839,7 +387,6 @@ function updateModeIndicator(mode) {
             if (headerSubtitle) headerSubtitle.style.display = 'none';
             if (employeeControls) employeeControls.style.display = 'none';
             if (adminControls) adminControls.style.display = 'none';
-            if (developerControls) developerControls.style.display = 'none';
             break;
         default:
             // Employee mode
@@ -847,10 +394,9 @@ function updateModeIndicator(mode) {
             indicator.className = 'mode-indicator';
             indicator.style.display = 'none'; // Hide in employee mode
             if (pageSubtitle) pageSubtitle.textContent = 'Employee Time Tracker';
-            if (headerSubtitle) headerSubtitle.style.display = 'none';
+            if (headerSubtitle) headerSubtitle.style.display = 'none'; // Hide subtitle
             if (employeeControls) employeeControls.style.display = 'grid';
             if (adminControls) adminControls.style.display = 'none';
-            if (developerControls) developerControls.style.display = 'none';
             // Refresh pay period display for employee mode (with button if needed)
             if (selectedPayPeriod) {
                 updatePayPeriodHolidaysDisplay();
@@ -901,17 +447,35 @@ function validateLogoUrl(url) {
     
     // Basic URL validation
     try {
-        new URL(url);
+        const urlObj = new URL(url);
+        
+        // Must be HTTPS
+        if (urlObj.protocol !== 'https:') {
+            console.log('Logo URL validation failed: Not HTTPS');
+            return false;
+        }
         
         // Check if it's a common image hosting service
         const lowerUrl = url.toLowerCase();
-        const validHosts = ['imgur.com', 'i.imgur.com', 'github.com', 'githubusercontent.com', 'cloudinary.com'];
+        const validHosts = [
+            'imgur.com', 'i.imgur.com', 
+            'github.com', 'githubusercontent.com', 
+            'cloudinary.com', 'res.cloudinary.com',
+            'images.unsplash.com', 'unsplash.com'
+        ];
         
         const isValidHost = validHosts.some(host => lowerUrl.includes(host));
         const isImageFile = /\.(jpg|jpeg|png|gif|svg|webp)(\?.*)?$/i.test(url);
         
-        return isValidHost || isImageFile;
+        const isValid = isValidHost || isImageFile;
+        
+        if (!isValid) {
+            console.log('Logo URL validation failed: Invalid host or file type');
+        }
+        
+        return isValid;
     } catch (e) {
+        console.log('Logo URL validation failed: Invalid URL format', e);
         return false;
     }
 }
@@ -981,7 +545,7 @@ function testLogoUrl() {
         previewLogo();
     };
     testImg.onerror = function() {
-        showStatus('⌐ Could not load image from this URL', 'error');
+        showStatus('❌ Could not load image from this URL', 'error');
     };
     testImg.src = url;
 }
@@ -1119,24 +683,7 @@ function updatePayPeriodHolidaysDisplay() {
     }
 }
 
-// FIXED: Update admin date fields when pay period is selected
-function updateAdminDateFieldsFromPayPeriod(payPeriod) {
-    if (!payPeriod) return;
-    
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
-    
-    if (startDateInput) {
-        startDateInput.value = payPeriod.periodStart;
-    }
-    if (endDateInput) {
-        endDateInput.value = payPeriod.periodEnd;
-    }
-    
-    console.log(`Admin date fields updated: ${payPeriod.periodStart} to ${payPeriod.periodEnd}`);
-}
-
-// Show pay period info for admin mode (informational only)
+// NEW: Show pay period info for admin mode (informational only)
 function showPayPeriodInfoForAdmin(payPeriod) {
     if (!payPeriod) return;
     
@@ -2226,6 +1773,26 @@ function clearAllEmployeeData() {
 // ADMIN ACCESS MANAGEMENT
 // ============================================================================
 
+function checkAdminAccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    
+    const isAdminRequested = urlParams.has('setup') || 
+                           hash === '#admin-setup' || 
+                           urlParams.get('config') === 'x7k9m';
+    
+    if (isAdminRequested) {
+        if (checkWebAuthnSupport()) {
+            handleAdminAccess();
+        } else {
+            showStatus('WebAuthn not supported in this browser', 'error');
+        }
+    } else {
+        // No admin access requested, ensure we stay in employee mode
+        console.log('No admin access requested, staying in employee mode');
+    }
+}
+
 async function handleAdminAccess() {
     const stored = localStorage.getItem('webauthnCredential');
     
@@ -2245,55 +1812,19 @@ async function handleAdminAccess() {
 }
 
 function showSection(sectionId) {
-    console.log('=== SHOW SECTION ===');
-    console.log('Requested section:', sectionId);
-    
-    // Get all sections
-    const sections = {
-        'employeeSection': document.getElementById('employeeSection'),
-        'adminSection': document.getElementById('adminSection'),
-        'webauthnEnrollment': document.getElementById('webauthnEnrollment'),
-        'developerSection': document.getElementById('developerSection'),
-        'developerAuthentication': document.getElementById('developerAuthentication')
-    };
-    
-    // Log section availability
-    Object.entries(sections).forEach(([name, element]) => {
-        console.log(`${name}:`, element ? 'Found' : 'NOT FOUND');
-    });
-    
     // Hide all sections
-    Object.entries(sections).forEach(([name, element]) => {
-        if (element) {
-            element.style.display = 'none';
-            element.style.visibility = 'hidden';
-            console.log(`Hidden: ${name}`);
-        }
-    });
+    document.getElementById('employeeSection').style.display = 'none';
+    document.getElementById('adminSection').style.display = 'none';
+    document.getElementById('webauthnEnrollment').style.display = 'none';
     
     // Show the target section
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.style.display = 'block';
-        targetSection.style.visibility = 'visible';
-        // Force override any CSS
-        targetSection.style.setProperty('display', 'block', 'important');
-        targetSection.style.setProperty('visibility', 'visible', 'important');
-        console.log('✅ Successfully showing section:', sectionId);
+        console.log('Showing section:', sectionId);
     } else {
-        console.error('❌ Section not found:', sectionId);
+        console.error('Section not found:', sectionId);
     }
-    
-    // Verify the change took effect
-    setTimeout(() => {
-        const finalCheck = document.getElementById(sectionId);
-        if (finalCheck) {
-            const computedStyle = window.getComputedStyle(finalCheck);
-            console.log(`Final check for ${sectionId}: display=${computedStyle.display}, visibility=${computedStyle.visibility}`);
-        }
-    }, 50);
-    
-    console.log('=== END SHOW SECTION ===');
 }
 
 // WebAuthn functions
@@ -2444,7 +1975,6 @@ function enterAdminMode() {
                 // Add a small delay to ensure the dropdown is populated
                 setTimeout(() => {
                     payPeriodFilter.value = currentPeriod.id;
-                    updateAdminDateFieldsFromPayPeriod(currentPeriod); // FIXED: Update date fields
                     showPayPeriodInfoForAdmin(currentPeriod);
                     applyFilters();
                 }, 200);
@@ -2486,7 +2016,7 @@ function showEnrollmentStatus(message, type) {
 }
 
 // ============================================================================
-// LICENSE MANAGEMENT (REMOVED FROM ADMIN - MOVED TO DEVELOPER ONLY)
+// LICENSE MANAGEMENT
 // ============================================================================
 
 function generateLicenseKey(companyName) {
@@ -2531,7 +2061,7 @@ function updateLicenseModalContent() {
         if (keyInput) keyInput.value = appConfig.licenseKey;
     } else {
         if (statusDisplay) {
-            statusDisplay.innerHTML = '<strong>🔓 Free Version (Unlicensed)</strong><br>This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company name.';
+            statusDisplay.innerHTML = '<strong>🔒 Free Version (Unlicensed)</strong><br>This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company name.';
             statusDisplay.className = 'status-message info';
             statusDisplay.style.display = 'block';
         }
@@ -2564,14 +2094,7 @@ function activateLicense() {
         appConfig.isLicensed = true;
         appConfig.licensedCompany = companyName;
         appConfig.licenseKey = licenseKey;
-        appConfig.companyName = companyName;
-        
-        // Update developer stats if in developer mode
-        if (currentMode === 'developer' && isDeveloperAuthenticated) {
-            developerStats.activeLicenses++;
-            saveDeveloperStats();
-            updateDeveloperStats();
-        }
+        appConfig.companyName = companyName; // Also update the general company name setting
         
         saveAppConfiguration();
         updateDisplay();
@@ -2592,13 +2115,6 @@ function resetLicense() {
         appConfig.licensedCompany = '';
         appConfig.licenseKey = '';
         appConfig.companyName = 'CAND, LLC';
-        
-        // Update developer stats if in developer mode
-        if (currentMode === 'developer' && isDeveloperAuthenticated) {
-            developerStats.activeLicenses = Math.max(0, developerStats.activeLicenses - 1);
-            saveDeveloperStats();
-            updateDeveloperStats();
-        }
         
         saveAppConfiguration();
         updateDisplay();
@@ -2730,11 +2246,25 @@ function displayAdminData() {
     dataContent.innerHTML = html;
 }
 
-// FIXED: Enhanced applyFilters function with pay period date field updates
+// Basic admin functions
+function triggerImport() {
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+        fileInput.click();
+    }
+}
+
+function handleFileImport(event) {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
+    showStatus('File import feature coming soon in admin mode', 'info');
+}
+
 function applyFilters() {
     filteredEntries = allTimeEntries.slice();
     
-    // Check if a pay period is selected and update the date fields and pay period info display
+    // Check if a pay period is selected and update the pay period info display
     const payPeriodFilter = document.getElementById('payPeriodFilter');
     if (payPeriodFilter && payPeriodFilter.value && currentMode === 'admin') {
         console.log('Admin mode: Pay period filter has value:', payPeriodFilter.value);
@@ -2742,8 +2272,7 @@ function applyFilters() {
         const selectedPeriodId = payPeriodFilter.value;
         const selectedPeriod = payPeriodsConfig?.payPeriods?.find(p => p.id === selectedPeriodId);
         if (selectedPeriod) {
-            console.log('Found selected period, updating date fields and showing info for:', selectedPeriod.description);
-            updateAdminDateFieldsFromPayPeriod(selectedPeriod); // FIXED: Update the date fields
+            console.log('Found selected period, showing info for:', selectedPeriod.description);
             showPayPeriodInfoForAdmin(selectedPeriod);
         } else {
             console.log('Selected period not found in config');
@@ -2784,6 +2313,10 @@ function resetFilters() {
 function switchView() {
     displayAdminData();
 }
+
+// ============================================================================
+// CONFIGURATION MANAGEMENT FUNCTIONS
+// ============================================================================
 
 function showConfigureApp() {
     // Populate current configuration values
@@ -2853,13 +2386,6 @@ function showConfigureApp() {
     }
 }
 
-function closeConfigureModal() {
-    const modal = document.getElementById('configureModal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-}
-
 function saveConfiguration() {
     // Read values from form
     const companyNameInput = document.getElementById('companyNameInput');
@@ -2907,6 +2433,13 @@ function saveConfiguration() {
     closeConfigureModal();
     
     showStatus('Configuration saved successfully', 'success');
+}
+
+function closeConfigureModal() {
+    const modal = document.getElementById('configureModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
 }
 
 function resetToDefaults() {
@@ -3000,7 +2533,6 @@ function clearAllData() {
     }
 }
 
-// FIXED: Enhanced setCurrentPayPeriod function with date field updates
 function setCurrentPayPeriod() {
     const today = new Date().toISOString().split('T')[0];
     
@@ -3016,7 +2548,6 @@ function setCurrentPayPeriod() {
                 const payPeriodFilter = document.getElementById('payPeriodFilter');
                 if (payPeriodFilter) {
                     payPeriodFilter.value = currentPeriod.id;
-                    updateAdminDateFieldsFromPayPeriod(currentPeriod); // FIXED: Update date fields
                     showPayPeriodInfoForAdmin(currentPeriod);
                     // Apply filters to refresh the data display
                     filteredEntries = allTimeEntries.slice();
@@ -3041,23 +2572,23 @@ function setCurrentPayPeriod() {
     }
 }
 
-// Basic admin functions
-function triggerImport() {
-    const fileInput = document.getElementById('fileInput');
-    if (fileInput) {
-        fileInput.click();
-    }
-}
-
-function handleFileImport(event) {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-    
-    showStatus('File import feature coming soon in admin mode', 'info');
-}
-
 function exportExcel() {
     showStatus('Excel export coming soon', 'info');
+}
+
+function exportCSV() {
+    if (filteredEntries.length === 0) {
+        showStatus('No data to export', 'error');
+        return;
+    }
+    
+    let csv = 'Employee,Date,Category,Project,Start Time,End Time,Duration,Description\n';
+    filteredEntries.forEach(entry => {
+        csv += `"${entry.employee}","${entry.date}","${entry.category}","${entry.project}","${entry.startTime || ''}","${entry.endTime || ''}",${entry.duration},"${entry.description || ''}"\n`;
+    });
+    
+    downloadFile(csv, `admin_timesheet_export_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+    showStatus('Admin data exported to CSV successfully', 'success');
 }
 
 function exportJSON() {
@@ -3067,6 +2598,19 @@ function exportJSON() {
 function exportAccess() {
     showStatus('Access export coming soon', 'info');
 }
+
+function showSampleData() {
+    const sampleCSV = 'Employee,Date,Category,Project,Start Time,End Time,Duration,Description\n' +
+        '"John Doe","2025-08-25","work","Project Alpha","09:00","17:00",8,"Development work"\n' +
+        '"Jane Smith","2025-08-25","overhead","Admin Tasks","13:00","15:00",2,"Team meeting"';
+    
+    downloadFile(sampleCSV, 'sample_timesheet.csv', 'text/csv');
+    showStatus('Sample CSV downloaded', 'success');
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
 
 function parseCSVLine(line) {
     const result = [];
@@ -3149,6 +2693,13 @@ function closeAllModals() {
     });
 }
 
+function closeHolidayModal() {
+    const modal = document.getElementById('holidaySelectionModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
 // ============================================================================
 // DATA PERSISTENCE
 // ============================================================================
@@ -3207,7 +2758,7 @@ if (typeof window !== 'undefined') {
     window.cancelEmployeeEdit = cancelEmployeeEdit;
     window.deleteEmployeeEntry = deleteEmployeeEntry;
 
-    // License functions (customer-facing only)
+    // License functions
     window.showLicenseModal = showLicenseModal;
     window.closeLicenseModal = closeLicenseModal;
     window.activateLicense = activateLicense;
@@ -3230,77 +2781,15 @@ if (typeof window !== 'undefined') {
     window.clearAllData = clearAllData;
     window.setCurrentPayPeriod = setCurrentPayPeriod;
     window.exportExcel = exportExcel;
+    window.exportCSV = exportCSV;
     window.exportJSON = exportJSON;
     window.exportAccess = exportAccess;
     window.exitAdminMode = exitAdminMode;
     window.exitToEmployee = exitToEmployee;
     window.enrollAdminDevice = enrollAdminDevice;
     window.enterAdminMode = enterAdminMode;
+    window.showSampleData = showSampleData;
 
-    // NEW: Developer functions (v1.1.10.2)
-    window.authenticateDeveloper = authenticateDeveloper;
-    window.exitDeveloperMode = exitDeveloperMode;
-    window.generateCustomerLicense = generateCustomerLicense;
-    window.copyCustomerLicense = copyCustomerLicense;
-    window.clearCustomerForm = clearCustomerForm;
-    window.showSystemLogs = showSystemLogs;
-    window.exportLicenseData = exportLicenseData;
-    window.resetDeveloperStats = resetDeveloperStats;
-    window.testLicenseValidation = testLicenseValidation;
-    window.viewApplicationLogs = viewApplicationLogs;
-    window.exportDeveloperReport = exportDeveloperReport;
-
-    // Manual access functions for debugging (NEW)
-    window.forceAdminMode = function() {
-        console.log('🔵 FORCING ADMIN MODE');
-        handleAdminAccess();
-    };
-    
-    window.forceDeveloperMode = function() {
-        console.log('🔴 FORCING DEVELOPER MODE');
-        handleDeveloperAccess();
-    };
-    
-    window.forceEmployeeMode = function() {
-        console.log('🟢 FORCING EMPLOYEE MODE');
-        currentMode = 'employee';
-        showSection('employeeSection');
-        updateModeIndicator('employee');
-        document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.2';
-    };
-    
-    window.debugSections = function() {
-        console.log('=== SECTION DEBUG ===');
-        const sections = ['employeeSection', 'adminSection', 'webauthnEnrollment', 'developerSection', 'developerAuthentication'];
-        sections.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                const style = window.getComputedStyle(element);
-                console.log(`${id}: display=${style.display}, visibility=${style.visibility}, exists=true`);
-            } else {
-                console.log(`${id}: NOT FOUND`);
-            }
-        });
-        console.log('Current mode:', currentMode);
-        console.log('=== END SECTION DEBUG ===');
-    };
-    
-    // Test URL parsing
-    window.testUrlParsing = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        console.log('=== URL PARSING TEST ===');
-        console.log('Full URL:', window.location.href);
-        console.log('Search params:', window.location.search);
-        console.log('All params:');
-        for (let [key, value] of urlParams) {
-            console.log(`  ${key}: "${value}"`);
-        }
-        console.log('Dev param check:', urlParams.get('dev') === DEVELOPER_SECRETS.accessParam);
-        console.log('Config param check:', urlParams.get('config') === 'x7k9m');
-        console.log('Setup param check:', urlParams.has('setup'));
-        console.log('=== END URL PARSING TEST ===');
-    };
-    
     // Configuration functions
     window.exportPayPeriodsConfig = exportPayPeriodsConfig;
     window.importPayPeriodsConfig = importPayPeriodsConfig;
@@ -3312,10 +2801,7 @@ if (typeof window !== 'undefined') {
     window.exportHolidaysConfig = exportHolidaysConfig;
     window.importHolidaysConfig = importHolidaysConfig;
     window.downloadHolidayTemplate = downloadHolidayTemplate;
-    window.closeHolidayModal = function() {
-        const modal = document.getElementById('holidaySelectionModal');
-        if (modal) modal.classList.remove('active');
-    };
+    window.closeHolidayModal = closeHolidayModal;
     
     // Logo functions
     window.previewLogo = previewLogo;
@@ -3323,7 +2809,7 @@ if (typeof window !== 'undefined') {
     window.clearLogoUrl = clearLogoUrl;
     window.updateCompanyLogo = updateCompanyLogo;
 
-    // Developer utility functions (for console use)
+    // For admin key generation
     window.generateKeyForCustomer = function(customerCompanyName) {
         const key = generateLicenseKey(customerCompanyName);
         console.log(`License Key for "${customerCompanyName}": ${key}`);
@@ -3344,8 +2830,7 @@ if (typeof window !== 'undefined') {
         console.log('WebAuthn Support:', checkWebAuthnSupport());
         console.log('Stored Credential Exists:', !!stored);
         console.log('Current Mode:', currentMode);
-        console.log('Is Admin Authenticated:', isAdminAuthenticated);
-        console.log('Is Developer Authenticated:', isDeveloperAuthenticated);
+        console.log('Is Authenticated:', isAdminAuthenticated);
         console.log('Current URL:', window.location.href);
         
         if (stored) {
@@ -3369,4 +2854,42 @@ if (typeof window !== 'undefined') {
         console.log('Pay period filter exists:', !!payPeriodFilter);
         console.log('Pay period filter value:', payPeriodFilter ? payPeriodFilter.value : 'N/A');
         console.log('Current mode:', currentMode);
+        console.log('Pay periods config loaded:', !!payPeriodsConfig);
+        if (payPeriodsConfig) {
+            console.log('Number of pay periods:', payPeriodsConfig.payPeriods ? payPeriodsConfig.payPeriods.length : 0);
+        }
         
+        // Try to manually show current period
+        const today = new Date().toISOString().split('T')[0];
+        if (payPeriodsConfig && payPeriodsConfig.payPeriods) {
+            const currentPeriod = payPeriodsConfig.payPeriods.find(period => {
+                return today >= period.periodStart && today <= period.periodEnd;
+            });
+            console.log('Current period found:', currentPeriod ? currentPeriod.description : 'None');
+            
+            if (currentPeriod && currentMode === 'admin') {
+                console.log('Attempting to show pay period info for admin...');
+                if (payPeriodFilter) {
+                    payPeriodFilter.value = currentPeriod.id;
+                }
+                showPayPeriodInfoForAdmin(currentPeriod);
+            }
+        }
+        console.log('=== End Debug ===');
+    };
+    
+    console.log('Time Tracker Functions v1.1.10.2 loaded successfully');
+    console.log('toggleTimer function available:', typeof window.toggleTimer);
+    console.log('Admin access: Add ?setup=maintenance or ?config=x7k9m to URL');
+    console.log('Generate license keys: generateKeyForCustomer("Company Name")');
+    console.log('Debug admin issues: debugAdminAccess() or resetAdminCredential()');
+    console.log('Debug pay period display: debugPayPeriodInfo()');
+} else {
+    console.error('Window object not available');
+}
+
+console.log('Time Tracker Functions v1.1.10.2 loaded successfully');
+console.log('Admin access: Add ?setup=maintenance or ?config=x7k9m to URL');
+console.log('Generate license keys: generateKeyForCustomer("Company Name")');
+console.log('Debug admin issues: debugAdminAccess() or resetAdminCredential()');
+console.log('Debug pay period display: debugPayPeriodInfo()');
