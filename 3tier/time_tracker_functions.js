@@ -225,7 +225,7 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
 
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Time tracker v1.1.10.2 initializing...');
+    console.log('🚀 Time tracker v1.1.10.2 initializing...');
     
     // Set mode to employee by default
     currentMode = 'employee';
@@ -260,10 +260,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Check for access modes (admin or developer)
-    checkAccessModes();
+    // Ensure employee section is visible by default
+    showSection('employeeSection');
     
-    console.log('Time tracker initialization complete');
+    console.log('📋 Basic initialization complete');
+    
+    // Check for access modes (admin or developer) - delayed to ensure DOM is ready
+    setTimeout(() => {
+        console.log('🔍 Checking for special access modes...');
+        checkAccessModes();
+        
+        // Final status check
+        setTimeout(() => {
+            console.log('=== FINAL INITIALIZATION STATUS ===');
+            console.log('Current Mode:', currentMode);
+            console.log('Page Title:', document.getElementById('pageTitle')?.textContent);
+            console.log('Visible Section Check:');
+            ['employeeSection', 'adminSection', 'webauthnEnrollment', 'developerSection', 'developerAuthentication'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    const style = window.getComputedStyle(element);
+                    const isVisible = style.display !== 'none' && style.visibility !== 'hidden';
+                    console.log(`  ${id}: ${isVisible ? 'VISIBLE' : 'HIDDEN'}`);
+                }
+            });
+            console.log('=== END INITIALIZATION STATUS ===');
+        }, 200);
+    }, 150);
+    
+    console.log('✅ Time tracker initialization complete');
 });
 
 // ============================================================================
@@ -274,6 +299,14 @@ function checkAccessModes() {
     const urlParams = new URLSearchParams(window.location.search);
     const hash = window.location.hash;
     
+    console.log('=== ACCESS MODE CHECK ===');
+    console.log('URL:', window.location.href);
+    console.log('URL Params:', urlParams.toString());
+    console.log('Hash:', hash);
+    console.log('Dev param value:', urlParams.get('dev'));
+    console.log('Config param value:', urlParams.get('config'));
+    console.log('Setup param exists:', urlParams.has('setup'));
+    
     // Check for developer access first (highest priority)
     const isDeveloperRequested = urlParams.get('dev') === DEVELOPER_SECRETS.accessParam ||
                                  hash === '#dev-mode-2025';
@@ -283,20 +316,24 @@ function checkAccessModes() {
                            hash === '#admin-setup' || 
                            urlParams.get('config') === 'x7k9m';
     
+    console.log('Developer requested:', isDeveloperRequested);
+    console.log('Admin requested:', isAdminRequested);
+    
     if (isDeveloperRequested) {
-        console.log('Developer access requested');
-        handleDeveloperAccess();
+        console.log('🔴 Developer access requested - switching to developer mode');
+        setTimeout(() => handleDeveloperAccess(), 100);
     } else if (isAdminRequested) {
-        console.log('Admin access requested');
+        console.log('🔵 Admin access requested - switching to admin mode');
         if (checkWebAuthnSupport()) {
-            handleAdminAccess();
+            setTimeout(() => handleAdminAccess(), 100);
         } else {
             showStatus('WebAuthn not supported in this browser', 'error');
         }
     } else {
         // No special access requested, stay in employee mode
-        console.log('No special access requested, staying in employee mode');
+        console.log('🟢 No special access requested, staying in employee mode');
     }
+    console.log('=== END ACCESS MODE CHECK ===');
 }
 
 async function handleDeveloperAccess() {
@@ -2208,21 +2245,55 @@ async function handleAdminAccess() {
 }
 
 function showSection(sectionId) {
+    console.log('=== SHOW SECTION ===');
+    console.log('Requested section:', sectionId);
+    
+    // Get all sections
+    const sections = {
+        'employeeSection': document.getElementById('employeeSection'),
+        'adminSection': document.getElementById('adminSection'),
+        'webauthnEnrollment': document.getElementById('webauthnEnrollment'),
+        'developerSection': document.getElementById('developerSection'),
+        'developerAuthentication': document.getElementById('developerAuthentication')
+    };
+    
+    // Log section availability
+    Object.entries(sections).forEach(([name, element]) => {
+        console.log(`${name}:`, element ? 'Found' : 'NOT FOUND');
+    });
+    
     // Hide all sections
-    document.getElementById('employeeSection').style.display = 'none';
-    document.getElementById('adminSection').style.display = 'none';
-    document.getElementById('webauthnEnrollment').style.display = 'none';
-    document.getElementById('developerSection').style.display = 'none';
-    document.getElementById('developerAuthentication').style.display = 'none';
+    Object.entries(sections).forEach(([name, element]) => {
+        if (element) {
+            element.style.display = 'none';
+            element.style.visibility = 'hidden';
+            console.log(`Hidden: ${name}`);
+        }
+    });
     
     // Show the target section
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.style.display = 'block';
-        console.log('Showing section:', sectionId);
+        targetSection.style.visibility = 'visible';
+        // Force override any CSS
+        targetSection.style.setProperty('display', 'block', 'important');
+        targetSection.style.setProperty('visibility', 'visible', 'important');
+        console.log('✅ Successfully showing section:', sectionId);
     } else {
-        console.error('Section not found:', sectionId);
+        console.error('❌ Section not found:', sectionId);
     }
+    
+    // Verify the change took effect
+    setTimeout(() => {
+        const finalCheck = document.getElementById(sectionId);
+        if (finalCheck) {
+            const computedStyle = window.getComputedStyle(finalCheck);
+            console.log(`Final check for ${sectionId}: display=${computedStyle.display}, visibility=${computedStyle.visibility}`);
+        }
+    }, 50);
+    
+    console.log('=== END SHOW SECTION ===');
 }
 
 // WebAuthn functions
@@ -3179,6 +3250,57 @@ if (typeof window !== 'undefined') {
     window.viewApplicationLogs = viewApplicationLogs;
     window.exportDeveloperReport = exportDeveloperReport;
 
+    // Manual access functions for debugging (NEW)
+    window.forceAdminMode = function() {
+        console.log('🔵 FORCING ADMIN MODE');
+        handleAdminAccess();
+    };
+    
+    window.forceDeveloperMode = function() {
+        console.log('🔴 FORCING DEVELOPER MODE');
+        handleDeveloperAccess();
+    };
+    
+    window.forceEmployeeMode = function() {
+        console.log('🟢 FORCING EMPLOYEE MODE');
+        currentMode = 'employee';
+        showSection('employeeSection');
+        updateModeIndicator('employee');
+        document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.2';
+    };
+    
+    window.debugSections = function() {
+        console.log('=== SECTION DEBUG ===');
+        const sections = ['employeeSection', 'adminSection', 'webauthnEnrollment', 'developerSection', 'developerAuthentication'];
+        sections.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                const style = window.getComputedStyle(element);
+                console.log(`${id}: display=${style.display}, visibility=${style.visibility}, exists=true`);
+            } else {
+                console.log(`${id}: NOT FOUND`);
+            }
+        });
+        console.log('Current mode:', currentMode);
+        console.log('=== END SECTION DEBUG ===');
+    };
+    
+    // Test URL parsing
+    window.testUrlParsing = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        console.log('=== URL PARSING TEST ===');
+        console.log('Full URL:', window.location.href);
+        console.log('Search params:', window.location.search);
+        console.log('All params:');
+        for (let [key, value] of urlParams) {
+            console.log(`  ${key}: "${value}"`);
+        }
+        console.log('Dev param check:', urlParams.get('dev') === DEVELOPER_SECRETS.accessParam);
+        console.log('Config param check:', urlParams.get('config') === 'x7k9m');
+        console.log('Setup param check:', urlParams.has('setup'));
+        console.log('=== END URL PARSING TEST ===');
+    };
+    
     // Configuration functions
     window.exportPayPeriodsConfig = exportPayPeriodsConfig;
     window.importPayPeriodsConfig = importPayPeriodsConfig;
