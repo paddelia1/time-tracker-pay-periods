@@ -1,8 +1,0 @@
-ID,Description,Period Start,Period End,Timesheet Due,Pay Day
-YYYY-01,Pay Period 1 - Description,YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD
-YYYY-02,Pay Period 2 - Description,YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD
-YYYY-03,Pay Period 3 - Description,YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD
-YYYY-04,Pay Period 4 - Description,YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD
-YYYY-05,Pay Period 5 - Description,YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD
-EXAMPLE-01,Pay Period Example - Jan 1-14 2025,2025-01-01,2025-01-14,2025-01-14,2025-01-21
-INSTRUCTIONS,Replace YYYY-MM-DD with actual dates,Keep date format as YYYY-MM-DD,ID can be any unique identifier,Description is displayed in dropdown,Delete these example rows when done
