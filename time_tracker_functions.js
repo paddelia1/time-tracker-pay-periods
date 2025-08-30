@@ -1,11 +1,11 @@
 /*
-Time Tracker Functions v1.1.10.5
+Time Tracker Functions v1.1.10.3
 Author: Philippe Addelia
 Company: CAND, LLC
 Created: August 17, 2025 PST
-Modified: August 30, 2025 PST
+Modified: August 29, 2025 PST
 Preferred location: Modules\Time Tracker\time_tracker_functions.js
-Purpose: JavaScript functionality for Employee Time Tracker - Complete Unified Version with $49.95 pricing
+Purpose: JavaScript functionality for Employee Time Tracker - Complete Unified Version
 */
 
 // Company Configuration
@@ -208,7 +208,7 @@ const DEFAULT_PAY_PERIODS_CONFIG = {
 
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Time tracker v1.1.10.5 initializing...');
+    console.log('Time tracker v1.1.10.3 initializing...');
     
     // Set mode to employee
     currentMode = 'employee';
@@ -321,9 +321,9 @@ function applyConfiguration() {
     if (pageTitle) {
         const currentTitle = pageTitle.textContent;
         if (currentTitle.includes('Employee')) {
-            pageTitle.textContent = 'Employee Time Tracker v1.1.10.5';
+            pageTitle.textContent = 'Employee Time Tracker v1.1.10.3';
         } else if (currentTitle.includes('Admin')) {
-            pageTitle.textContent = 'Time Tracker Admin Console v1.1.10.5';
+            pageTitle.textContent = 'Time Tracker Admin Console v1.1.10.3';
         }
     }
 }
@@ -1199,7 +1199,7 @@ function parsePayPeriodsCSV(csvContent, configName = 'Custom Configuration') {
 
 function exportPayPeriodsConfig() {
     const configData = {
-        version: '1.1.10.5',
+        version: '1.1.10.3',
         exportDate: new Date().toISOString(),
         payPeriodsConfig: payPeriodsConfig
     };
@@ -1822,7 +1822,7 @@ function checkAdminAccess() {
         configParam === 'x7k9m';
     
     if (isCompanyAdminRequested) {
-        console.log('🔒 Company admin access requested - Authentication required');
+        console.log('🔐 Company admin access requested - Authentication required');
         
         // Company admins must use WebAuthn
         if (checkWebAuthnSupport()) {
@@ -2074,7 +2074,7 @@ function enterAdminMode() {
     
     if (accessLevel === 'developer') {
         if (pageTitle) {
-            pageTitle.textContent = 'Time Tracker Developer Console v1.1.10.5';
+            pageTitle.textContent = 'Time Tracker Developer Console v1.1.10.3';
         }
         
         // Add developer badge to UI
@@ -2091,7 +2091,7 @@ function enterAdminMode() {
         
     } else {
         if (pageTitle) {
-            pageTitle.textContent = 'Time Tracker Admin Console v1.1.10.5';
+            pageTitle.textContent = 'Time Tracker Admin Console v1.1.10.3';
         }
     }
     
@@ -2121,7 +2121,7 @@ function enterAdminMode() {
     if (accessLevel === 'developer') {
         showStatus('🔓 Developer access granted - All functions available', 'success');
     } else {
-        showStatus('🔒 Admin access granted', 'success');
+        showStatus('🔐 Admin access granted', 'success');
     }
 }
 
@@ -2145,7 +2145,7 @@ function exitAdminMode() {
     isAdminAuthenticated = false;
     showSection('employeeSection');
     updateModeIndicator('employee');
-    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.5';
+    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.3';
     
     // Clear URL parameters
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -2155,7 +2155,7 @@ function exitToEmployee() {
     currentMode = 'employee';
     showSection('employeeSection');
     updateModeIndicator('employee');
-    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.5';
+    document.getElementById('pageTitle').textContent = 'Employee Time Tracker v1.1.10.3';
     
     // Clear URL parameters
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -2171,7 +2171,7 @@ function showEnrollmentStatus(message, type) {
 }
 
 // ============================================================================
-// LICENSE MANAGEMENT - UPDATED PRICE TO $49.95
+// LICENSE MANAGEMENT
 // ============================================================================
 
 function generateLicenseKey(companyName) {
@@ -2216,7 +2216,7 @@ function updateLicenseModalContent() {
         if (keyInput) keyInput.value = appConfig.licenseKey;
     } else {
         if (statusDisplay) {
-            statusDisplay.innerHTML = '<strong>🔐 Free Version (Unlicensed)</strong><br>This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company name.';
+            statusDisplay.innerHTML = '<strong>🔒 Free Version (Unlicensed)</strong><br>This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company name.';
             statusDisplay.className = 'status-message info';
             statusDisplay.style.display = 'block';
         }
@@ -2294,7 +2294,7 @@ function updateLicenseWatermark() {
     } else {
         watermarkText.textContent = 'Powered by CAND, LLC - Unlicensed';
         watermark.className = 'license-watermark';
-        watermark.title = 'Free Version - Click to purchase license ($49.95)';
+        watermark.title = 'Free Version - Click to purchase license ($9.95)';
     }
 }
 
@@ -2865,7 +2865,7 @@ function saveTimeEntries() {
             allEntries: allTimeEntries,
             employeeEntries: employeeEntries,
             lastUpdate: new Date().toISOString(),
-            version: '1.1.10.5'
+            version: '1.1.10.3'
         };
         localStorage.setItem('unifiedTimeEntries', JSON.stringify(dataToSave));
     } catch (e) {
@@ -2990,7 +2990,6 @@ if (typeof window !== 'undefined') {
             const key = generateLicenseKey(customerCompanyName);
             console.log(`✅ License Key for "${customerCompanyName}": ${key}`);
             console.log('Share this key with your customer along with their exact company name.');
-            console.log('Price: $49.95 per license');
             return key;
         };
         
@@ -3065,7 +3064,7 @@ if (typeof window !== 'undefined') {
             // Export all data for backup
             exportEverything: function() {
                 const backup = {
-                    version: '1.1.10.5',
+                    version: '1.1.10.3',
                     timestamp: new Date().toISOString(),
                     appConfig: appConfig,
                     allTimeEntries: allTimeEntries,
@@ -3093,7 +3092,7 @@ if (typeof window !== 'undefined') {
         
         // Show available developer commands
         console.log('📋 Developer Commands Available:');
-        console.log('  generateKeyForCustomer("Company Name") - Generate license key ($49.95)');
+        console.log('  generateKeyForCustomer("Company Name") - Generate license key');
         console.log('  devTools.inspectStorage() - View all stored data');
         console.log('  devTools.generateTestData(10) - Generate test entries');
         console.log('  devTools.forceLicense("Company") - Force license activation');
@@ -3120,20 +3119,19 @@ if (typeof window !== 'undefined') {
     
     // Standard console messages based on mode
     if (isDeveloperMode()) {
-        console.log('Time Tracker Functions v1.1.10.5 - DEVELOPER MODE');
+        console.log('Time Tracker Functions v1.1.10.3 - DEVELOPER MODE');
         console.log('You have full access to all developer tools');
-        console.log('License price: $49.95 per customer');
     } else if (currentMode === 'admin') {
-        console.log('Time Tracker Functions v1.1.10.5 - Admin Mode');
+        console.log('Time Tracker Functions v1.1.10.3 - Admin Mode');
         console.log('Admin functions are available');
     } else {
-        console.log('Time Tracker Functions v1.1.10.5');
+        console.log('Time Tracker Functions v1.1.10.3');
         // Don't advertise any special functions
     }
     
 } else {
     console.error('Window object not available');
 }
-console.log('Time Tracker Functions v1.1.10.5 loaded successfully');
+console.log('Time Tracker Functions v1.1.10.3 loaded successfully');
 console.log('Admin access: Add ?dev=ph1l1pp3_c4nd_d3v_2025_x7k9m to URL');
-console.log('Generate license keys: generateKeyForCustomer("Company Name") - $49.95');
+console.log('Generate license keys: generateKeyForCustomer("Company Name")');

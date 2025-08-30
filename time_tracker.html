@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Employee Time Tracker v1.1.10.5</title>
+    <title id="pageTitle">Employee Time Tracker v1.1.10.3</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234facfe'><circle cx='12' cy='12' r='10' stroke='%23667eea' stroke-width='2' fill='%234facfe'/><path d='M12 6v6l4 2' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>">
     <link rel="stylesheet" href="time_tracker_styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -361,7 +361,7 @@
                 <div class="control-section">
                     <div class="license-generation-section">
                         <h2 class="section-title">License Key Generation</h2>
-                        <p class="section-subtitle">Generate license keys for customers ($49.95 per license)</p>
+                        <p class="section-subtitle">Generate license keys for customers ($9.95 per license)</p>
                         
                         <div class="license-form-dev">
                             <div class="form-group-dev">
@@ -393,7 +393,7 @@
                         <div class="license-instructions">
                             <h4>Instructions for Customer:</h4>
                             <ol>
-                                <li>Customer pays $49.95 via PayPal</li>
+                                <li>Customer pays $9.95 via PayPal</li>
                                 <li>Customer provides their exact company name</li>
                                 <li>Generate license key using their company name</li>
                                 <li>Send both the company name and license key to customer</li>
@@ -416,7 +416,7 @@
                                 <div class="stat-label">Active Licenses</div>
                             </div>
                             <div class="stat-card dev">
-                                <div class="stat-value">v1.1.10.5</div>
+                                <div class="stat-value">v1.1.10.2</div>
                                 <div class="stat-label">App Version</div>
                             </div>
                             <div class="stat-card dev">
@@ -552,17 +552,19 @@
         <span id="watermarkText">Powered by CAND, LLC - Unlicensed</span>
     </div>
 
-    <!-- License Modal (Updated pricing) -->
+    <!-- License Modal (Removed license generation - moved to developer mode) -->
     <div class="modal" id="licenseModal">
         <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">Software License - $49.95</div>
+            <div class="modal-header">Software License - $9.95</div>
             <div id="licenseContent">
                 <div class="status-message info" style="display: block;" id="licenseStatusDisplay">
+                    <strong>🔓 Free Version (Unlicensed)</strong><br>
                     <strong>ðŸ” Free Version (Unlicensed)</strong><br>
                     This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company name.
                 </div>
 
                 <div class="license-section">
+                    <h3><span style="margin-right: 10px;">💳</span>Purchase License - $9.95</h3>
                     <h3><span style="margin-right: 10px;">ðŸ’³</span>Purchase License - $49.95</h3>
                     <p style="margin-bottom: 15px;">Get a lifetime license to:</p>
                     <ul style="margin-left: 20px; margin-bottom: 15px;">
@@ -574,7 +576,7 @@
                     
                     <div style="text-align: center; margin: 20px 0;">
                         <a href="https://www.paypal.com/ncp/payment/FYUAQ4AVBPQYQ" target="_blank" class="paypal-button">
-                            Pay $49.95 via PayPal
+                            Pay $9.95 via PayPal
                         </a>
                     </div>
                     
@@ -695,7 +697,7 @@
                             
                             <button type="button" class="btn btn-primary" onclick="showLicenseModal()" 
                                     style="background: #ffc107; border-color: #ffc107; color: #856404; font-weight: 600;">
-                                Purchase License - $49.95
+                                Purchase License - $9.95
                             </button>
                         </div>
                     </div>
