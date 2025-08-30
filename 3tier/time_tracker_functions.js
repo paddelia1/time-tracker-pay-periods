@@ -1798,28 +1798,109 @@ function checkAdminAccess() {
     const urlParams = new URLSearchParams(window.location.search);
     const hash = window.location.hash;
     
-    // FIXED: Check for the specific dev parameter
-    const devParam = urlParams.get('dev');
-    const isAdminRequested = urlParams.has('setup') || 
-                           hash === '#admin-setup' || 
-                           urlParams.get('config') === 'x7k9m' ||
-                           devParam === 'ph1l1pp3_c4nd_d3v_2025_x7k9m'; // Added dev key check
+    // THREE-TIER ACCESS LEVELS
     
-    if (isAdminRequested) {
-        // Special handling for dev access - bypass WebAuthn
-        if (devParam === 'ph1l1pp3_c4nd_d3v_2025_x7k9m') {
-            console.log('Dev access granted');
-            isAdminAuthenticated = true;
-            enterAdminMode();
-        } else if (checkWebAuthnSupport()) {
+    // TIER 3: Developer Access (Highest Level - Only You)
+    const devParam = urlParams.get('dev');
+    if (devParam === 'ph1l1pp3_c4nd_d3v_2025_x7k9m') {
+        console.log('🔓 Developer access granted - Full system access');
+        isAdminAuthenticated = true;
+        
+        // Set a flag to indicate developer mode
+        window.__developerMode = true;
+        
+        enterAdminMode();
+        return; // Skip all other checks
+    }
+    
+    // TIER 2: Company Admin Access (Licensed Customers)
+    const configParam = urlParams.get('config');
+    const setupParam = urlParams.has('setup');
+    const isCompanyAdminRequested = 
+        setupParam || 
+        hash === '#admin-setup' || 
+        configParam === 'x7k9m';
+    
+    if (isCompanyAdminRequested) {
+        console.log('🔐 Company admin access requested - Authentication required');
+        
+        // Company admins must use WebAuthn
+        if (checkWebAuthnSupport()) {
             handleAdminAccess();
         } else {
-            showStatus('WebAuthn not supported in this browser', 'error');
+            showStatus('WebAuthn not supported in this browser. Please use a modern browser.', 'error');
         }
-    } else {
-        // No admin access requested, ensure we stay in employee mode
-        console.log('No admin access requested, staying in employee mode');
+        return;
     }
+    
+    // TIER 1: Employee Access (Default - Everyone)
+    console.log('👤 Employee mode - Standard access');
+    // No special access requested, stay in employee mode
+}
+
+// ============================================================================
+// ACCESS LEVEL DETECTION FUNCTIONS
+// Add these helper functions after checkAdminAccess:
+// ============================================================================
+
+function getAccessLevel() {
+    // Returns the current access level
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.get('dev') === 'ph1l1pp3_c4nd_d3v_2025_x7k9m') {
+        return 'developer';
+    } else if (currentMode === 'admin' && isAdminAuthenticated) {
+        return 'company_admin';
+    } else {
+        return 'employee';
+    }
+}
+
+function hasAccessTo(feature) {
+    const accessLevel = getAccessLevel();
+    
+    const permissions = {
+        'employee': [
+            'timer',
+            'view_own_entries',
+            'export_own_data',
+            'edit_own_entries'
+        ],
+        'company_admin': [
+            'timer',
+            'view_own_entries',
+            'export_own_data',
+            'edit_own_entries',
+            'view_all_entries',
+            'configure_company',
+            'manage_pay_periods',
+            'manage_holidays',
+            'export_team_data',
+            'data_cleanup'
+        ],
+        'developer': [
+            'timer',
+            'view_own_entries',
+            'export_own_data',
+            'edit_own_entries',
+            'view_all_entries',
+            'configure_company',
+            'manage_pay_periods',
+            'manage_holidays',
+            'export_team_data',
+            'data_cleanup',
+            'generate_licenses',
+            'developer_tools',
+            'force_settings',
+            'system_reset'
+        ]
+    };
+    
+    const level = accessLevel === 'developer' ? 'developer' : 
+                  accessLevel === 'company_admin' ? 'company_admin' : 
+                  'employee';
+    
+    return permissions[level].includes(feature);
 }
 
 async function handleAdminAccess() {
@@ -1986,7 +2067,33 @@ function enterAdminMode() {
     currentMode = 'admin';
     showSection('adminSection');
     updateModeIndicator('admin');
-    document.getElementById('pageTitle').textContent = 'Time Tracker Admin Console v1.1.10.3';
+    
+    // Customize title based on access level
+    const accessLevel = getAccessLevel();
+    const pageTitle = document.getElementById('pageTitle');
+    
+    if (accessLevel === 'developer') {
+        if (pageTitle) {
+            pageTitle.textContent = 'Time Tracker Developer Console v1.1.10.3';
+        }
+        
+        // Add developer badge to UI
+        const modeIndicator = document.getElementById('modeIndicator');
+        if (modeIndicator) {
+            modeIndicator.textContent = 'Developer Mode';
+            modeIndicator.style.background = '#dc3545'; // Red for developer
+        }
+        
+        // Show developer-only UI elements (if you add any)
+        document.querySelectorAll('.dev-only').forEach(el => {
+            el.style.display = 'block';
+        });
+        
+    } else {
+        if (pageTitle) {
+            pageTitle.textContent = 'Time Tracker Admin Console v1.1.10.3';
+        }
+    }
     
     // Initialize admin data and populate admin filters
     refreshAdminData();
@@ -2001,7 +2108,6 @@ function enterAdminMode() {
         if (currentPeriod) {
             const payPeriodFilter = document.getElementById('payPeriodFilter');
             if (payPeriodFilter) {
-                // Add a small delay to ensure the dropdown is populated
                 setTimeout(() => {
                     payPeriodFilter.value = currentPeriod.id;
                     showPayPeriodInfoForAdmin(currentPeriod);
@@ -2011,9 +2117,29 @@ function enterAdminMode() {
         }
     }
     
-    showStatus('Admin access granted', 'success');
+    // Show appropriate status message
+    if (accessLevel === 'developer') {
+        showStatus('🔓 Developer access granted - All functions available', 'success');
+    } else {
+        showStatus('🔐 Admin access granted', 'success');
+    }
 }
 
+// ============================================================================
+// SECURE FUNCTION EXAMPLE
+// Example of how to secure a function to specific access levels:
+// ============================================================================
+
+function secureFunction(requiredAccess, functionToRun) {
+    return function(...args) {
+        if (!hasAccessTo(requiredAccess)) {
+            console.error(`❌ Access denied. This function requires ${requiredAccess} permission.`);
+            showStatus('Access denied. Insufficient permissions.', 'error');
+            return null;
+        }
+        return functionToRun(...args);
+    };
+}
 function exitAdminMode() {
     currentMode = 'employee';
     isAdminAuthenticated = false;
@@ -2769,6 +2895,7 @@ function loadPersistedData() {
     }
 }
 
+
 // ============================================================================
 // GLOBAL FUNCTION EXPORTS - MUST BE AT END
 // ============================================================================
@@ -2838,21 +2965,173 @@ if (typeof window !== 'undefined') {
     window.clearLogoUrl = clearLogoUrl;
     window.updateCompanyLogo = updateCompanyLogo;
 
-    // For admin key generation - used for generating licenses
-    window.generateKeyForCustomer = function(customerCompanyName) {
-        const key = generateLicenseKey(customerCompanyName);
-        console.log(`License Key for "${customerCompanyName}": ${key}`);
-        console.log('Share this key with your customer along with their exact company name.');
-        return key;
-    };
+    // ============================================================================
+    // DEVELOPER-ONLY FUNCTIONS - SECURED
+    // ============================================================================
     
-    console.log('Time Tracker Functions v1.1.10.3 loaded successfully');
-    console.log('Admin access: Add ?dev=ph1l1pp3_c4nd_d3v_2025_x7k9m to URL');
-    console.log('Generate license keys: generateKeyForCustomer("Company Name")');
+    // Check if developer mode is active
+    function isDeveloperMode() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const devParam = urlParams.get('dev');
+        return devParam === 'ph1l1pp3_c4nd_d3v_2025_x7k9m';
+    }
+    
+    // Initialize developer functions ONLY if in developer mode
+    if (isDeveloperMode()) {
+        console.log('🔓 Developer mode activated - Additional functions available');
+        
+        // License key generation - ONLY in developer mode
+        window.generateKeyForCustomer = function(customerCompanyName) {
+            if (!isDeveloperMode()) {
+                console.error('❌ Access denied. This function is not available.');
+                return null;
+            }
+            
+            const key = generateLicenseKey(customerCompanyName);
+            console.log(`✅ License Key for "${customerCompanyName}": ${key}`);
+            console.log('Share this key with your customer along with their exact company name.');
+            return key;
+        };
+        
+        // Developer diagnostic tools
+        window.devTools = {
+            // View all stored data
+            inspectStorage: function() {
+                console.log('=== Local Storage Contents ===');
+                Object.keys(localStorage).forEach(key => {
+                    console.log(`${key}: ${localStorage.getItem(key).substring(0, 100)}...`);
+                });
+            },
+            
+            // Generate multiple test entries
+            generateTestData: function(numEntries = 10) {
+                const testEmployees = ['John Doe', 'Jane Smith', 'Bob Johnson', 'Alice Williams'];
+                const testProjects = ['Project Alpha', 'Project Beta', 'Project Gamma', 'Admin Tasks'];
+                const testCategories = ['work', 'overhead', 'travel', 'pto'];
+                
+                for (let i = 0; i < numEntries; i++) {
+                    const entry = {
+                        id: Date.now() + Math.random() + i,
+                        employee: testEmployees[Math.floor(Math.random() * testEmployees.length)],
+                        date: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        category: testCategories[Math.floor(Math.random() * testCategories.length)],
+                        project: testProjects[Math.floor(Math.random() * testProjects.length)],
+                        startTime: '09:00',
+                        endTime: '17:00',
+                        duration: 8.0,
+                        description: `Test entry ${i + 1}`,
+                        timestamp: new Date().toISOString(),
+                        source: 'test-generator'
+                    };
+                    
+                    allTimeEntries.push(entry);
+                    employeeEntries.push(entry);
+                    employees.add(entry.employee);
+                    projects.add(entry.project);
+                    categories.add(entry.category);
+                }
+                
+                saveTimeEntries();
+                if (currentMode === 'admin') {
+                    refreshAdminData();
+                } else {
+                    updateEmployeeDisplay();
+                }
+                
+                console.log(`✅ Generated ${numEntries} test entries`);
+            },
+            
+            // Force license activation (for testing)
+            forceLicense: function(companyName) {
+                appConfig.isLicensed = true;
+                appConfig.licensedCompany = companyName;
+                appConfig.licenseKey = generateLicenseKey(companyName);
+                appConfig.companyName = companyName;
+                saveAppConfiguration();
+                updateDisplay();
+                updateLicenseWatermark();
+                console.log(`✅ Force-licensed to: ${companyName}`);
+            },
+            
+            // Reset everything
+            factoryReset: function() {
+                if (confirm('⚠️ This will delete ALL data and settings. Are you sure?')) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            },
+            
+            // Export all data for backup
+            exportEverything: function() {
+                const backup = {
+                    version: '1.1.10.3',
+                    timestamp: new Date().toISOString(),
+                    appConfig: appConfig,
+                    allTimeEntries: allTimeEntries,
+                    employeeEntries: employeeEntries,
+                    payPeriodsConfig: payPeriodsConfig,
+                    holidaysConfig: holidaysConfig,
+                    localStorage: {}
+                };
+                
+                Object.keys(localStorage).forEach(key => {
+                    backup.localStorage[key] = localStorage.getItem(key);
+                });
+                
+                const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `time_tracker_backup_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                console.log('✅ Full backup exported');
+            }
+        };
+        
+        // Show available developer commands
+        console.log('📋 Developer Commands Available:');
+        console.log('  generateKeyForCustomer("Company Name") - Generate license key');
+        console.log('  devTools.inspectStorage() - View all stored data');
+        console.log('  devTools.generateTestData(10) - Generate test entries');
+        console.log('  devTools.forceLicense("Company") - Force license activation');
+        console.log('  devTools.exportEverything() - Export full backup');
+        console.log('  devTools.factoryReset() - Reset everything');
+        
+    } else {
+        // NOT in developer mode - these functions don't exist
+        // Don't even define them to prevent discovery
+        
+        // Optionally, you can create a decoy that logs attempts
+        Object.defineProperty(window, 'generateKeyForCustomer', {
+            get: function() {
+                console.warn('This function does not exist.');
+                return undefined;
+            },
+            set: function() {
+                console.warn('Cannot override system functions.');
+                return false;
+            },
+            configurable: false
+        });
+    }
+    
+    // Standard console messages based on mode
+    if (isDeveloperMode()) {
+        console.log('Time Tracker Functions v1.1.10.3 - DEVELOPER MODE');
+        console.log('You have full access to all developer tools');
+    } else if (currentMode === 'admin') {
+        console.log('Time Tracker Functions v1.1.10.3 - Admin Mode');
+        console.log('Admin functions are available');
+    } else {
+        console.log('Time Tracker Functions v1.1.10.3');
+        // Don't advertise any special functions
+    }
+    
 } else {
     console.error('Window object not available');
 }
-
 console.log('Time Tracker Functions v1.1.10.3 loaded successfully');
 console.log('Admin access: Add ?dev=ph1l1pp3_c4nd_d3v_2025_x7k9m to URL');
 console.log('Generate license keys: generateKeyForCustomer("Company Name")');
