@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">Employee Time Tracker v1.1.10.6</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234facfe'><circle cx='12' cy='12' r='10' stroke='%23667eea' stroke-width='2' fill='%234facfe'/><path d='M12 6v6l4 2' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>">
-    <link rel="stylesheet" href="time_tracker_styles_v1.1.10.6.css">
+    <link rel="stylesheet" href="time_tracker_styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -309,7 +309,7 @@
                     </div>
                     <div class="data-content" id="dataContent">
                         <div class="no-data">
-                            <div class="no-data-icon">No Data</div>
+                            <div class="no-data-icon">📂</div>
                             <div>No timesheet data imported yet</div>
                             <div style="font-size: 1rem; margin-top: 10px; opacity: 0.7;">
                                 Click "Import Timesheets" to get started
@@ -695,13 +695,13 @@
     </div>
 
     <!-- Load the JavaScript functions -->
-    <script src="time_tracker_functions_v1.1.10.6.js"></script>
+    <script src="time_tracker_functions.js"></script>
     
     <!-- Fallback function definitions -->
     <script>
         window.toggleTimer = window.toggleTimer || function() {
-            console.error('JavaScript file not loaded properly. Please ensure time_tracker_functions_v1.1.10.6.js is in the same directory.');
-            alert('JavaScript file not loaded. Please check that time_tracker_functions_v1.1.10.6.js is in the same directory as this HTML file.');
+            console.error('JavaScript file not loaded properly. Please ensure time_tracker_functions.js is in the same directory.');
+            alert('JavaScript file not loaded. Please check that time_tracker_functions.js is in the same directory as this HTML file.');
         };
         
         window.setSelectedPayPeriod = window.setSelectedPayPeriod || function() {
