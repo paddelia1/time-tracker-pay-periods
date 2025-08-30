@@ -1,11 +1,11 @@
 /*
-Time Tracker Styles v1.1.10.2
+Time Tracker Styles v1.1.10.6
 Author: Philippe Addelia
 Company: CAND, LLC
 Created: August 25, 2025 PST
-Modified: August 29, 2025 PST
-Preferred location: Modules\Time Tracker\time_tracker_styles.css
-Purpose: Styling for Employee Time Tracker - Unified Version with 3-Tier Security
+Modified: August 30, 2025 PST
+Preferred location: Modules\Time Tracker\time_tracker_styles_v1.1.10.6.css
+Purpose: Styling for Employee Time Tracker - Complete styles with watermark updates
 */
 
 * {
@@ -90,7 +90,7 @@ body {
     flex: 0 0 auto;
 }
 
-/* NEW: Developer mode specific styling */
+/* Developer mode specific styling */
 .header-top-row.developer-mode {
     justify-content: space-between;
     position: relative;
@@ -177,7 +177,6 @@ body {
     color: white;
 }
 
-/* NEW: Developer mode indicator styling */
 .mode-indicator.developer {
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
     color: white;
@@ -185,7 +184,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* License Watermark */
+/* License Watermark - v1.1.10.6 Update */
 .license-watermark {
     position: fixed;
     bottom: 10px;
@@ -202,9 +201,9 @@ body {
     cursor: pointer;
 }
 
+/* UPDATED v1.1.10.6: Completely hide watermark for licensed users */
 .license-watermark.licensed {
-    background: rgba(40, 167, 69, 0.9);
-    animation: none;
+    display: none !important;
 }
 
 @keyframes pulse {
@@ -218,7 +217,7 @@ body {
     visibility: visible !important;
 }
 
-/* Section Management - SIMPLIFIED */
+/* Section Management */
 .section {
     display: block;
 }
@@ -300,7 +299,6 @@ body {
     background: rgba(40, 167, 69, 1);
 }
 
-/* NEW: Developer mode header button styles */
 .header-button.generate {
     background: rgba(255, 107, 107, 0.9);
     color: white;
@@ -328,13 +326,13 @@ body {
     background: rgba(108, 117, 125, 1);
 }
 
-/* FIXED: Pay Period Info - Single Row Layout */
+/* Pay Period Info - Single Row Layout */
 .pay-period-info {
     background: rgba(255,255,255,0.1);
     padding: 12px;
     border-radius: 8px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* Exactly 5 equal columns */
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     gap: 15px;
     margin-bottom: 15px;
     align-items: center;
@@ -364,7 +362,6 @@ body {
     text-overflow: ellipsis;
 }
 
-/* FIXED: Holiday Section - Same Level as Other Items */
 .holiday-section {
     display: flex;
     flex-direction: column;
@@ -535,30 +532,34 @@ body {
     margin-bottom: 20px;
 }
 
+/* Solid green start button and solid red stop button */
 .timer-button {
-    background: rgba(40, 167, 69, 0.3);
+    background: #28a745;
     color: white;
-    border: 2px solid rgba(40, 167, 69, 0.6);
+    border: none;
     padding: 15px 30px;
     border-radius: 25px;
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
 .timer-button:hover {
-    background: rgba(40, 167, 69, 0.4);
+    background: #218838;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
 }
 
 .timer-button.stop-state {
-    background: rgba(220, 53, 69, 0.3);
-    border-color: rgba(220, 53, 69, 0.6);
+    background: #dc3545;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
 .timer-button.stop-state:hover {
-    background: rgba(220, 53, 69, 0.4);
+    background: #c82333;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
 }
 
 .daily-counter {
@@ -614,7 +615,7 @@ body {
     padding: 10px;
     border-radius: 8px;
     font-size: 16px;
-    width: 180px;
+    width: 225px;
     flex-shrink: 0;
 }
 
@@ -737,7 +738,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* NEW: Developer Styles */
+/* Developer Styles */
 .developer-welcome {
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
     padding: 25px;
@@ -963,7 +964,6 @@ body {
     cursor: not-allowed;
 }
 
-/* Green background buttons should have white text */
 .primary-button[style*="28a745"], 
 .primary-button[style*="20c997"] {
     color: white !important;
@@ -1141,7 +1141,6 @@ body {
     display: flex;
 }
 
-/* License modal should appear above configure modal */
 #licenseModal {
     z-index: 1100;
 }
@@ -1387,7 +1386,10 @@ body {
         grid-template-columns: 1fr;
     }
     
-    /* Mobile Pay Period Info - Stack Vertically */
+    .category-selector input {
+        width: 180px;
+    }
+    
     .pay-period-info {
         grid-template-columns: 1fr;
         gap: 10px;
@@ -1430,7 +1432,6 @@ body {
         margin-left: 8px;
     }
     
-    /* Mobile employee mode adjustments */
     .header-top-row.employee-mode .employee-title {
         font-size: 1.3rem;
         position: static;
@@ -1453,7 +1454,6 @@ body {
         font-size: 1.5rem;
     }
 
-    /* Mobile admin mode adjustments */
     .header-top-row.admin-mode .admin-title {
         font-size: 1.3rem;
         position: static;
@@ -1483,7 +1483,6 @@ body {
         font-size: 1.5rem;
     }
 
-    /* NEW: Mobile developer mode adjustments */
     .header-top-row.developer-mode .developer-title {
         font-size: 1.3rem;
         position: static;
@@ -1513,7 +1512,6 @@ body {
         font-size: 1.5rem;
     }
 
-    /* Developer responsive adjustments */
     .developer-header {
         flex-direction: column;
         text-align: center;
@@ -1525,10 +1523,10 @@ body {
     }
 
     .license-form-dev .form-group-dev input {
-        font-size: 16px; /* Prevent zoom on mobile */
+        font-size: 16px;
     }
 
     .auth-form input {
-        font-size: 16px; /* Prevent zoom on mobile */
+        font-size: 16px;
     }
 }
