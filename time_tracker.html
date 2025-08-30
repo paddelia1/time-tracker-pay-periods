@@ -103,56 +103,28 @@
                     <button class="header-button current" onclick="setCurrentPayPeriod()">Current Period</button>
                 </div>
             </div>
-
-            <!-- Developer Header Controls -->
-            <div class="header-controls" id="developerControls" style="display: none;">
-                <div class="form-group">
-                    <label for="devLicenseCompany">Company Name:</label>
-                    <input type="text" id="devLicenseCompany" placeholder="Enter company name">
-                </div>
-                
-                <div class="form-group">
-                    <label for="devGeneratedKey">Generated Key:</label>
-                    <input type="text" id="devGeneratedKey" readonly placeholder="Generated license key">
-                </div>
-                
-                <div class="form-group">
-                    <label>&nbsp;</label>
-                    <button class="header-button generate" onclick="generateLicenseKey()">Generate Key</button>
-                </div>
-                
-                <div class="form-group">
-                    <label>&nbsp;</label>
-                    <button class="header-button copy" onclick="copyLicenseKey()" id="copyKeyBtn" style="display: none;">Copy Key</button>
-                </div>
-                
-                <div class="form-group">
-                    <label>&nbsp;</label>
-                    <button class="header-button secondary" onclick="exitDeveloperMode()">Exit Developer</button>
-                </div>
-            </div>
         </div>
 
-        <!-- Pay Period Info - Shared between Employee, Admin, and Developer -->
+        <!-- Pay Period Info -->
         <div class="pay-period-info" id="payPeriodInfo" style="display: none;">
             <div class="pay-period-detail">
-                <span class="label">📅 Period Range:</span>
+                <span class="label">Period Range:</span>
                 <span class="value" id="periodRange">-</span>
             </div>
             <div class="pay-period-detail">
-                <span class="label">📋 Timesheet Due:</span>
+                <span class="label">Timesheet Due:</span>
                 <span class="value" id="timesheetDue">-</span>
             </div>
             <div class="pay-period-detail">
-                <span class="label">💰 Pay Day:</span>
+                <span class="label">Pay Day:</span>
                 <span class="value" id="payDay">-</span>
             </div>
             <div class="pay-period-detail">
-                <span class="label">⏰ Days Remaining:</span>
+                <span class="label">Days Remaining:</span>
                 <span class="value" id="daysRemaining">-</span>
             </div>
             <div class="pay-period-detail holiday-section">
-                <span class="label">🎉 Holidays:</span>
+                <span class="label">Holidays:</span>
                 <span class="value" id="periodHolidays">-</span>
                 <button class="holiday-button" id="holidayButton" onclick="showHolidaySelection()" style="display: none;">
                     Select Holidays
@@ -246,7 +218,6 @@
 
             <!-- Admin Section -->
             <div id="adminSection" class="section">
-                <!-- Hidden file input for CSV import -->
                 <input type="file" id="fileInput" accept=".csv" multiple onchange="handleFileImport(event)" style="display: none;">
                 
                 <div class="control-section">
@@ -338,120 +309,11 @@
                     </div>
                     <div class="data-content" id="dataContent">
                         <div class="no-data">
-                            <div class="no-data-icon">📂</div>
+                            <div class="no-data-icon">No Data</div>
                             <div>No timesheet data imported yet</div>
                             <div style="font-size: 1rem; margin-top: 10px; opacity: 0.7;">
                                 Click "Import Timesheets" to get started
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Developer Section -->
-            <div id="developerSection" class="section">
-                <div class="developer-welcome">
-                    <div class="developer-header">
-                        <h2 class="section-title">🛠️ Developer Console</h2>
-                        <div class="developer-badge">Philippe Addelia - CAND, LLC</div>
-                    </div>
-                    <p class="developer-subtitle">License key generation and advanced system configuration</p>
-                </div>
-
-                <div class="control-section">
-                    <div class="license-generation-section">
-                        <h2 class="section-title">License Key Generation</h2>
-                        <p class="section-subtitle">Generate license keys for customers ($49.95 per license)</p>
-                        
-                        <div class="license-form-dev">
-                            <div class="form-group-dev">
-                                <label for="customerCompanyName">Customer Company Name:</label>
-                                <input type="text" id="customerCompanyName" placeholder="Enter exact company name for customer">
-                                <small>This must match exactly what the customer will enter</small>
-                            </div>
-                            
-                            <div class="form-group-dev">
-                                <label for="customerLicenseKey">Generated License Key:</label>
-                                <input type="text" id="customerLicenseKey" readonly placeholder="License key will appear here">
-                            </div>
-                            
-                            <div class="button-group">
-                                <button class="primary-button" onclick="generateCustomerLicense()">
-                                    Generate License Key
-                                </button>
-                                <button class="secondary-button" onclick="copyCustomerLicense()" id="copyCustomerBtn" style="display: none;">
-                                    Copy to Clipboard
-                                </button>
-                                <button class="secondary-button" onclick="clearCustomerForm()">
-                                    Clear Form
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div id="licenseGenStatus" class="status-message"></div>
-                        
-                        <div class="license-instructions">
-                            <h4>Instructions for Customer:</h4>
-                            <ol>
-                                <li>Customer pays $49.95 via PayPal</li>
-                                <li>Customer provides their exact company name</li>
-                                <li>Generate license key using their company name</li>
-                                <li>Send both the company name and license key to customer</li>
-                                <li>Customer enters both in their application settings</li>
-                            </ol>
-                        </div>
-                    </div>
-
-                    <div class="system-info-section">
-                        <h2 class="section-title">System Information</h2>
-                        <p class="section-subtitle">Application and license management details</p>
-                        
-                        <div class="system-stats">
-                            <div class="stat-card dev">
-                                <div class="stat-value" id="devTotalLicenses">0</div>
-                                <div class="stat-label">Licenses Generated</div>
-                            </div>
-                            <div class="stat-card dev">
-                                <div class="stat-value" id="devActiveLicenses">0</div>
-                                <div class="stat-label">Active Licenses</div>
-                            </div>
-                            <div class="stat-card dev">
-                                <div class="stat-value">v1.1.10.6</div>
-                                <div class="stat-label">App Version</div>
-                            </div>
-                            <div class="stat-card dev">
-                                <div class="stat-value" id="devAccessCount">1</div>
-                                <div class="stat-label">Dev Access Count</div>
-                            </div>
-                        </div>
-                        
-                        <div class="button-group">
-                            <button class="secondary-button" onclick="showSystemLogs()">
-                                View System Logs
-                            </button>
-                            <button class="secondary-button" onclick="exportLicenseData()">
-                                Export License Data
-                            </button>
-                            <button class="secondary-button" onclick="resetDeveloperStats()">
-                                Reset Statistics
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="developer-actions">
-                    <div class="action-group">
-                        <h3>Quick Actions</h3>
-                        <div class="button-group">
-                            <button class="primary-button" onclick="testLicenseValidation()">
-                                Test License Validation
-                            </button>
-                            <button class="secondary-button" onclick="viewApplicationLogs()">
-                                View Application Logs
-                            </button>
-                            <button class="secondary-button" onclick="exportDeveloperReport()">
-                                Export Developer Report
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -499,76 +361,34 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Developer Authentication Section -->
-            <div id="developerAuthentication" class="section">
-                <div class="developer-auth-section">
-                    <div class="auth-content">
-                        <h3>🔐 Developer Authentication</h3>
-                        <p>You have accessed the developer portal. Please authenticate to continue.</p>
-                        
-                        <div class="auth-form">
-                            <div class="form-group">
-                                <label for="devPassword">Developer Access Code:</label>
-                                <input type="password" id="devPassword" placeholder="Enter developer access code">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="devConfirmation">Confirmation Token:</label>
-                                <input type="text" id="devConfirmation" placeholder="Enter confirmation token">
-                            </div>
-                        </div>
-                        
-                        <div id="devAuthStatus" class="status-message"></div>
-                        
-                        <div class="button-group" style="margin-top: 20px;">
-                            <button class="btn btn-primary" onclick="authenticateDeveloper()">
-                                Authenticate
-                            </button>
-                            <button class="btn btn-secondary" onclick="exitToEmployee()">
-                                Return to Employee Mode
-                            </button>
-                        </div>
-                        
-                        <div class="auth-help">
-                            <small>
-                                <strong>Having trouble?</strong><br>
-                                Only Philippe Addelia (CAND, LLC) has access to this section.<br>
-                                Contact support if you believe this is an error.
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div class="footer">
-            <p class="credits">Time Tracker v1.1.10.6 | Created August 24 2025 | Modified August 30 2025 | © CAND, LLC</p>
+            <p class="credits">Time Tracker v1.1.10.6 | Created August 24 2025 | Modified August 30 2025 | Copyright CAND, LLC</p>
         </div>
     </div>
 
-    <!-- License Watermark (Hidden for licensed users) -->
+    <!-- License Watermark -->
     <div class="license-watermark" id="licenseWatermark" onclick="showLicenseModal()">
         <span id="watermarkText">Powered by CAND, LLC - Unlicensed</span>
     </div>
 
-    <!-- License Modal (Updated pricing) -->
+    <!-- License Modal -->
     <div class="modal" id="licenseModal">
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">Software License - $49.95</div>
             <div id="licenseContent">
                 <div class="status-message info" style="display: block;" id="licenseStatusDisplay">
-                    <strong>🔐 Free Version (Unlicensed)</strong><br>
-                    This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company branding.
+                    <strong>Free Version (Unlicensed)</strong><br>
+                    This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company name.
                 </div>
 
                 <div class="license-section">
-                    <h3><span style="margin-right: 10px;">💳</span>Purchase License - $49.95</h3>
+                    <h3>Purchase License - $49.95</h3>
                     <p style="margin-bottom: 15px;">Get a lifetime license to:</p>
                     <ul style="margin-left: 20px; margin-bottom: 15px;">
-                        <li>Remove watermark permanently</li>
+                        <li>Remove all watermarks permanently</li>
                         <li>Customize company name and branding</li>
-                        <li>Add custom company logo</li>
                         <li>Support ongoing development</li>
                         <li>One-time payment, lifetime usage</li>
                     </ul>
@@ -585,7 +405,7 @@
                 </div>
 
                 <div class="license-section" style="background: #f8f9fa; border-color: #dee2e6;">
-                    <h3><span style="margin-right: 10px;">🔑</span>Activate License</h3>
+                    <h3>Activate License</h3>
                     <p style="margin-bottom: 15px;">Enter your license details to activate:</p>
                     
                     <div class="license-form">
@@ -608,7 +428,7 @@
         </div>
     </div>
 
-    <!-- Configure App Modal (Company name behind paywall) -->
+    <!-- Configure App Modal -->
     <div class="modal" id="configureModal">
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">Application Configuration</div>
@@ -618,7 +438,7 @@
                     <span style="color: #0c5460;">These settings affect both the Admin Console AND the Employee Time Tracker in this unified application. Changes here will be reflected immediately.</span>
                 </div>
 
-                <!-- Company Settings (Behind Paywall) -->
+                <!-- Company Settings -->
                 <div style="margin-bottom: 30px;">
                     <h3 style="color: #495057; margin-bottom: 15px;">Company Settings</h3>
                     
@@ -635,26 +455,19 @@
                     
                     <!-- Unlicensed Version -->
                     <div id="companyNameUnlicensed">
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; opacity: 0.6;">
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #6c757d;">
-                                    Company Name:
-                                </label>
-                                <input type="text" value="CAND, LLC" disabled placeholder="Available for licensed software only" 
-                                       style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; background: #e9ecef; cursor: not-allowed; text-align: center;">
-                            </div>
-                            
-                            <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107; margin-bottom: 15px;">
-                                <strong style="color: #856404;">🔒 Available for Licensed Software</strong><br>
-                                <span style="color: #856404; font-size: 0.9rem;">
-                                    Purchase a license to customize your company name and branding.
-                                </span>
-                            </div>
-                            
-                            <button type="button" class="btn btn-primary" onclick="showLicenseModal()" 
-                                    style="background: #ffc107; border-color: #ffc107; color: #856404; font-weight: 600;">
-                                Purchase License - $49.95
-                            </button>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #6c757d;">
+                                Company Name:
+                            </label>
+                            <input type="text" id="companyNameInputDisabled" placeholder="Available for licensed software only" 
+                                   value="CAND, LLC" disabled
+                                   style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; background: #e9ecef; cursor: not-allowed; color: #6c757d;">
+                        </div>
+                        <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107;">
+                            <strong style="color: #856404;">Company Name Customization Locked</strong><br>
+                            <span style="color: #856404; font-size: 0.9rem;">
+                                Purchase a license to customize your company name. The default "CAND, LLC" will be displayed for all unlicensed users.
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -698,9 +511,9 @@
                         <div style="background: #e7f3ff; padding: 12px; border-radius: 6px; border-left: 4px solid #0070ba;">
                             <strong style="color: #004085;">Tips:</strong> 
                             <span style="color: #004085;">
-                                • Upload to Imgur and copy the direct image link (ends with .jpg, .png, etc.)
-                                • Maximum recommended size: 200x80 pixels
-                                • Use HTTPS URLs only
+                                Upload to Imgur and copy the direct image link (ends with .jpg, .png, etc.)
+                                Maximum recommended size: 200x80 pixels
+                                Use HTTPS URLs only
                             </span>
                         </div>
                     </div>
@@ -717,9 +530,9 @@
                             </div>
                             
                             <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107; margin-bottom: 15px;">
-                                <strong style="color: #856404;">🔒 Available for Licensed Software</strong><br>
+                                <strong style="color: #856404;">Available for Licensed Software</strong><br>
                                 <span style="color: #856404; font-size: 0.9rem;">
-                                    Purchase a license to unlock external logo hosting.
+                                    Purchase a license to unlock external logo hosting and remove watermarks.
                                 </span>
                             </div>
                             
@@ -821,7 +634,6 @@
                 </div>
             </div>
             
-            <!-- Fixed Modal Buttons -->
             <div class="modal-buttons" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
                 <button class="btn btn-success" onclick="saveConfiguration()">Save Configuration</button>
                 <button class="btn btn-danger" onclick="resetToDefaults()">Reset to Defaults</button>
@@ -888,8 +700,8 @@
     <!-- Fallback function definitions -->
     <script>
         window.toggleTimer = window.toggleTimer || function() {
-            console.error('JavaScript file not loaded properly. Please ensure time_tracker_functions.js is in the same directory.');
-            alert('JavaScript file not loaded. Please check that time_tracker_functions.js is in the same directory as this HTML file.');
+            console.error('JavaScript file not loaded properly. Please ensure time_tracker_functions_v1.1.10.6.js is in the same directory.');
+            alert('JavaScript file not loaded. Please check that time_tracker_functions_v1.1.10.6.js is in the same directory as this HTML file.');
         };
         
         window.setSelectedPayPeriod = window.setSelectedPayPeriod || function() {

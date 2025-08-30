@@ -46,86 +46,6 @@ body {
     margin-bottom: 15px;
 }
 
-/* Employee mode specific styling */
-.header-top-row.employee-mode {
-    justify-content: space-between;
-    position: relative;
-    margin-bottom: 0;
-}
-
-.header-top-row.employee-mode .logo-section {
-    flex: 0 0 auto;
-}
-
-.header-top-row.employee-mode .employee-title {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 1.6rem;
-    font-weight: 500;
-    opacity: 0.95;
-}
-
-/* Admin mode specific styling */
-.header-top-row.admin-mode {
-    justify-content: space-between;
-    position: relative;
-    margin-bottom: 0;
-}
-
-.header-top-row.admin-mode .logo-section {
-    flex: 0 0 auto;
-}
-
-.header-top-row.admin-mode .admin-title {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 1.6rem;
-    font-weight: 500;
-    opacity: 0.95;
-}
-
-.header-top-row.admin-mode .mode-indicator {
-    flex: 0 0 auto;
-}
-
-/* Developer mode specific styling */
-.header-top-row.developer-mode {
-    justify-content: space-between;
-    position: relative;
-    margin-bottom: 0;
-}
-
-.header-top-row.developer-mode .logo-section {
-    flex: 0 0 auto;
-}
-
-.header-top-row.developer-mode .developer-title {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 1.6rem;
-    font-weight: 500;
-    opacity: 0.95;
-}
-
-.header-top-row.developer-mode .mode-indicator {
-    flex: 0 0 auto;
-}
-
-/* Hide mode indicator and subtitle in employee mode */
-.employee-mode + .header-subtitle,
-.header-top-row.employee-mode .mode-indicator {
-    display: none;
-}
-
-/* Hide subtitle in admin and developer modes */
-.admin-mode + .header-subtitle,
-.developer-mode + .header-subtitle {
-    display: none;
-}
-
 .logo-section {
     display: flex;
     align-items: center;
@@ -177,14 +97,7 @@ body {
     color: white;
 }
 
-.mode-indicator.developer {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-    color: white;
-    box-shadow: 0 2px 8px rgba(238, 90, 82, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* License Watermark - v1.1.10.6 Update */
+/* License Watermark - v1.1.10.6 Update - Completely hide for licensed users */
 .license-watermark {
     position: fixed;
     bottom: 10px;
@@ -201,7 +114,6 @@ body {
     cursor: pointer;
 }
 
-/* UPDATED v1.1.10.6: Completely hide watermark for licensed users */
 .license-watermark.licensed {
     display: none !important;
 }
@@ -219,25 +131,9 @@ body {
 
 /* Section Management */
 .section {
-    display: block;
-}
-
-.section.active {
-    display: block;
-}
-
-/* Hide admin and developer sections by default */
-#adminSection,
-#developerSection,
-#developerAuthentication {
     display: none;
 }
 
-#webauthnEnrollment {
-    display: none;
-}
-
-/* Show employee section by default */
 #employeeSection {
     display: block;
 }
@@ -271,7 +167,7 @@ body {
     background: rgba(255,255,255,0.9);
 }
 
-/* Header Buttons for Admin and Developer Modes */
+/* Header Buttons */
 .header-button {
     padding: 6px 12px;
     border: none;
@@ -299,34 +195,7 @@ body {
     background: rgba(40, 167, 69, 1);
 }
 
-.header-button.generate {
-    background: rgba(255, 107, 107, 0.9);
-    color: white;
-}
-
-.header-button.generate:hover {
-    background: rgba(255, 107, 107, 1);
-}
-
-.header-button.copy {
-    background: rgba(32, 201, 151, 0.9);
-    color: white;
-}
-
-.header-button.copy:hover {
-    background: rgba(32, 201, 151, 1);
-}
-
-.header-button.secondary {
-    background: rgba(108, 117, 125, 0.9);
-    color: white;
-}
-
-.header-button.secondary:hover {
-    background: rgba(108, 117, 125, 1);
-}
-
-/* Pay Period Info - Single Row Layout */
+/* Pay Period Info */
 .pay-period-info {
     background: rgba(255,255,255,0.1);
     padding: 12px;
@@ -388,7 +257,6 @@ body {
     margin-bottom: 4px;
 }
 
-/* Holiday Button Styling */
 .holiday-button {
     background: rgba(255,193,7,0.8);
     color: #856404;
@@ -488,20 +356,6 @@ body {
     position: relative;
 }
 
-.logo-preview-status.loading::after {
-    content: '';
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 12px;
-    height: 12px;
-    border: 2px solid rgba(0, 64, 133, 0.3);
-    border-radius: 50%;
-    border-top-color: #004085;
-    animation: spin 1s ease-in-out infinite;
-}
-
 @keyframes spin {
     to { transform: translateY(-50%) rotate(360deg); }
 }
@@ -532,7 +386,6 @@ body {
     margin-bottom: 20px;
 }
 
-/* Solid green start button and solid red stop button */
 .timer-button {
     background: #28a745;
     color: white;
@@ -738,189 +591,6 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* Developer Styles */
-.developer-welcome {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-    padding: 25px;
-    border-radius: 12px;
-    color: white;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 12px rgba(238, 90, 82, 0.2);
-}
-
-.developer-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.developer-badge {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.developer-subtitle {
-    font-size: 0.95rem;
-    opacity: 0.9;
-}
-
-.license-generation-section, .system-info-section {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-    padding: 25px;
-    border-radius: 12px;
-    color: white;
-    box-shadow: 0 4px 12px rgba(238, 90, 82, 0.2);
-}
-
-.license-form-dev {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.form-group-dev {
-    margin-bottom: 15px;
-}
-
-.form-group-dev label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.form-group-dev input {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-}
-
-.form-group-dev small {
-    display: block;
-    margin-top: 5px;
-    font-size: 0.8rem;
-    opacity: 0.8;
-}
-
-.license-instructions {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 20px;
-    border-left: 4px solid rgba(255, 255, 255, 0.3);
-}
-
-.license-instructions h4 {
-    margin-bottom: 10px;
-    color: rgba(255, 255, 255, 0.95);
-}
-
-.license-instructions ol {
-    margin-left: 20px;
-    line-height: 1.5;
-}
-
-.system-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.stat-card.dev {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.stat-card.dev .stat-value {
-    color: white;
-}
-
-.stat-card.dev .stat-label {
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.developer-actions {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    margin-top: 20px;
-}
-
-.action-group h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-}
-
-/* Developer Authentication Styles */
-.developer-auth-section {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-    padding: 30px;
-    border-radius: 12px;
-    color: white;
-    box-shadow: 0 4px 12px rgba(238, 90, 82, 0.2);
-    text-align: center;
-}
-
-.auth-content h3 {
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-}
-
-.auth-form {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    text-align: left;
-}
-
-.auth-form .form-group {
-    margin-bottom: 15px;
-}
-
-.auth-form label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.auth-form input {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    background: rgba(255, 255, 255, 0.9);
-}
-
-.auth-help {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 20px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.auth-help small {
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.8);
-}
-
 .section-subtitle {
     font-size: 0.95rem;
     opacity: 0.9;
@@ -964,44 +634,6 @@ body {
     cursor: not-allowed;
 }
 
-.primary-button[style*="28a745"], 
-.primary-button[style*="20c997"] {
-    color: white !important;
-}
-
-.filter-controls {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-
-.filter-row {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    align-items: end;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.filter-group label {
-    font-size: 0.9rem;
-    color: #495057;
-    font-weight: 600;
-}
-
-.filter-group select, .filter-group input {
-    padding: 8px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
 .stats-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1026,7 +658,7 @@ body {
 
 .stat-card .stat-label {
     font-size: 0.9rem;
-    color: black;
+    color: rgba(255,255,255,0.9);
     font-weight: 600;
 }
 
@@ -1119,8 +751,9 @@ body {
 }
 
 .no-data-icon {
-    font-size: 4rem;
+    font-size: 3rem;
     margin-bottom: 20px;
+    color: #dee2e6;
 }
 
 /* Modal Styles */
@@ -1430,103 +1063,5 @@ body {
         font-size: 0.7rem;
         padding: 3px 6px;
         margin-left: 8px;
-    }
-    
-    .header-top-row.employee-mode .employee-title {
-        font-size: 1.3rem;
-        position: static;
-        transform: none;
-        text-align: center;
-        margin-top: 10px;
-        width: 100%;
-    }
-    
-    .header-top-row.employee-mode {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .header-top-row.employee-mode .logo-section {
-        margin-bottom: 10px;
-    }
-    
-    .header-top-row.employee-mode .company-name {
-        font-size: 1.5rem;
-    }
-
-    .header-top-row.admin-mode .admin-title {
-        font-size: 1.3rem;
-        position: static;
-        transform: none;
-        text-align: center;
-        margin: 10px 0;
-        width: 100%;
-        order: 2;
-    }
-    
-    .header-top-row.admin-mode {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .header-top-row.admin-mode .logo-section {
-        margin-bottom: 10px;
-        order: 1;
-    }
-    
-    .header-top-row.admin-mode .mode-indicator {
-        order: 3;
-        margin-top: 5px;
-    }
-    
-    .header-top-row.admin-mode .company-name {
-        font-size: 1.5rem;
-    }
-
-    .header-top-row.developer-mode .developer-title {
-        font-size: 1.3rem;
-        position: static;
-        transform: none;
-        text-align: center;
-        margin: 10px 0;
-        width: 100%;
-        order: 2;
-    }
-    
-    .header-top-row.developer-mode {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .header-top-row.developer-mode .logo-section {
-        margin-bottom: 10px;
-        order: 1;
-    }
-    
-    .header-top-row.developer-mode .mode-indicator {
-        order: 3;
-        margin-top: 5px;
-    }
-    
-    .header-top-row.developer-mode .company-name {
-        font-size: 1.5rem;
-    }
-
-    .developer-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-    }
-
-    .system-stats {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .license-form-dev .form-group-dev input {
-        font-size: 16px;
-    }
-
-    .auth-form input {
-        font-size: 16px;
     }
 }
