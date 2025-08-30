@@ -1,11 +1,11 @@
 /*
-Time Tracker Styles v1.1.10.2
+Time Tracker Styles v1.1.10.5
 Author: Philippe Addelia
 Company: CAND, LLC
 Created: August 25, 2025 PST
-Modified: August 29, 2025 PST
+Modified: August 30, 2025 PST
 Preferred location: Modules\Time Tracker\time_tracker_styles.css
-Purpose: Styling for Employee Time Tracker - Unified Version with 3-Tier Security
+Purpose: Styling for Employee Time Tracker - Unified Version with updated button styles
 */
 
 * {
@@ -535,30 +535,34 @@ body {
     margin-bottom: 20px;
 }
 
+/* UPDATED: Solid green start button and solid red stop button */
 .timer-button {
-    background: rgba(40, 167, 69, 0.3);
+    background: #28a745;  /* Solid green for start */
     color: white;
-    border: 2px solid rgba(40, 167, 69, 0.6);
+    border: none;
     padding: 15px 30px;
     border-radius: 25px;
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
 .timer-button:hover {
-    background: rgba(40, 167, 69, 0.4);
+    background: #218838;  /* Darker green on hover */
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
 }
 
 .timer-button.stop-state {
-    background: rgba(220, 53, 69, 0.3);
-    border-color: rgba(220, 53, 69, 0.6);
+    background: #dc3545;  /* Solid red for stop */
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
 .timer-button.stop-state:hover {
-    background: rgba(220, 53, 69, 0.4);
+    background: #c82333;  /* Darker red on hover */
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
 }
 
 .daily-counter {
@@ -608,13 +612,14 @@ body {
     font-size: 16px;
 }
 
+/* UPDATED: Project input 25% wider */
 .category-selector input {
     background: rgba(255,255,255,0.9);
     border: none;
     padding: 10px;
     border-radius: 8px;
     font-size: 16px;
-    width: 180px;
+    width: 225px;  /* Increased from 180px (25% wider) */
     flex-shrink: 0;
 }
 
@@ -1385,6 +1390,11 @@ body {
 
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+    
+    /* Mobile: Keep project input slightly smaller to fit screen */
+    .category-selector input {
+        width: 180px;  /* Slightly reduced for mobile */
     }
     
     /* Mobile Pay Period Info - Stack Vertically */
