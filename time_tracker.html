@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Employee Time Tracker v1.1.10.5</title>
+    <title id="pageTitle">Employee Time Tracker v1.1.10.6</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234facfe'><circle cx='12' cy='12' r='10' stroke='%23667eea' stroke-width='2' fill='%234facfe'/><path d='M12 6v6l4 2' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>">
-    <link rel="stylesheet" href="time_tracker_styles.css">
+    <link rel="stylesheet" href="time_tracker_styles_v1.1.10.6.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -416,7 +416,7 @@
                                 <div class="stat-label">Active Licenses</div>
                             </div>
                             <div class="stat-card dev">
-                                <div class="stat-value">v1.1.10.5</div>
+                                <div class="stat-value">v1.1.10.6</div>
                                 <div class="stat-label">App Version</div>
                             </div>
                             <div class="stat-card dev">
@@ -543,11 +543,11 @@
         </div>
 
         <div class="footer">
-            <p class="credits">Time Tracker v1.1.10.5 | Created August 24 2025 | Modified August 30 2025 | © CAND, LLC</p>
+            <p class="credits">Time Tracker v1.1.10.6 | Created August 24 2025 | Modified August 30 2025 | © CAND, LLC</p>
         </div>
     </div>
 
-    <!-- License Watermark -->
+    <!-- License Watermark (Hidden for licensed users) -->
     <div class="license-watermark" id="licenseWatermark" onclick="showLicenseModal()">
         <span id="watermarkText">Powered by CAND, LLC - Unlicensed</span>
     </div>
@@ -559,15 +559,16 @@
             <div id="licenseContent">
                 <div class="status-message info" style="display: block;" id="licenseStatusDisplay">
                     <strong>🔐 Free Version (Unlicensed)</strong><br>
-                    This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company name.
+                    This software is running in free mode with watermark display. Purchase a license to remove the watermark and customize your company branding.
                 </div>
 
                 <div class="license-section">
                     <h3><span style="margin-right: 10px;">💳</span>Purchase License - $49.95</h3>
                     <p style="margin-bottom: 15px;">Get a lifetime license to:</p>
                     <ul style="margin-left: 20px; margin-bottom: 15px;">
-                        <li>Remove all watermarks permanently</li>
+                        <li>Remove watermark permanently</li>
                         <li>Customize company name and branding</li>
+                        <li>Add custom company logo</li>
                         <li>Support ongoing development</li>
                         <li>One-time payment, lifetime usage</li>
                     </ul>
@@ -607,7 +608,7 @@
         </div>
     </div>
 
-    <!-- Configure App Modal (License generation removed) -->
+    <!-- Configure App Modal (Company name behind paywall) -->
     <div class="modal" id="configureModal">
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">Application Configuration</div>
@@ -617,15 +618,44 @@
                     <span style="color: #0c5460;">These settings affect both the Admin Console AND the Employee Time Tracker in this unified application. Changes here will be reflected immediately.</span>
                 </div>
 
-                <!-- Company Settings -->
+                <!-- Company Settings (Behind Paywall) -->
                 <div style="margin-bottom: 30px;">
                     <h3 style="color: #495057; margin-bottom: 15px;">Company Settings</h3>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">
-                            Company Name:
-                        </label>
-                        <input type="text" id="companyNameInput" placeholder="Enter company name" 
-                               style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
+                    
+                    <!-- Licensed Version -->
+                    <div id="companyNameLicensed" style="display: none;">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                                Company Name:
+                            </label>
+                            <input type="text" id="companyNameInput" placeholder="Enter company name" 
+                                   style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px;">
+                        </div>
+                    </div>
+                    
+                    <!-- Unlicensed Version -->
+                    <div id="companyNameUnlicensed">
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; opacity: 0.6;">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #6c757d;">
+                                    Company Name:
+                                </label>
+                                <input type="text" value="CAND, LLC" disabled placeholder="Available for licensed software only" 
+                                       style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; background: #e9ecef; cursor: not-allowed; text-align: center;">
+                            </div>
+                            
+                            <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107; margin-bottom: 15px;">
+                                <strong style="color: #856404;">🔒 Available for Licensed Software</strong><br>
+                                <span style="color: #856404; font-size: 0.9rem;">
+                                    Purchase a license to customize your company name and branding.
+                                </span>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" onclick="showLicenseModal()" 
+                                    style="background: #ffc107; border-color: #ffc107; color: #856404; font-weight: 600;">
+                                Purchase License - $49.95
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -689,7 +719,7 @@
                             <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107; margin-bottom: 15px;">
                                 <strong style="color: #856404;">🔒 Available for Licensed Software</strong><br>
                                 <span style="color: #856404; font-size: 0.9rem;">
-                                    Purchase a license to unlock external logo hosting and remove watermarks.
+                                    Purchase a license to unlock external logo hosting.
                                 </span>
                             </div>
                             
@@ -853,7 +883,7 @@
     </div>
 
     <!-- Load the JavaScript functions -->
-    <script src="time_tracker_functions.js"></script>
+    <script src="time_tracker_functions_v1.1.10.6.js"></script>
     
     <!-- Fallback function definitions -->
     <script>
